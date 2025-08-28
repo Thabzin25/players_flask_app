@@ -7,7 +7,9 @@ import os
 # -----------------------
 # CONFIG
 # -----------------------
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = ("mongodb+srv://thabzin25_db_user:MEjbEk05d0Ks3Muv""@players.khmqi7k.mongodb.net/Players""?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=false")
+
+
 DB_NAME = "Players"
 COLLECTION_NAME = "Players"
 
