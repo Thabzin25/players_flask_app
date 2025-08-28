@@ -1,124 +1,85 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
-from datetime import datetime
+from pymongo.errors import ServerSelectionTimeoutError
 import os
+
+app = Flask(__name__)
 
 # -----------------------
 # CONFIG
 # -----------------------
-MONGO_URI = ("mongodb+srv://thabzin25_db_user:MEjbEk05d0Ks3Muv""@players.khmqi7k.mongodb.net/Players""?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=false")
+MONGO_URI = os.environ.get("MONGO_URI")
+CA_FILE = "rds-combined-ca-bundle.pem"
 
-
-DB_NAME = "Players"
-COLLECTION_NAME = "Players"
-
-# -----------------------
-# CONNECT TO MONGO
-# -----------------------
 try:
-    client = MongoClient(MONGO_URI)
-    db = client[DB_NAME]
-    collection = db[COLLECTION_NAME]
+    client = MongoClient(
+        MONGO_URI,
+        tls=True,
+        tlsCAFile=CA_FILE,
+        serverSelectionTimeoutMS=5000
+    )
+    db = client["Players"]
+    collection = db["Players"]
+    # test connection
     client.admin.command("ping")
     print("✅ Connected to MongoDB Atlas")
-except ConnectionFailure as e:
+except ServerSelectionTimeoutError as e:
     print(f"❌ MongoDB connection failed: {e}")
-    exit(1)
+    raise e
 
 # -----------------------
-# FLASK APP
+# CRUD ENDPOINTS
 # -----------------------
-app = Flask(__name__)
 
-# -----------------------
-# READ ENDPOINTS
-# -----------------------
-@app.route("/")
-def home():
-    return "Players API is running!"
+# GET all players
+@app.route("/players", methods=["GET"])
+def get_players():
+    players = list(collection.find({}, {"_id": 0}))
+    return jsonify(players), 200
 
-@app.route("/query_players", methods=["GET"])
-def query_players():
-    """
-    Query players by name. Case-insensitive.
-    Example: /query_players?name=Relebohile
-    """
-    name = request.args.get("name", "").strip()
-    if not name:
-        return jsonify({"error": "Please provide a player name using ?name=<player_name>"}), 400
 
-    results = list(collection.find({"name": {"$regex": f"^{name}", "$options": "i"}}, {"_id": 0}))
-    if not results:
-        return jsonify({"message": "No players found"}), 404
+# GET single player by name
+@app.route("/players/<name>", methods=["GET"])
+def get_player(name):
+    player = collection.find_one({"name": name}, {"_id": 0})
+    if not player:
+        return jsonify({"error": "Player not found"}), 404
+    return jsonify(player), 200
 
-    return jsonify(results)
 
-@app.route("/all_players", methods=["GET"])
-def all_players():
-    results = list(collection.find({}, {"_id": 0}))
-    return jsonify(results)
+# CREATE new player
+@app.route("/players", methods=["POST"])
+def create_player():
+    data = request.json
+    if not data.get("name"):
+        return jsonify({"error": "Missing 'name' field"}), 400
 
-@app.route("/count_players", methods=["GET"])
-def count_players():
-    count = collection.count_documents({})
-    return jsonify({"total_players": count})
+    collection.update_one({"name": data["name"]}, {"$set": data}, upsert=True)
+    return jsonify({"message": "Player created/updated successfully"}), 201
 
-# -----------------------
-# CREATE / UPDATE ENDPOINT
-# -----------------------
-@app.route("/add_or_update_player", methods=["POST"])
-def add_or_update_player():
-    """
-    Add a new player or update existing one.
-    Expected JSON body:
-    {
-        "name": "Player Name",
-        "position": "CM",
-        "team": "Ipswich",
-        "age": 22,
-        ...
-    }
-    """
-    data = request.get_json()
-    if not data or "name" not in data:
-        return jsonify({"error": "JSON body must include 'name' field"}), 400
 
-    data["imported_at"] = datetime.utcnow()
+# UPDATE existing player
+@app.route("/players/<name>", methods=["PUT"])
+def update_player(name):
+    data = request.json
+    result = collection.update_one({"name": name}, {"$set": data})
+    if result.matched_count == 0:
+        return jsonify({"error": "Player not found"}), 404
+    return jsonify({"message": "Player updated successfully"}), 200
 
-    try:
-        result = collection.update_one(
-            {"name": data["name"]},  # match by name
-            {"$set": data},
-            upsert=True
-        )
-        if result.upserted_id:
-            return jsonify({"message": f"Player '{data['name']}' added"}), 201
-        else:
-            return jsonify({"message": f"Player '{data['name']}' updated"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
-# -----------------------
-# DELETE ENDPOINT
-# -----------------------
-@app.route("/delete_player", methods=["DELETE"])
-def delete_player():
-    """
-    Delete a player by name.
-    Example: /delete_player?name=Relebohile
-    """
-    name = request.args.get("name", "").strip()
-    if not name:
-        return jsonify({"error": "Please provide a player name using ?name=<player_name>"}), 400
-
-    result = collection.delete_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+# DELETE player
+@app.route("/players/<name>", methods=["DELETE"])
+def delete_player(name):
+    result = collection.delete_one({"name": name})
     if result.deleted_count == 0:
-        return jsonify({"message": "No player found to delete"}), 404
-    return jsonify({"message": f"Player '{name}' deleted"}), 200
+        return jsonify({"error": "Player not found"}), 404
+    return jsonify({"message": "Player deleted successfully"}), 200
+
 
 # -----------------------
 # RUN APP
 # -----------------------
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
