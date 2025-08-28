@@ -1,85 +1,80 @@
-from flask import Flask, request, jsonify
-from pymongo import MongoClient
-from pymongo.errors import ServerSelectionTimeoutError
 import os
-
-app = Flask(__name__)
+import sys
+import json
+from datetime import datetime, timezone
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # -----------------------
 # CONFIG
 # -----------------------
-MONGO_URI = os.environ.get("MONGO_URI")
-CA_FILE = "rds-combined-ca-bundle.pem"
+# Load MongoDB URI from environment variable
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    print("❌ Error: MONGO_URI environment variable not set.")
+    sys.exit(1)
 
+PLAYERS_JSON = r"C:\Users\Thabi\OneDrive\Desktop\Scrapers\players_stats.json"
+DB_NAME = "Players"
+COLLECTION_NAME = "Players"
+
+# -----------------------
+# CONNECT TO MONGO
+# -----------------------
 try:
-    client = MongoClient(
-        MONGO_URI,
-        tls=True,
-        tlsCAFile=CA_FILE,
-        serverSelectionTimeoutMS=5000
-    )
-    db = client["Players"]
-    collection = db["Players"]
+    client = MongoClient(MONGO_URI, server_api=ServerApi("1"))
+    db = client[DB_NAME]
+    collection = db[COLLECTION_NAME]
+
     # test connection
     client.admin.command("ping")
-    print("✅ Connected to MongoDB Atlas")
-except ServerSelectionTimeoutError as e:
+    print("✅ Successfully connected to MongoDB Atlas")
+
+except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
-    raise e
+    sys.exit(1)
 
 # -----------------------
-# CRUD ENDPOINTS
+# LOAD JSON FILE
 # -----------------------
+if not os.path.exists(PLAYERS_JSON):
+    print(f"⚠️ File not found: {PLAYERS_JSON}")
+    sys.exit(1)
 
-# GET all players
-@app.route("/players", methods=["GET"])
-def get_players():
-    players = list(collection.find({}, {"_id": 0}))
-    return jsonify(players), 200
+try:
+    with open(PLAYERS_JSON, "r", encoding="utf-8") as f:
+        players = json.load(f)
 
+    if not isinstance(players, list):
+        raise ValueError("JSON file must contain a list of player objects")
 
-# GET single player by name
-@app.route("/players/<name>", methods=["GET"])
-def get_player(name):
-    player = collection.find_one({"name": name}, {"_id": 0})
-    if not player:
-        return jsonify({"error": "Player not found"}), 404
-    return jsonify(player), 200
-
-
-# CREATE new player
-@app.route("/players", methods=["POST"])
-def create_player():
-    data = request.json
-    if not data.get("name"):
-        return jsonify({"error": "Missing 'name' field"}), 400
-
-    collection.update_one({"name": data["name"]}, {"$set": data}, upsert=True)
-    return jsonify({"message": "Player created/updated successfully"}), 201
-
-
-# UPDATE existing player
-@app.route("/players/<name>", methods=["PUT"])
-def update_player(name):
-    data = request.json
-    result = collection.update_one({"name": name}, {"$set": data})
-    if result.matched_count == 0:
-        return jsonify({"error": "Player not found"}), 404
-    return jsonify({"message": "Player updated successfully"}), 200
-
-
-# DELETE player
-@app.route("/players/<name>", methods=["DELETE"])
-def delete_player(name):
-    result = collection.delete_one({"name": name})
-    if result.deleted_count == 0:
-        return jsonify({"error": "Player not found"}), 404
-    return jsonify({"message": "Player deleted successfully"}), 200
-
+except Exception as e:
+    print(f"❌ Error reading JSON: {e}")
+    sys.exit(1)
 
 # -----------------------
-# RUN APP
+# NORMALIZE PLAYER NAMES
 # -----------------------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+for player in players:
+    if "name" not in player:
+        if "Player Name" in player:
+            player["name"] = player.pop("Player Name")
+        else:
+            print("⚠️ Skipping record missing both 'name' and 'Player Name':", player)
+            continue
+
+# -----------------------
+# INSERT OR UPDATE PLAYERS
+# -----------------------
+inserted, updated = 0, 0
+
+for player in players:
+    player["imported_at"] = datetime.now(timezone.utc)  # timezone-aware UTC
+
+    try:
+        result = collection.update_one(
+            {"name": player["name"]},  # match by player name
+            {"$set": player},          # update or insert all fields
+            upsert=True
+        )
+        if result.upserted
