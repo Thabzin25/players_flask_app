@@ -5,7 +5,7 @@ from pymongo.mongo_client import MongoClient
 import certifi
 
 app = Flask(__name__)
-CORS(app)  # Allow all origins (adjust if needed for production)
+CORS(app)  # Allow all origins (adjust for production)
 
 # -----------------------
 # CONFIG
@@ -34,6 +34,7 @@ except Exception as e:
 def home():
     return "Players Flask App is running!"
 
+# Fetch all players with optional filters
 @app.route("/players", methods=["GET"])
 def get_players():
     name_filter = request.args.get("name")
@@ -46,6 +47,7 @@ def get_players():
     players = list(collection.find(query, {"_id": 0}))
     return jsonify(players)
 
+# Fetch a single player
 @app.route("/players/<player_name>", methods=["GET"])
 def get_player(player_name):
     player = collection.find_one({"name": player_name}, {"_id": 0})
@@ -53,6 +55,7 @@ def get_player(player_name):
         return jsonify({"error": "Player not found"}), 404
     return jsonify(player)
 
+# Add a new player
 @app.route("/players", methods=["POST"])
 def add_player():
     data = request.json
@@ -63,6 +66,7 @@ def add_player():
     collection.insert_one(data)
     return jsonify({"message": "Player added successfully"}), 201
 
+# Update a player
 @app.route("/players/<player_name>", methods=["PUT"])
 def update_player(player_name):
     data = request.json
@@ -72,6 +76,7 @@ def update_player(player_name):
     collection.update_one({"name": player_name}, {"$set": data})
     return jsonify({"message": "Player updated successfully"})
 
+# Delete a player
 @app.route("/players/<player_name>", methods=["DELETE"])
 def delete_player(player_name):
     player = collection.find_one({"name": player_name})
@@ -79,6 +84,26 @@ def delete_player(player_name):
         return jsonify({"error": "Player not found"}), 404
     collection.delete_one({"name": player_name})
     return jsonify({"message": f"{player_name} deleted successfully"})
+
+# -----------------------
+# PLAYER REPORTS (for charts)
+# -----------------------
+@app.route("/player-reports", methods=["GET"])
+def player_reports():
+    players = list(collection.find({}, {"_id": 0, "name": 1, "position": 1, "rating": 1}))
+    
+    # Sample ratings if not present
+    for p in players:
+        if "rating" not in p:
+            p["rating"] = round(5 + 5 * os.urandom(1)[0]/255, 1)  # Random 5-10 rating
+    
+    # Count positions
+    positions_count = {}
+    for p in players:
+        pos = p.get("position", "Unknown")
+        positions_count[pos] = positions_count.get(pos, 0) + 1
+    
+    return jsonify({"players": players, "positions_count": positions_count})
 
 # -----------------------
 # RUN APP
