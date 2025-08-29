@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+import certifi
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ COLLECTION_NAME = "Players"
 # CONNECT TO MONGO
 # -----------------------
 try:
-    client = MongoClient(MONGO_URI, server_api=ServerApi("1"))
+    client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
     db = client[DB_NAME]
     collection = db[COLLECTION_NAME]
     client.admin.command("ping")
