@@ -2,13 +2,15 @@ from flask import Flask, jsonify, request
 import os
 from pymongo.mongo_client import MongoClient
 import certifi
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS so frontend can call backend
 
 # -----------------------
 # CONFIG
 # -----------------------
-MONGO_URI = os.getenv("MONGO_URI")  # Set in Render or local environment
+MONGO_URI = os.getenv("MONGO_URI")  # Set in Render Environment Variables
 DB_NAME = "Players"
 COLLECTION_NAME = "Players"
 
@@ -20,49 +22,24 @@ try:
     db = client[DB_NAME]
     collection = db[COLLECTION_NAME]
     client.admin.command("ping")
-    print("✅ Successfully connected to MongoDB Atlas")
+    print("✅ Connected to MongoDB Atlas")
 except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     raise e
 
 # -----------------------
-# FLASK ROUTES
+# ROUTES
 # -----------------------
+
 @app.route("/")
 def home():
     return "Players Flask App is running!"
 
-# GET all players with optional search/filter and pagination
+# GET all players
 @app.route("/players", methods=["GET"])
 def get_players():
-    search = request.args.get("search", "")
-    position = request.args.get("position", "")
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 10))
-
-    query = {}
-    if search:
-        query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"club": {"$regex": search, "$options": "i"}},
-            {"position": {"$regex": search, "$options": "i"}}
-        ]
-    if position:
-        query["position"] = position
-
-    total_players = collection.count_documents(query)
-    players = list(
-        collection.find(query, {"_id": 0})
-                  .skip((page - 1) * limit)
-                  .limit(limit)
-    )
-
-    return jsonify({
-        "players": players,
-        "page": page,
-        "pages": (total_players + limit - 1) // limit,
-        "total": total_players
-    })
+    players = list(collection.find({}, {"_id": 0}))
+    return jsonify(players)
 
 # GET single player
 @app.route("/players/<player_name>", methods=["GET"])
@@ -72,10 +49,10 @@ def get_player(player_name):
         return jsonify({"error": "Player not found"}), 404
     return jsonify(player)
 
-# ADD new player
+# POST - Add new player
 @app.route("/players", methods=["POST"])
 def add_player():
-    data = request.json
+    data = request.get_json()
     if not data.get("name"):
         return jsonify({"error": "Player name is required"}), 400
     if collection.find_one({"name": data["name"]}):
@@ -83,40 +60,37 @@ def add_player():
     collection.insert_one(data)
     return jsonify({"message": "Player added successfully"}), 201
 
-# UPDATE player
+# PUT - Update player
 @app.route("/players/<player_name>", methods=["PUT"])
 def update_player(player_name):
-    data = request.json
+    data = request.get_json()
     result = collection.update_one({"name": player_name}, {"$set": data})
     if result.matched_count == 0:
         return jsonify({"error": "Player not found"}), 404
     return jsonify({"message": "Player updated successfully"})
 
-# DELETE player
+# DELETE - Delete player
 @app.route("/players/<player_name>", methods=["DELETE"])
 def delete_player(player_name):
     result = collection.delete_one({"name": player_name})
     if result.deleted_count == 0:
         return jsonify({"error": "Player not found"}), 404
-    return jsonify({"message": "Player deleted successfully"})
+    return jsonify({"message": f"{player_name} deleted successfully"})
 
-# SCRAPE players (trigger scraper backend)
-@app.route("/scrape-players", methods=["POST"])
-def scrape_players():
-    data = request.json
-    league = data.get("league")
-    position = data.get("position")
+# SEARCH - server-side search
+@app.route("/players/search", methods=["GET"])
+def search_players():
+    name = request.args.get("name", "")
+    position = request.args.get("position", "")
+    club = request.args.get("club", "")
 
-    # TODO: Integrate your scraper logic here
-    # Example:
-    # new_players = scraper.fetch_players(league=league, position=position)
-    # for player in new_players:
-    #     collection.update_one({"name": player["name"]}, {"$set": player}, upsert=True)
+    query = {}
+    if name: query["name"] = {"$regex": name, "$options": "i"}
+    if position: query["position"] = position
+    if club: query["club"] = {"$regex": club, "$options": "i"}
 
-    return jsonify({"message": "Scraping completed successfully"})
+    players = list(collection.find(query, {"_id": 0}))
+    return jsonify(players)
 
-# -----------------------
-# RUN APP
-# -----------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
