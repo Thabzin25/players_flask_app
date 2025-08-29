@@ -17,7 +17,7 @@ COLLECTION_NAME = "Players"
 # CONNECT TO MONGO
 # -----------------------
 try:
-    client = MongoClient(MONGO_URI,tls=True tlsCAFile=certifi.where())
+    client = MongoClient(MONGO_URI,tls=True, tlsCAFile=certifi.where())
     db = client[DB_NAME]
     collection = db[COLLECTION_NAME]
     client.admin.command("ping")
