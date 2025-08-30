@@ -48,36 +48,48 @@ def get_players():
 
     # Transform each player to expected frontend format
     def transform_player(p):
-        # Try to get age from 'age' or calculate from 'Date'
+        # Calculate age from 'age' or 'Date'
         age = p.get("age")
         if not age and p.get("Date"):
             try:
                 year = int(str(p["Date"]).split("-")[0])
                 age = 2025 - year  # Use current year
             except Exception:
-                age = None
-        # Try to get position, fallback to 'N/A'
-        position = p.get("position", "N/A")
-        # Try to get rating from multiple possible fields
+                age = "N/A"
+        elif not age:
+            age = "N/A"
+
+        # Position
+        position = p.get("position")
+        if not position:
+            position = "N/A"
+
+        # Rating
         rating = (
             p.get("rating") or
             p.get("Rating") or
             p.get("Original Rating") or
-            p.get("Alternative Rating") or
-            None
+            p.get("Alternative Rating")
         )
-        # Try to get club/team name
+        try:
+            rating = float(rating)
+        except (TypeError, ValueError):
+            rating = "N/A"
+
+        # Club
         club = p.get("club") or p.get("Team Name") or "N/A"
-        # Try to get nationality
+
+        # Nationality
         nationality = p.get("nationality", "N/A")
-        # Notes (optional)
+
+        # Notes
         notes = p.get("notes", "")
 
         return {
             "name": p.get("name", "N/A"),
-            "age": age if age else "N/A",
+            "age": age,
             "position": position,
-            "rating": float(rating) if rating else "N/A",
+            "rating": rating,
             "club": club,
             "nationality": nationality,
             "notes": notes
