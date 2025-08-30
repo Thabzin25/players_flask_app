@@ -44,7 +44,46 @@ def get_players():
         query["name"] = {"$regex": name_filter, "$options": "i"}
     if position_filter:
         query["position"] = position_filter
-    players = list(collection.find(query, {"_id": 0}))
+    raw_players = list(collection.find(query, {"_id": 0}))
+
+    # Transform each player to expected frontend format
+    def transform_player(p):
+        # Try to get age from 'age' or calculate from 'Date'
+        age = p.get("age")
+        if not age and p.get("Date"):
+            try:
+                year = int(str(p["Date"]).split("-")[0])
+                age = 2025 - year  # Use current year
+            except Exception:
+                age = None
+        # Try to get position, fallback to 'N/A'
+        position = p.get("position", "N/A")
+        # Try to get rating from multiple possible fields
+        rating = (
+            p.get("rating") or
+            p.get("Rating") or
+            p.get("Original Rating") or
+            p.get("Alternative Rating") or
+            None
+        )
+        # Try to get club/team name
+        club = p.get("club") or p.get("Team Name") or "N/A"
+        # Try to get nationality
+        nationality = p.get("nationality", "N/A")
+        # Notes (optional)
+        notes = p.get("notes", "")
+
+        return {
+            "name": p.get("name", "N/A"),
+            "age": age if age else "N/A",
+            "position": position,
+            "rating": float(rating) if rating else "N/A",
+            "club": club,
+            "nationality": nationality,
+            "notes": notes
+        }
+
+    players = [transform_player(p) for p in raw_players]
     return jsonify(players)
 
 # Fetch a single player
