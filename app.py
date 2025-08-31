@@ -12,7 +12,6 @@ CORS(app)  # Allow all origins (adjust for production)
 # -----------------------
 MONGO_URI = os.getenv("MONGO_URI")  # Set in Render secrets
 DB_NAME = "Players"
-COLLECTION_NAME = "Players"
 
 # -----------------------
 # CONNECT TO MONGO
@@ -20,7 +19,12 @@ COLLECTION_NAME = "Players"
 try:
     client = MongoClient(MONGO_URI, tls=True, tlsCAFile=certifi.where())
     db = client[DB_NAME]
-    collection = db[COLLECTION_NAME]
+
+    # Collections
+    players_collection = db["Players"]
+    scouts_collection = db["Scouts"]
+    clubs_collection = db["Clubs"]
+
     client.admin.command("ping")
     print("✅ Successfully connected to MongoDB Atlas")
 except Exception as e:
@@ -32,9 +36,11 @@ except Exception as e:
 # -----------------------
 @app.route("/")
 def home():
-    return "Players Flask App is running!"
+    return "⚽ Players, Scouts & Clubs Flask App is running!"
 
-# Fetch all players with optional filters
+# ==================================================
+# PLAYERS ROUTES
+# ==================================================
 @app.route("/players", methods=["GET"])
 def get_players():
     name_filter = request.args.get("name")
@@ -44,27 +50,20 @@ def get_players():
         query["name"] = {"$regex": name_filter, "$options": "i"}
     if position_filter:
         query["position"] = position_filter
-    raw_players = list(collection.find(query, {"_id": 0}))
+    raw_players = list(players_collection.find(query, {"_id": 0}))
 
-    # Transform each player to expected frontend format
     def transform_player(p):
-        # Calculate age from 'age' or 'Date'
         age = p.get("age")
         if not age and p.get("Date"):
             try:
                 year = int(str(p["Date"]).split("-")[0])
-                age = 2025 - year  # Use current year
+                age = 2025 - year
             except Exception:
                 age = "N/A"
         elif not age:
             age = "N/A"
 
-        # Position
-        position = p.get("position")
-        if not position:
-            position = "N/A"
-
-        # Rating
+        position = p.get("position", "N/A")
         rating = (
             p.get("rating") or
             p.get("Rating") or
@@ -76,13 +75,8 @@ def get_players():
         except (TypeError, ValueError):
             rating = "N/A"
 
-        # Club
         club = p.get("club") or p.get("Team Name") or "N/A"
-
-        # Nationality
         nationality = p.get("nationality", "N/A")
-
-        # Notes
         notes = p.get("notes", "")
 
         return {
@@ -98,63 +92,150 @@ def get_players():
     players = [transform_player(p) for p in raw_players]
     return jsonify(players)
 
-# Fetch a single player
+
 @app.route("/players/<player_name>", methods=["GET"])
 def get_player(player_name):
-    player = collection.find_one({"name": player_name}, {"_id": 0})
+    player = players_collection.find_one({"name": player_name}, {"_id": 0})
     if not player:
         return jsonify({"error": "Player not found"}), 404
     return jsonify(player)
 
-# Add a new player
+
 @app.route("/players", methods=["POST"])
 def add_player():
     data = request.json
     if not data.get("name") or not data.get("age") or not data.get("position"):
         return jsonify({"error": "Name, age, and position are required"}), 400
-    if collection.find_one({"name": data["name"]}):
+    if players_collection.find_one({"name": data["name"]}):
         return jsonify({"error": "Player with this name already exists"}), 400
-    collection.insert_one(data)
+    players_collection.insert_one(data)
     return jsonify({"message": "Player added successfully"}), 201
 
-# Update a player
+
 @app.route("/players/<player_name>", methods=["PUT"])
 def update_player(player_name):
     data = request.json
-    player = collection.find_one({"name": player_name})
+    player = players_collection.find_one({"name": player_name})
     if not player:
         return jsonify({"error": "Player not found"}), 404
-    collection.update_one({"name": player_name}, {"$set": data})
+    players_collection.update_one({"name": player_name}, {"$set": data})
     return jsonify({"message": "Player updated successfully"})
 
-# Delete a player
+
 @app.route("/players/<player_name>", methods=["DELETE"])
 def delete_player(player_name):
-    player = collection.find_one({"name": player_name})
+    player = players_collection.find_one({"name": player_name})
     if not player:
         return jsonify({"error": "Player not found"}), 404
-    collection.delete_one({"name": player_name})
+    players_collection.delete_one({"name": player_name})
     return jsonify({"message": f"{player_name} deleted successfully"})
 
-# -----------------------
-# PLAYER REPORTS (for charts)
-# -----------------------
+
 @app.route("/player-reports", methods=["GET"])
 def player_reports():
-    players = list(collection.find({}, {"_id": 0, "name": 1, "position": 1, "rating": 1}))
-    
-    # Sample ratings if not present
+    players = list(players_collection.find({}, {"_id": 0, "name": 1, "position": 1, "rating": 1}))
     for p in players:
         if "rating" not in p:
-            p["rating"] = round(5 + 5 * os.urandom(1)[0]/255, 1)  # Random 5-10 rating
-    
-    # Count positions
+            p["rating"] = round(5 + 5 * os.urandom(1)[0]/255, 1)
+
     positions_count = {}
     for p in players:
         pos = p.get("position", "Unknown")
         positions_count[pos] = positions_count.get(pos, 0) + 1
-    
+
     return jsonify({"players": players, "positions_count": positions_count})
+
+# ==================================================
+# SCOUTS ROUTES
+# ==================================================
+@app.route("/scouts", methods=["GET"])
+def get_scouts():
+    scouts = list(scouts_collection.find({}, {"_id": 0}))
+    return jsonify(scouts)
+
+
+@app.route("/scouts/<scout_name>", methods=["GET"])
+def get_scout(scout_name):
+    scout = scouts_collection.find_one({"name": scout_name}, {"_id": 0})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    return jsonify(scout)
+
+
+@app.route("/scouts", methods=["POST"])
+def add_scout():
+    data = request.json
+    if not data.get("name") or not data.get("region"):
+        return jsonify({"error": "Scout name and region are required"}), 400
+    if scouts_collection.find_one({"name": data["name"]}):
+        return jsonify({"error": "Scout with this name already exists"}), 400
+    scouts_collection.insert_one(data)
+    return jsonify({"message": "Scout added successfully"}), 201
+
+
+@app.route("/scouts/<scout_name>", methods=["PUT"])
+def update_scout(scout_name):
+    data = request.json
+    scout = scouts_collection.find_one({"name": scout_name})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    scouts_collection.update_one({"name": scout_name}, {"$set": data})
+    return jsonify({"message": "Scout updated successfully"})
+
+
+@app.route("/scouts/<scout_name>", methods=["DELETE"])
+def delete_scout(scout_name):
+    scout = scouts_collection.find_one({"name": scout_name})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    scouts_collection.delete_one({"name": scout_name})
+    return jsonify({"message": f"{scout_name} deleted successfully"})
+
+# ==================================================
+# CLUBS ROUTES
+# ==================================================
+@app.route("/clubs", methods=["GET"])
+def get_clubs():
+    clubs = list(clubs_collection.find({}, {"_id": 0}))
+    return jsonify(clubs)
+
+
+@app.route("/clubs/<club_name>", methods=["GET"])
+def get_club(club_name):
+    club = clubs_collection.find_one({"name": club_name}, {"_id": 0})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    return jsonify(club)
+
+
+@app.route("/clubs", methods=["POST"])
+def add_club():
+    data = request.json
+    if not data.get("name") or not data.get("league"):
+        return jsonify({"error": "Club name and league are required"}), 400
+    if clubs_collection.find_one({"name": data["name"]}):
+        return jsonify({"error": "Club with this name already exists"}), 400
+    clubs_collection.insert_one(data)
+    return jsonify({"message": "Club added successfully"}), 201
+
+
+@app.route("/clubs/<club_name>", methods=["PUT"])
+def update_club(club_name):
+    data = request.json
+    club = clubs_collection.find_one({"name": club_name})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    clubs_collection.update_one({"name": club_name}, {"$set": data})
+    return jsonify({"message": "Club updated successfully"})
+
+
+@app.route("/clubs/<club_name>", methods=["DELETE"])
+def delete_club(club_name):
+    club = clubs_collection.find_one({"name": club_name})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    clubs_collection.delete_one({"name": club_name})
+    return jsonify({"message": f"{club_name} deleted successfully"})
 
 # -----------------------
 # RUN APP
