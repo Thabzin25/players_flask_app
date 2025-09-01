@@ -69,6 +69,31 @@
             padding: 0 2rem;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
         .logo {
             display: flex;
             align-items: center;
@@ -798,6 +823,11 @@
                 flex-direction: column;
                 gap: 1rem;
             }
+            
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
@@ -805,9 +835,15 @@
     <!-- Header with Navigation -->
     <header>
         <div class="top-bar">
-            <div class="logo">
-                <i class="fas fa-futbol"></i>
-                <span>ScoutPro Help Desk</span>
+            <div class="header-left">
+                <a href="index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+                <div class="logo">
+                    <i class="fas fa-futbol"></i>
+                    <span>ScoutPro Help Desk</span>
+                </div>
             </div>
             <nav>
                 <ul>
