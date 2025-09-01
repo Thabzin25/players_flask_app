@@ -63,26 +63,23 @@ def home():
 # ==================================================
 # PLAYERS ROUTES
 # ==================================================
+# ==================================================
+# PLAYERS ROUTES
+# ==================================================
 @app.route("/players", methods=["GET"])
 def get_players():
     name_filter = request.args.get("name")
     position_filter = request.args.get("position")
-    page = int(request.args.get("page", 1))   # default page = 1
-    limit = int(request.args.get("limit", 50))  # default limit = 50
-    limit = min(limit, 100)  # hard cap = 100
-    skip = (page - 1) * limit
 
+    # Build query
     query = {}
     if name_filter:
         query["name"] = {"$regex": name_filter, "$options": "i"}
     if position_filter:
         query["position"] = position_filter
 
-    total_players = players_collection.count_documents(query)
-
-    raw_players = list(
-        players_collection.find(query, {"_id": 0}).skip(skip).limit(limit)
-    )
+    # Fetch all matching players from MongoDB
+    raw_players = list(players_collection.find(query, {"_id": 0}))
 
     def transform_player(p):
         # --- Age ---
@@ -113,7 +110,7 @@ def get_players():
         try:
             rating = float(rating)
         except (TypeError, ValueError):
-            rating = "N/A"
+            rating = 0  # Default to 0 for frontend
 
         # --- Club & Nationality ---
         club = p.get("club") or p.get("Team Name") or "N/A"
@@ -135,12 +132,10 @@ def get_players():
     players = [transform_player(p) for p in raw_players]
 
     return jsonify({
-        "page": page,
-        "limit": limit,
-        "total_players": total_players,
-        "total_pages": (total_players + limit - 1) // limit,
+        "total_players": len(players),
         "players": players
     })
+
 
 @app.route("/players/<player_name>", methods=["GET"])
 def get_player(player_name):
