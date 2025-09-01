@@ -23,6 +23,9 @@ DB_NAME = "Players"
 # -----------------------
 # CONNECT TO MONGO
 # -----------------------
+# -----------------------
+# CONNECT TO MONGO
+# -----------------------
 try:
     client = MongoClient(MONGO_URI, tls=True, tlsCAFile=certifi.where())
     db = client[DB_NAME]
@@ -31,19 +34,30 @@ try:
     players_collection = db["Players"]
     scouts_collection = db["Scouts"]
     clubs_collection = db["Clubs"]
-    
-    # Create indexes for faster queries
-    players_collection.create_index([("name", ASCENDING)])
-    players_collection.create_index([("position", ASCENDING)])
-    players_collection.create_index([("rating", DESCENDING)])
-    scouts_collection.create_index([("name", ASCENDING)])
-    clubs_collection.create_index([("name", ASCENDING)])
+
+    # Safely create indexes only if they don't exist
+    existing_indexes = players_collection.index_information()
+    if "name_1" not in existing_indexes:
+        players_collection.create_index([("name", ASCENDING)], name="name_1")
+    if "position_1" not in existing_indexes:
+        players_collection.create_index([("position", ASCENDING)], name="position_1")
+    if "rating_-1" not in existing_indexes:
+        players_collection.create_index([("rating", DESCENDING)], name="rating_-1")
+
+    existing_indexes = scouts_collection.index_information()
+    if "name_1" not in existing_indexes:
+        scouts_collection.create_index([("name", ASCENDING)], name="name_1")
+
+    existing_indexes = clubs_collection.index_information()
+    if "name_1" not in existing_indexes:
+        clubs_collection.create_index([("name", ASCENDING)], name="name_1")
 
     client.admin.command("ping")
     print("✅ Successfully connected to MongoDB Atlas")
 except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     raise e
+
 
 # -----------------------
 # UTIL FUNCTIONS
