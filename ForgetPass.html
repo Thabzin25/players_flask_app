@@ -470,7 +470,6 @@
         let currentStep = 1;
         let userEmail = '';
         let countdownInterval;
-        let verificationCode = '';
 
         // Update progress bar based on current step
         function updateProgressBar() {
@@ -528,13 +527,8 @@
             return re.test(email);
         }
 
-        // Generate a random 6-digit code
-        function generateVerificationCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        // Send password reset link with actual email API
-        async function sendResetLink() {
+        // Send password reset link
+        function sendResetLink() {
             const email = document.getElementById('email').value.trim();
             
             if (!email) {
@@ -551,83 +545,30 @@
             userEmail = email;
             document.getElementById('userEmail').textContent = email;
             
-            // Generate verification code
-            verificationCode = generateVerificationCode();
-            
+            // Simulate sending email (in a real application, this would call an API)
+            // This is just a simulation for demonstration purposes
+            simulateEmailSending();
+        }
+
+        // Simulate sending email
+        function simulateEmailSending() {
             // Show loading state
             const btn = document.querySelector('#step1 .btn');
             const originalText = btn.textContent;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             btn.disabled = true;
             
-            try {
-                // Send email using Mailtrap API
-                const response = await sendEmailViaMailtrap(email, verificationCode);
-                
-                if (response.success) {
-                    // Move to next step
-                    nextStep();
-                    
-                    // Start countdown timer
-                    startCountdown(600); // 10 minutes
-                } else {
-                    showError('Failed to send email. Please try again.');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error('Error sending email:', error);
-                showError('Failed to send email. Please try again.');
+            // Simulate network request
+            setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }
-        }
-
-        // Send email using Mailtrap API
-        async function sendEmailViaMailtrap(email, code) {
-            // Replace with your actual Mailtrap API token
-            const API_TOKEN = 'YOUR_MAILTRAP_API_TOKEN';
-            const MAILTRAP_URL = 'https://send.api.mailtrap.io/api/send';
-            
-            const emailData = {
-                from: { email: 'noreply@scoutpro.com', name: 'ScoutPro Support' },
-                to: [{ email: email }],
-                subject: 'ScoutPro Password Reset Verification Code',
-                text: `Your password reset verification code is: ${code}. This code will expire in 10 minutes.`,
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #333;">Password Reset Request</h2>
-                        <p>You requested to reset your password for your ScoutPro account.</p>
-                        <p>Your verification code is: <strong style="font-size: 24px; color: #000;">${code}</strong></p>
-                        <p>This code will expire in 10 minutes for security reasons.</p>
-                        <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
-                        <br>
-                        <p>Best regards,<br>ScoutPro Team</p>
-                    </div>
-                `,
-                category: 'Password Reset'
-            };
-            
-            try {
-                const response = await fetch(MAILTRAP_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(emailData)
-                });
                 
-                if (response.ok) {
-                    return { success: true, message: 'Email sent successfully' };
-                } else {
-                    const errorData = await response.json();
-                    return { success: false, message: errorData.message || 'Failed to send email' };
-                }
-            } catch (error) {
-                console.error('Error sending email:', error);
-                return { success: false, message: 'Network error occurred' };
-            }
+                // Move to next step
+                nextStep();
+                
+                // Start countdown timer
+                startCountdown(600); // 10 minutes
+            }, 2000);
         }
 
         // Start countdown timer
@@ -646,6 +587,8 @@
                 if (remaining <= 0) {
                     clearInterval(countdownInterval);
                     showError('Verification code has expired. Please request a new one.');
+                    // Optionally move back to step 1
+                    // prevStep();
                 }
             }, 1000);
             
@@ -665,57 +608,40 @@
                 return;
             }
             
-            if (code !== verificationCode) {
-                showError('Invalid verification code. Please try again.');
-                return;
-            }
-            
-            // Code is valid, move to next step
+            // In a real application, this would verify the code with the server
+            // For demonstration, we'll assume any 6-digit code is valid
             nextStep();
             clearInterval(countdownInterval);
         }
 
         // Resend verification code
-        async function resendCode() {
-            // Show loading state
+        function resendCode() {
+            // Simulate resending code
             const btn = document.querySelector('#step2 .btn.btn-secondary');
             const originalText = btn.textContent;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
             btn.disabled = true;
             
-            try {
-                // Generate new verification code
-                verificationCode = generateVerificationCode();
-                
-                // Resend email
-                const response = await sendEmailViaMailtrap(userEmail, verificationCode);
-                
-                if (response.success) {
-                    // Restart countdown
-                    startCountdown(600);
-                    
-                    // Show success message
-                    const errorElement = document.querySelector('.error-message');
-                    document.getElementById('errorText').textContent = 'New verification code sent!';
-                    errorElement.style.background = 'rgba(76, 175, 80, 0.1)';
-                    errorElement.style.borderLeftColor = 'var(--success)';
-                    errorElement.style.display = 'flex';
-                    
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                        errorElement.style.background = 'rgba(244, 67, 54, 0.1)';
-                        errorElement.style.borderLeftColor = 'var(--error)';
-                    }, 3000);
-                } else {
-                    showError('Failed to resend code. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error resending email:', error);
-                showError('Failed to resend code. Please try again.');
-            } finally {
+            setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }
+                
+                // Restart countdown
+                startCountdown(600);
+                
+                // Show success message
+                const errorElement = document.querySelector('.error-message');
+                document.getElementById('errorText').textContent = 'New verification code sent!';
+                errorElement.style.background = 'rgba(76, 175, 80, 0.1)';
+                errorElement.style.borderLeftColor = 'var(--success)';
+                errorElement.style.display = 'flex';
+                
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                    errorElement.style.background = 'rgba(244, 67, 54, 0.1)';
+                    errorElement.style.borderLeftColor = 'var(--error)';
+                }, 3000);
+            }, 1500);
         }
 
         // Check password strength
@@ -823,13 +749,12 @@
             }
             
             // In a real application, this would send the new password to the server
-            // Show loading state
+            // Simulate API call
             const btn = document.querySelector('#step3 .btn');
             const originalText = btn.textContent;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
             btn.disabled = true;
             
-            // Simulate API call
             setTimeout(() => {
                 nextStep();
             }, 1500);
