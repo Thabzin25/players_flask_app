@@ -23,9 +23,6 @@ DB_NAME = "Players"
 # -----------------------
 # CONNECT TO MONGO
 # -----------------------
-# -----------------------
-# CONNECT TO MONGO
-# -----------------------
 try:
     client = MongoClient(MONGO_URI, tls=True, tlsCAFile=certifi.where())
     db = client[DB_NAME]
@@ -35,29 +32,29 @@ try:
     scouts_collection = db["Scouts"]
     clubs_collection = db["Clubs"]
 
-    # Safely create indexes only if they don't exist
-    existing_indexes = players_collection.index_information()
-    if "name_1" not in existing_indexes:
-        players_collection.create_index([("name", ASCENDING)], name="name_1")
-    if "position_1" not in existing_indexes:
-        players_collection.create_index([("position", ASCENDING)], name="position_1")
-    if "rating_-1" not in existing_indexes:
-        players_collection.create_index([("rating", DESCENDING)], name="rating_-1")
+    # Safely create indexes for players
+    def ensure_index(collection, field, direction=ASCENDING):
+        try:
+            collection.create_index([(field, direction)])
+        except Exception as e:
+            # Ignore if index exists with different name
+            if "IndexOptionsConflict" in str(e):
+                print(f"⚠️ Index on '{field}' already exists, skipping.")
+            else:
+                raise e
 
-    existing_indexes = scouts_collection.index_information()
-    if "name_1" not in existing_indexes:
-        scouts_collection.create_index([("name", ASCENDING)], name="name_1")
+    ensure_index(players_collection, "name")
+    ensure_index(players_collection, "position")
+    ensure_index(players_collection, "rating", DESCENDING)
 
-    existing_indexes = clubs_collection.index_information()
-    if "name_1" not in existing_indexes:
-        clubs_collection.create_index([("name", ASCENDING)], name="name_1")
+    ensure_index(scouts_collection, "name")
+    ensure_index(clubs_collection, "name")
 
     client.admin.command("ping")
     print("✅ Successfully connected to MongoDB Atlas")
 except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     raise e
-
 
 # -----------------------
 # UTIL FUNCTIONS
