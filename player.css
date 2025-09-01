@@ -1,0 +1,398 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Body */
+body {
+  background: #f0f2f5;
+  color: #333;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Dark theme */
+body.dark {
+  background: #18191a;
+  color: #e4e6eb;
+}
+
+/* Profile Page Layout */
+.profile-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: #fff;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+  transition: color 0.3s;
+}
+
+body.dark .sidebar {
+  background: #242526;
+}
+
+body.dark .sidebar button {
+  color: #e4e6eb;
+}
+
+/* Menu */
+.menu {
+  list-style: none;
+  flex-grow: 1;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #f0f2f5;
+}
+
+body.dark .menu-item:hover {
+  background: #3a3b3c;
+}
+
+.menu-item i {
+  font-size: 1.2rem;
+}
+
+.menu-text {
+  display: inline-block;
+  transition: opacity 0.3s;
+}
+
+.sidebar.collapsed .menu-text {
+  opacity: 0;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  align-self: center;
+  margin-top: auto;
+  font-size: 1.5rem;
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Cards */
+.profile-card, .stats-card, .achievements-card, .activity-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: background 0.3s;
+}
+
+body.dark .profile-card,
+body.dark .stats-card,
+body.dark .achievements-card,
+body.dark .activity-card {
+  background: #242526;
+}
+
+/* Profile Photo */
+.profile-photo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profile-photo img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #007bff;
+}
+
+.profile-photo input {
+  cursor: pointer;
+}
+
+/* Form */
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+form input, form select {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+form input:focus, form select:focus {
+  border-color: #007bff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn, .delete-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.save-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #0056b3;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background: #a71d2a;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.stat-item h3 {
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+body.dark .progress-bar {
+  background: #3a3b3c;
+}
+
+.progress {
+  height: 100%;
+  background: #007bff;
+  width: 0;
+  border-radius: 10px;
+  transition: width 1s;
+}
+
+/* Badges */
+.badges {
+  display: flex;
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+.badge {
+  background: #007bff;
+  color: #fff;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.badge:hover {
+  transform: scale(1.2);
+  background: #0056b3;
+}
+
+/* Activity Feed */
+.activity-card ul {
+  list-style: none;
+}
+
+.activity-card li {
+  margin-bottom: 10px;
+}
+
+.activity-card li span {
+  color: gray;
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media(max-width: 768px){
+  .profile-page {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .sidebar.collapsed {
+    width: 100%;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .menu-item {
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+}
+/* Top Bar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Profile Menu */
+.profile-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-menu img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  transition: transform 0.2s;
+}
+
+.profile-menu img:hover {
+  transform: scale(1.1);
+}
+
+/* Dropdown */
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 60px;
+  width: 220px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  padding: 1rem;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+body.dark .dropdown {
+  background: #242526;
+}
+
+.profile-menu.active .dropdown {
+  display: block;
+}
+
+.dropdown label.upload-photo {
+  display: block;
+  background: #007bff;
+  color: #fff;
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.dropdown .user-info p {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.dropdown button {
+  width: 100%;
+  padding: 8px 0;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dropdown .delete-account {
+  background: #dc3545;
+  color: #fff;
+}
+
+.dropdown .delete-account:hover {
+  background: #a71d2a;
+}
+
+.dropdown .logout-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+.dropdown .logout-btn:hover {
+  background: #0056b3;
+}

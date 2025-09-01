@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Subscription Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .status-active {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+        
+        .status-inactive {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger);
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons .btn {
+            flex: 1;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f7f9fc;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .payment-icon {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 250px;
+            background: var(--secondary);
+            color: white;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .menu-title {
+            font-size: 1.2rem;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .sidebar nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 200px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="menu-title">Menu</h2>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav>
+            <a href="#" class="active" title="Overview">
+                <i class="fas fa-home"></i> <span>Overview</span>
+            </a>
+            <a href="Club-Subscription.html" title="Subscription">
+                <i class="fas fa-credit-card"></i> <span>Subscription</span>
+            </a>
+            <a href="Club-analytics.html" title="Analytics">
+                <i class="fas fa-chart-line"></i> <span>Analytics</span>
+            </a>
+            <a href="Club-Reports.html" title="Player Reports">
+                <i class="fas fa-clipboard-list"></i> <span>Player Reports</span>
+            </a>
+            <a href="Club-Export-Center.html" title="Export Center">
+                <i class="fas fa-file-export"></i> <span>Export Center</span>
+            </a>
+            <a href="Club-Settings.html" title="Settings">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+            </a>
+            <a href="#" title="Logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="container">
+            <button class="toggle-btn" onclick="toggleSidebar()" style="position: absolute; left: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 5px; padding: 8px 12px;">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <i class="fas fa-users"></i>
+            </div>
+            <h1>Club Subscription Management</h1>
+            <p class="subtitle">Manage your club's subscription, view payment history, and update billing information</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title">Subscription Overview</h2>
+                <span id="status-badge" class="status-badge status-active">Active</span>
+                <div class="detail-item">
+                    <span class="detail-label">Plan</span>
+                    <span id="plan-value" class="detail-value">Premium Club</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Billing Cycle</span>
+                    <span id="billing-cycle-value" class="detail-value">Monthly</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Monthly Price</span>
+                    <span id="price-value" class="detail-value">$49.99</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Next Billing Date</span>
+                    <span id="next-billing-value" class="detail-value">Aug 15, 2023</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="openModal('changePlanModal')">
+                        <i class="fas fa-sync-alt"></i> Change Plan
+                    </button>
+                    <button class="btn btn-danger" onclick="openModal('cancelModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Payment History</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-history-body">
+                        <!-- Payment history will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Payment Methods</h2>
+            <div id="payment-methods-container">
+                <!-- Payment methods will be populated by JavaScript -->
+            </div>
+            <button class="btn btn-success" onclick="openModal('addPaymentMethodModal')" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i> Add Payment Method
+            </button>
+        </div>
+    </div>
+
+    <!-- Cancel Subscription Modal -->
+    <div class="modal" id="cancelModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Cancel Subscription</h3>
+            <p>Are you sure you want to cancel your subscription? Your club will lose access to premium features at the end of the current billing period.</p>
+            <div class="form-group">
+                <label for="cancelReason">Reason for cancellation (optional)</label>
+                <select id="cancelReason">
+                    <option value="">Select a reason</option>
+                    <option value="tooExpensive">Too expensive</option>
+                    <option value="missingFeatures">Missing features</option>
+                    <option value="notUsing">Not using the service</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal('cancelModal')">Go Back</button>
+                <button class="btn btn-danger" onclick="cancelSubscription()">Cancel Subscription</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Plan Modal -->
+    <div class="modal" id="changePlanModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Change Subscription Plan</h3>
+            <div class="form-group">
+                <label for="newPlan">Select a new plan</label>
+                <select id="newPlan">
+                    <option value="basic">Basic Club - $19.99/month</option>
+                    <option value="premium" selected>Premium Club - $49.99/month</option>
+                    <option value="enterprise">Enterprise Club - $99.99/month</option>
+                </select>
+            </div>
+            <p>Your plan change will take effect immediately. Any prorated charges or credits will be applied to your next bill.</p>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal('changePlanModal')">Cancel</button>
+                <button class="btn btn-success" onclick="changePlan()">Change Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Payment Method Modal -->
+    <div class="modal" id="addPaymentMethodModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Add Payment Method</h3>
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+            </div>
+            <div class="form-group">
+                <label for="cardHolder">Card Holder Name</label>
+                <input type="text" id="cardHolder" placeholder="John Doe">
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date</label>
+                    <input type="text" id="expiryDate" placeholder="MM/YY">
+                </div>
+                <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" placeholder="123">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal('addPaymentMethodModal')">Cancel</button>
+                <button class="btn btn-success" onclick="addPaymentMethod()">Add Payment Method</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Club Subscription Management System | <a href="#" style="color: var(--primary);">Privacy Policy</a> | <a href="#" style="color: var(--primary);">Terms of Service</a></p>
+            <p>Need help? Contact support at support@clubsubscription.com</p>
+        </div>
+    </footer>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let subscriptionData = null;
+        let paymentMethods = [];
+        let paymentHistory = [];
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadUserData();
+            loadSubscriptionData();
+            loadPaymentMethods();
+            loadPaymentHistory();
+        });
+
+        // Authentication functions
+        function checkAuth() {
+            // In a real app, this would verify with the server
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // For demo purposes, we'll just set a mock user
+            currentUser = {
+                id: 1,
+                name: 'Demo Club',
+                email: 'demo@club.com'
+            };
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+
+        // Data loading functions
+        async function loadUserData() {
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/user');
+                // currentUser = await response.json();
+                
+                // For demo, we're using mock data
+                console.log('User data loaded');
+            } catch (error) {
+                showNotification('Error loading user data', 'error');
+            }
+        }
+
+        async function loadSubscriptionData() {
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/subscription');
+                // subscriptionData = await response.json();
+                
+                // For demo, we're using mock data
+                subscriptionData = {
+                    id: 1,
+                    plan: 'premium',
+                    planName: 'Premium Club',
+                    billingCycle: 'monthly',
+                    price: 49.99,
+                    status: 'active',
+                    nextBillingDate: '2023-08-15'
+                };
+                
+                updateSubscriptionUI();
+            } catch (error) {
+                showNotification('Error loading subscription data', 'error');
+            }
+        }
+
+        async function loadPaymentMethods() {
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/payment-methods');
+                // paymentMethods = await response.json();
+                
+                // For demo, we're using mock data
+                paymentMethods = [
+                    {
+                        id: 1,
+                        type: 'visa',
+                        last4: '1234',
+                        expiry: '12/2024',
+                        isDefault: true
+                    }
+                ];
+                
+                updatePaymentMethodsUI();
+            } catch (error) {
+                showNotification('Error loading payment methods', 'error');
+            }
+        }
+
+        async function loadPaymentHistory() {
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/payment-history');
+                // paymentHistory = await response.json();
+                
+                // For demo, we're using mock data
+                paymentHistory = [
+                    {
+                        id: 1,
+                        date: '2023-07-15',
+                        amount: 49.99,
+                        method: { type: 'visa', last4: '1234' },
+                        status: 'completed'
+                    },
+                    {
+                        id: 2,
+                        date: '2023-06-15',
+                        amount: 49.99,
+                        method: { type: 'visa', last4: '1234' },
+                        status: 'completed'
+                    },
+                    {
+                        id: 3,
+                        date: '2023-05-15',
+                        amount: 49.99,
+                        method: { type: 'paypal' },
+                        status: 'completed'
+                    },
+                    {
+                        id: 4,
+                        date: '2023-04-15',
+                        amount: 49.99,
+                        method: { type: 'mastercard', last4: '5678' },
+                        status: 'completed'
+                    }
+                ];
+                
+                updatePaymentHistoryUI();
+            } catch (error) {
+                showNotification('Error loading payment history', 'error');
+            }
+        }
+
+        // UI Update functions
+        function updateSubscriptionUI() {
+            if (!subscriptionData) return;
+            
+            document.getElementById('status-badge').textContent = subscriptionData.status.charAt(0).toUpperCase() + subscriptionData.status.slice(1);
+            document.getElementById('status-badge').className = `status-badge status-${subscriptionData.status}`;
+            document.getElementById('plan-value').textContent = subscriptionData.planName;
+            document.getElementById('billing-cycle-value').textContent = subscriptionData.billingCycle.charAt(0).toUpperCase() + subscriptionData.billingCycle.slice(1);
+            document.getElementById('price-value').textContent = `$${subscriptionData.price.toFixed(2)}`;
+            document.getElementById('next-billing-value').textContent = formatDate(subscriptionData.nextBillingDate);
+        }
+
+        function updatePaymentMethodsUI() {
+            const container = document.getElementById('payment-methods-container');
+            container.innerHTML = '';
+            
+            paymentMethods.forEach(method => {
+                const methodElement = document.createElement('div');
+                methodElement.className = 'detail-item';
+                
+                let iconClass = 'fa-credit-card';
+                if (method.type === 'visa') iconClass = 'fa-cc-visa';
+                if (method.type === 'mastercard') iconClass = 'fa-cc-mastercard';
+                if (method.type === 'paypal') iconClass = 'fa-cc-paypal';
+                
+                methodElement.innerHTML = `
+                    <div>
+                        <div class="payment-method">
+                            <i class="fab ${iconClass} payment-icon"></i>
+                            ${method.type.charAt(0).toUpperCase() + method.type.slice(1)} **** ${method.last4}
+                        </div>
+                        <small>Expires: ${method.expiry}</small>
+                    </div>
+                    <button class="btn" onclick="editPaymentMethod(${method.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                `;
+                
+                container.appendChild(methodElement);
+            });
+        }
+
+        function updatePaymentHistoryUI() {
+            const tbody = document.getElementById('payment-history-body');
+            tbody.innerHTML = '';
+            
+            paymentHistory.forEach(payment => {
+                const row = document.createElement('tr');
+                
+                let iconClass = 'fa-credit-card';
+                if (payment.method.type === 'visa') iconClass = 'fa-cc-visa';
+                if (payment.method.type === 'mastercard') iconClass = 'fa-cc-mastercard';
+                if (payment.method.type === 'paypal') iconClass = 'fa-cc-paypal';
+                
+                row.innerHTML = `
+                    <td>${formatDate(payment.date)}</td>
+                    <td>$${payment.amount.toFixed(2)}</td>
+                    <td>
+                        <div class="payment-method">
+                            <i class="fab ${iconClass} payment-icon"></i>
+                            ${payment.method.type.charAt(0).toUpperCase() + payment.method.type.slice(1)}${payment.method.last4 ? ' **** ' + payment.method.last4 : ''}
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-active">${payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Modal functions
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+        }
+
+        // Sidebar functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                overlay.style.display = 'none';
+            } else {
+                sidebar.classList.add('show');
+                overlay.style.display = 'block';
+            }
+        }
+
+        // Action functions
+        async function cancelSubscription() {
+            const reason = document.getElementById('cancelReason').value;
+            
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/subscription/cancel', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({ reason })
+                // });
+                
+                // For demo, we'll just update locally
+                subscriptionData.status = 'cancelled';
+                updateSubscriptionUI();
+                
+                showNotification('Your subscription has been cancelled successfully', 'success');
+                closeModal('cancelModal');
+            } catch (error) {
+                showNotification('Error cancelling subscription', 'error');
+            }
+        }
+        
+        async function changePlan() {
+            const newPlan = document.getElementById('newPlan').value;
+            
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/subscription/change-plan', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({ plan: newPlan })
+                // });
+                
+                // For demo, we'll just update locally
+                const planMap = {
+                    'basic': { name: 'Basic Club', price: 19.99 },
+                    'premium': { name: 'Premium Club', price: 49.99 },
+                    'enterprise': { name: 'Enterprise Club', price: 99.99 }
+                };
+                
+                subscriptionData.plan = newPlan;
+                subscriptionData.planName = planMap[newPlan].name;
+                subscriptionData.price = planMap[newPlan].price;
+                
+                updateSubscriptionUI();
+                
+                showNotification('Your plan has been changed successfully', 'success');
+                closeModal('changePlanModal');
+            } catch (error) {
+                showNotification('Error changing plan', 'error');
+            }
+        }
+        
+        async function addPaymentMethod() {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardHolder = document.getElementById('cardHolder').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            // Basic validation
+            if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                // In a real app, this would be an API call
+                // const response = await fetch('/api/payment-methods', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({
+                //         cardNumber,
+                //         cardHolder,
+                //         expiryDate,
+                //         cvv
+                //     })
+                // });
+                
+                // For demo, we'll just update locally
+                const last4 = cardNumber.slice(-4);
+                const type = detectCardType(cardNumber);
+                
+                paymentMethods.push({
+                    id: paymentMethods.length + 1,
+                    type: type,
+                    last4: last4,
+                    expiry: expiryDate,
+                    isDefault: false
+                });
+                
+                updatePaymentMethodsUI();
+                
+                // Clear form
+                document.getElementById('cardNumber').value = '';
+                document.getElementById('cardHolder').value = '';
+                document.getElementById('expiryDate').value = '';
+                document.getElementById('cvv').value = '';
+                
+                showNotification('Payment method added successfully', 'success');
+                closeModal('addPaymentMethodModal');
+            } catch (error) {
+                showNotification('Error adding payment method', 'error');
+            }
+        }
+        
+        function editPaymentMethod(id) {
+            // In a real app, this would open an edit modal
+            showNotification('Edit functionality would be implemented here', 'success');
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
+        }
+        
+        function detectCardType(cardNumber) {
+            // Simple card type detection
+            if (/^4/.test(cardNumber)) return 'visa';
+            if (/^5[1-5]/.test(cardNumber)) return 'mastercard';
+            if (/^3[47]/.test(cardNumber)) return 'amex';
+            return 'credit';
+        }
+    </script>
+</body>
+</html>

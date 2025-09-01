@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00a8ff;
+            --secondary-color: #ff9f1c;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --border-color: #ddd;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-effect: brightness(0.95);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        .dark-mode {
+            --primary-color: #00a8ff;
+            --secondary-color: #ff9f1c;
+            --text-color: #f5f5f5;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --sidebar-bg: #1e2a38;
+            --sidebar-text: #ecf0f1;
+            --border-color: #444;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --hover-effect: brightness(1.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-img-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 168, 255, 0.5);
+            cursor: pointer;
+        }
+
+        .profile-img-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .profile-img-container:hover .profile-img-overlay {
+            opacity: 1;
+        }
+
+        .profile-img-overlay i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .profile h2 {
+            margin-top: 10px;
+            font-size: 1.3rem;
+        }
+
+        .profile p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .nav-links li {
+            margin-bottom: 10px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--sidebar-text);
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Main content styling */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .dark-mode .toggle-thumb {
+            transform: translateX(30px);
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .logout-btn i {
+            margin-right: 8px;
+        }
+
+        /* Settings content */
+        .settings-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .settings-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-label h4 {
+            margin-bottom: 5px;
+        }
+
+        .toggle-label p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #0088cc;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #888;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #666;
+        }
+
+        .danger-zone {
+            border: 2px solid var(--danger-color);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .danger-zone h3 {
+            color: var(--danger-color);
+            margin-bottom: 15px;
+        }
+
+        .danger-zone p {
+            margin-bottom: 20px;
+            color: #888;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 25px rgba(0, 168, 255, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--card-bg);
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-img-container {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><span></span></h1>
+            </div>
+            
+            <div class="profile">
+                <div class="profile-img-container">
+                    <img src="https://via.placeholder.com/120" alt="Player Profile" class="profile-img" id="profileImage">
+                    <div class="profile-img-overlay" id="uploadTrigger">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                <h2 id="profileName">John Doe</h2>
+                <p id="profilePosition">Forward • #9</p>
+            </div>
+            
+            
+            <ul class="nav-links">
+    <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+    <li><a href="player-profile.html"><i class="fas fa-user"></i> Profile</a></li>
+    
+    <li><a href="achievements.html"><i class="fas fa-trophy"></i> Achievements</a></li>
+    <li><a href="player-settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+    <li><a href="index.html" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+</ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Settings</h2>
+                <div class="header-actions">
+                    <div class="theme-toggle" id="themeToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                    <button class="logout-btn" id="headerLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+            
+            <div class="settings-container">
+                <!-- Account Settings -->
+                <div class="settings-section fade-in">
+                    <h3>Account Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" placeholder="Enter your username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="Enter your email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveAccountBtn"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-section fade-in" style="animation-delay: 0.1s;">
+                    <h3>Notification Preferences</h3>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Email Notifications</h4>
+                            <p>Receive emails about your performance and updates</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Match Reminders</h4>
+                            <p>Get notified about upcoming matches</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="matchReminders" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Training Schedule</h4>
+                            <p>Receive your training schedule</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="trainingSchedule" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Performance Reports</h4>
+                            <p>Get weekly performance reports</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="performanceReports">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveNotificationsBtn"><i class="fas fa-save"></i> Save Preferences</button>
+                    </div>
+                </div>
+                
+                <!-- Privacy Settings -->
+                <div class="settings-section fade-in" style="animation-delay: 0.2s;">
+                    <h3>Privacy Settings</h3>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Public Profile</h4>
+                            <p>Allow others to view your profile</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="publicProfile" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Show Statistics</h4>
+                            <p>Make your performance statistics visible to others</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="showStatistics" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Show Achievements</h4>
+                            <p>Display your achievements to other players</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="showAchievements" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dataSharing">Data Sharing</label>
+                        <select id="dataSharing">
+                            <option value="none">No data sharing</option>
+                            <option value="anonymous" selected>Share anonymous data only</option>
+                            <option value="full">Share data with my identity</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="savePrivacyBtn"><i class="fas fa-save"></i> Save Privacy Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Data Management -->
+                <div class="settings-section fade-in" style="animation-delay: 0.3s;">
+                    <h3>Data Management</h3>
+                    
+                    <div class="form-group">
+                        <label for="autoBackup">Automatic Backup</label>
+                        <select id="autoBackup">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="never">Never</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" id="exportDataBtn"><i class="fas fa-download"></i> Export Data</button>
+                        <button class="btn btn-primary" id="backupNowBtn"><i class="fas fa-save"></i> Backup Now</button>
+                    </div>
+                    
+                    <div class="danger-zone">
+                        <h3>Danger Zone</h3>
+                        <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                        <button class="btn btn-danger" id="deleteAccountBtn"><i class="fas fa-trash"></i> Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Account Deletion</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="form-group">
+                <p>Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently erased.</p>
+            </div>
+            <div class="form-group">
+                <label for="confirmDelete">Type "DELETE" to confirm</label>
+                <input type="text" id="confirmDelete" placeholder="Type DELETE here">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete Account</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2023 Player Settings • All rights reserved</p>
+    </div>
+
+    <script>
+        // DOM Elements
+        const profileImage = document.getElementById('profileImage');
+        const profileName = document.getElementById('profileName');
+        const profilePosition = document.getElementById('profilePosition');
+        const uploadTrigger = document.getElementById('uploadTrigger');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const saveAccountBtn = document.getElementById('saveAccountBtn');
+        const saveNotificationsBtn = document.getElementById('saveNotificationsBtn');
+        const savePrivacyBtn = document.getElementById('savePrivacyBtn');
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        const backupNowBtn = document.getElementById('backupNowBtn');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeModal = document.querySelector('.close');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const confirmDeleteInput = document.getElementById('confirmDelete');
+
+        // Settings elements
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const emailNotifications = document.getElementById('emailNotifications');
+        const matchReminders = document.getElementById('matchReminders');
+        const trainingSchedule = document.getElementById('trainingSchedule');
+        const performanceReports = document.getElementById('performanceReports');
+        const publicProfile = document.getElementById('publicProfile');
+        const showStatistics = document.getElementById('showStatistics');
+        const showAchievements = document.getElementById('showAchievements');
+        const dataSharing = document.getElementById('dataSharing');
+        const autoBackup = document.getElementById('autoBackup');
+
+        // Check for saved theme preference or use preferred color scheme
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                body.classList.add(savedTheme);
+            } else {
+                // Check for system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('dark-mode');
+                }
+            }
+        }
+
+        // Toggle theme function
+        function toggleTheme() {
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light-mode');
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+            }
+        }
+
+        // Load profile data from localStorage
+        function loadProfile() {
+            const profileData = JSON.parse(localStorage.getItem('playerProfile')) || {};
+            
+            // Update profile header
+            profileName.textContent = profileData.fullName || 'John Doe';
+            profilePosition.textContent = profileData.position ? `${profileData.position} • #${profileData.jerseyNumber}` : 'Forward • #9';
+            
+            // Load profile image
+            const savedImage = localStorage.getItem('playerProfileImage');
+            if (savedImage) {
+                profileImage.src = savedImage;
+            }
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('playerSettings')) || {};
+            
+            // Account settings
+            username.value = settings.username || '';
+            email.value = settings.email || '';
+            
+            // Notification settings
+            emailNotifications.checked = settings.emailNotifications !== false;
+            matchReminders.checked = settings.matchReminders !== false;
+            trainingSchedule.checked = settings.trainingSchedule !== false;
+            performanceReports.checked = settings.performanceReports || false;
+            
+            // Privacy settings
+            publicProfile.checked = settings.publicProfile !== false;
+            showStatistics.checked = settings.showStatistics !== false;
+            showAchievements.checked = settings.showAchievements !== false;
+            dataSharing.value = settings.dataSharing || 'anonymous';
+            
+            // Data management
+            autoBackup.value = settings.autoBackup || 'weekly';
+        }
+
+        // Save account settings
+        function saveAccountSettings() {
+            const settings = JSON.parse(localStorage.getItem('playerSettings')) || {};
+            
+            settings.username = username.value;
+            settings.email = email.value;
+            
+            localStorage.setItem('playerSettings', JSON.stringify(settings));
+            
+            // Show success animation
+            saveAccountBtn.classList.add('pulse');
+            setTimeout(() => {
+                saveAccountBtn.classList.remove('pulse');
+            }, 500);
+            
+            alert('Account settings saved successfully!');
+        }
+
+        // Save notification settings
+        function saveNotificationSettings() {
+            const settings = JSON.parse(localStorage.getItem('playerSettings')) || {};
+            
+            settings.emailNotifications = emailNotifications.checked;
+            settings.matchReminders = matchReminders.checked;
+            settings.trainingSchedule = trainingSchedule.checked;
+            settings.performanceReports = performanceReports.checked;
+            
+            localStorage.setItem('playerSettings', JSON.stringify(settings));
+            
+            // Show success animation
+            saveNotificationsBtn.classList.add('pulse');
+            setTimeout(() => {
+                saveNotificationsBtn.classList.remove('pulse');
+            }, 500);
+            
+            alert('Notification preferences saved successfully!');
+        }
+
+        // Save privacy settings
+        function savePrivacySettings() {
+            const settings = JSON.parse(localStorage.getItem('playerSettings')) || {};
+            
+            settings.publicProfile = publicProfile.checked;
+            settings.showStatistics = showStatistics.checked;
+            settings.showAchievements = showAchievements.checked;
+            settings.dataSharing = dataSharing.value;
+            
+            localStorage.setItem('playerSettings', JSON.stringify(settings));
+            
+            // Show success animation
+            savePrivacyBtn.classList.add('pulse');
+            setTimeout(() => {
+                savePrivacyBtn.classList.remove('pulse');
+            }, 500);
+            
+            alert('Privacy settings saved successfully!');
+        }
+
+        // Export data
+        function exportData() {
+            const profileData = localStorage.getItem('playerProfile');
+            const achievementsData = localStorage.getItem('playerAchievements');
+            const settingsData = localStorage.getItem('playerSettings');
+            
+            const data = {
+                profile: profileData ? JSON.parse(profileData) : {},
+                achievements: achievementsData ? JSON.parse(achievementsData) : [],
+                settings: settingsData ? JSON.parse(settingsData) : {}
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'player-data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            alert('Data exported successfully!');
+        }
+
+        // Backup data
+        function backupData() {
+            localStorage.setItem('playerBackup', JSON.stringify({
+                profile: localStorage.getItem('playerProfile'),
+                achievements: localStorage.getItem('playerAchievements'),
+                settings: localStorage.getItem('playerSettings'),
+                profileImage: localStorage.getItem('playerProfileImage'),
+                timestamp: new Date().toISOString()
+            }));
+            
+            alert('Backup created successfully!');
+        }
+
+        // Open delete confirmation modal
+        function openDeleteModal() {
+            deleteModal.style.display = 'flex';
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            confirmDeleteInput.value = '';
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (confirmDeleteInput.value === 'DELETE') {
+                // Clear all player data
+                localStorage.removeItem('playerProfile');
+                localStorage.removeItem('playerAchievements');
+                localStorage.removeItem('playerSettings');
+                localStorage.removeItem('playerProfileImage');
+                
+                alert('Account deleted successfully! Redirecting to login page...');
+                
+                // In a real application, this would redirect to the login page
+                closeDeleteModal();
+            } else {
+                alert('Please type "DELETE" to confirm account deletion.');
+            }
+        }
+
+        // Initialize the page
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme
+            initTheme();
+            
+            // Load profile data
+            loadProfile();
+            
+            // Load settings
+            loadSettings();
+            
+            // Set up event listeners
+            themeToggle.addEventListener('click', toggleTheme);
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                performLogout();
+            });
+            headerLogoutBtn.addEventListener('click', performLogout);
+            
+            // Settings buttons
+            saveAccountBtn.addEventListener('click', saveAccountSettings);
+            saveNotificationsBtn.addEventListener('click', saveNotificationSettings);
+            savePrivacyBtn.addEventListener('click', savePrivacySettings);
+            exportDataBtn.addEventListener('click', exportData);
+            backupNowBtn.addEventListener('click', backupData);
+            deleteAccountBtn.addEventListener('click', openDeleteModal);
+            
+            // Delete modal
+            closeModal.addEventListener('click', closeDeleteModal);
+            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+            confirmDeleteBtn.addEventListener('click', deleteAccount);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    closeDeleteModal();
+                }
+            });
+        });
+
+        // Perform logout
+        function performLogout() {
+            // Clear session data (if any)
+            // In a real application, you would also handle server-side logout
+            
+            alert('You have been logged out.');
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+    </script>
+</body>
+</html>

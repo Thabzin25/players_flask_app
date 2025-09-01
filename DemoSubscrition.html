@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scout Subscriptions</title>
+  <link rel="stylesheet" href="Scouts.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="light">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo">
+    <i class="fas fa-bars menu-toggle" title="Menu"></i>
+    <span class="logo-text">Dashboard</span>
+  </div>
+  <ul>
+    <li data-tooltip="Home">
+        <a href="scouts.html"><i class="fas fa-home"></i> <span>Home</span></a>
+    </li>
+    <li data-tooltip="View Players">
+      <a href="scout-player.html">
+        <i class="fas fa-users"></i> <span>View Players</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Generate Reports">
+      <a href="scout-GenerateReports.html">
+        <i class="fas fa-file-alt"></i> <span>Generate Reports</span>
+      </a>
+    </li>
+
+    
+    <li id="subscriptionsMenu" data-tooltip="Subscriptions">
+      <a href="DemoSubscrition.html">
+        <i class="fas fa-credit-card"></i> <span>Subscriptions</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Profile">
+      <a href="Profile.html">
+        <i class="fas fa-user"></i> <span>Profile</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Logout">
+      <a href="index.html">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="topbar">
+      <h1>Scout Subscriptions</h1>
+  </div>
+
+  <!-- Current Plan Section -->
+  <div class="subscriptions-table">
+      <h2>Current Plan</h2>
+      <table>
+          <thead>
+              <tr>
+                  <th>Plan</th>
+                  <th>Start Date</th>
+                  <th>Next Billing</th>
+                  <th>Status</th>
+                  <th>Manage</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td>Pro Scout</td>
+                  <td>2025-08-01</td>
+                  <td>2025-09-01</td>
+                  <td><span class="status active">Active</span></td>
+                  <td><button class="btn-small danger">Cancel</button></td>
+              </tr>
+          </tbody>
+      </table>
+  </div>
+
+  <!-- Available Plans Section -->
+  <div class="subscription-cards">
+      <h2>Available Plans</h2>
+      <div class="plan-card">
+          <h3>Free</h3>
+          <ul>
+              <li>✔ Submit up to 10 reports</li>
+              <li>✔ Limited analytics</li>
+              <li>✖ Team collaboration</li>
+          </ul>
+          <button class="btn">Current Plan</button>
+      </div>
+      <div class="plan-card featured">
+          <h3>Pro</h3>
+          <ul>
+              <li>✔ Unlimited reports</li>
+              <li>✔ Full analytics</li>
+              <li>✔ Team collaboration</li>
+          </ul>
+          <button class="btn btn-accent">Upgrade</button>
+      </div>
+      <div class="plan-card">
+          <h3>Elite</h3>
+          <ul>
+              <li>✔ All Pro features</li>
+              <li>✔ Priority support</li>
+              <li>✔ API Access</li>
+          </ul>
+          <button class="btn">Contact Sales</button>
+      </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scout Profile Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    /* ===== Base Styles ===== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7f9;
+        color: #333;
+    }
+    
+    body.dark-mode {
+        background: #121212;
+        color: #f5f5f5;
+    }
+    
+    /* ===== Sidebar ===== */
+    .sidebar {
+        width: 220px;
+        background: white;
+        color: black;
+        height: 100vh;
+        position: fixed;
+        transition: width 0.3s;
+        overflow: hidden;
+        border-right: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    body.dark-mode .sidebar {
+        background: #1e1e1e;
+        color: white;
+        border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .logo {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        gap: 10px;
+        font-weight: bold;
+        font-size: 18px;
+        background: #f7f7f7;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    body.dark-mode .sidebar .logo {
+        background: #2d2d2d;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar ul li {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        position: relative;
+        transition: background 0.3s, transform 0.2s;
+    }
+    
+    .sidebar ul li i {
+        font-size: 18px;
+        min-width: 30px;
+        text-align: center;
+    }
+     /* Make all sidebar links invisible but still clickable */
+      .sidebar ul li a {
+        color: black;       /* hides text */
+        text-decoration: none;    /* remove underline */
+      }
+
+      /* Optional: hide icons too */
+      .sidebar ul li a i {
+        color: black;       /* hides icons if you want */
+      }
+
+      /* Keep hover background for clickable feedback */
+      .sidebar ul li a:hover {
+        background: rgba(0,0,0,0.05); /* subtle hover highlight */
+      }
+
+    .sidebar ul li:hover {
+        background: rgba(0,0,0,0.05);
+        transform: translateX(3px);
+    }
+    
+    body.dark-mode .sidebar ul li:hover {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .sidebar ul li.active {
+        background: rgba(0,0,0,0.1);
+        border-left: 4px solid #4a6cf7;
+    }
+    
+    body.dark-mode .sidebar ul li.active {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    /* ===== Main Content ===== */
+    .main {
+        margin-left: 220px;
+        padding: 20px;
+        transition: margin-left 0.3s;
+    }
+    
+    /* ===== Top Bar ===== */
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    
+    body.dark-mode .topbar {
+        background: #1e1e1e;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .search-container input {
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: 1px solid rgba(0,0,0,0.1);
+        width: 250px;
+        transition: all 0.2s;
+    }
+    
+    body.dark-mode .search-container input {
+        background: #2d2d2d;
+        color: white;
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #333;
+    }
+    
+    body.dark-mode .icon-btn {
+        color: white;
+    }
+    
+    .notification {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .notification i {
+        font-size: 18px;
+    }
+    
+    .notification .badge {
+        position: absolute;
+        top: -5px;
+        right: -7px;
+        background: #e74c3c;
+        color: white;
+        font-size: 10px;
+        padding: 2px 5px;
+        border-radius: 50%;
+    }
+    
+    .profile-menu {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .profile-menu img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #4a6cf7;
+    }
+    
+    .profile-menu .dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 120%;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        min-width: 200px;
+        z-index: 100;
+        overflow: hidden;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    body.dark-mode .profile-menu .dropdown {
+        background: #2d2d2d;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .profile-menu:hover .dropdown {
+        display: block;
+    }
+    
+    .profile-menu .dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        color: #333;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    
+    .profile-menu .dropdown a:hover {
+        background: rgba(0,0,0,0.05);
+    }
+    
+    body.dark-mode .profile-menu .dropdown a {
+        color: white;
+    }
+    
+    body.dark-mode .profile-menu .dropdown a:hover {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    /* ===== Profile Content ===== */
+    .profile-container {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .profile-card {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        animation: slideUp 0.5s ease;
+    }
+    
+    body.dark-mode .profile-card {
+        background: #1e1e1e;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    body.dark-mode .profile-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .profile-picture {
+        position: relative;
+        margin-right: 20px;
+    }
+    
+    .profile-picture img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #4a6cf7;
+        box-shadow: 0 3px 10px rgba(74, 108, 247, 0.3);
+    }
+    
+    .profile-picture .upload-btn {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: #4a6cf7;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .profile-info h2 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+    
+    .profile-info p {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    body.dark-mode .profile-info p {
+        color: #ccc;
+    }
+    
+    .profile-stats {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .stat {
+        text-align: center;
+    }
+    
+    .stat h3 {
+        font-size: 20px;
+        color: #4a6cf7;
+        margin-bottom: 5px;
+    }
+    
+    .stat p {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    body.dark-mode .stat p {
+        color: #ccc;
+    }
+    
+    .profile-form {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    body.dark-mode .form-group label {
+        color: #f5f5f5;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    body.dark-mode .form-group input,
+    body.dark-mode .form-group select,
+    body.dark-mode .form-group textarea {
+        background: #2d2d2d;
+        border-color: #444;
+        color: white;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #4a6cf7;
+        box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+        outline: none;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background: #4a6cf7;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #3b5be3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(74, 108, 247, 0.3);
+    }
+    
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+    
+    body.dark-mode .btn-outline {
+        border-color: #555;
+        color: #ccc;
+    }
+    
+    .btn-outline:hover {
+        background: rgba(0,0,0,0.05);
+    }
+    
+    body.dark-mode .btn-outline:hover {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+    }
+    
+    /* Animations */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: slideUp 0.5s ease;
+    }
+    
+    body.dark-mode .modal-content {
+        background: #2d2d2d;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    body.dark-mode .modal-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-header h3 {
+        font-size: 20px;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+    }
+    
+    body.dark-mode .close-modal {
+        color: #ccc;
+    }
+    
+    .modal-body {
+        margin-bottom: 20px;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    /* Toast Notification */
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #4a6cf7;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 3000;
+        animation: slideUp 0.5s ease;
+    }
+    
+    .toast.error {
+        background: #e74c3c;
+    }
+    
+    .toast.success {
+        background: #2ecc71;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .profile-container {
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            width: 60px;
+        }
+        
+        .sidebar .logo-text {
+            display: none;
+        }
+        
+        .main {
+            margin-left: 60px;
+        }
+        
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .topbar {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .search-container input {
+            width: 100%;
+        }
+        
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .profile-picture {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+        
+        .profile-stats {
+            justify-content: center;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+  </style>
+</head>
+<body class="light">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo">
+    <i class="fas fa-bars menu-toggle" title="Menu"></i>
+    <span class="logo-text">Dashboard</span>
+  </div>
+  <ul>
+    <li class="active" data-tooltip="Home">
+      <a href="Scouts.html">
+        <i class="fas fa-home"></i> <span>Home</span>
+      </a>
+    </li>
+
+    <li data-tooltip="View Players">
+      <a href="scout-player.html">
+        <i class="fas fa-users"></i> <span>View Players</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Generate Reports">
+      <a href="scout-GenerateReports.html">
+        <i class="fas fa-file-alt"></i> <span>Generate Reports</span>
+      </a>
+    </li>
+
+    <li id="subscriptionsMenu" data-tooltip="Subscriptions">
+      <a href="DemoSubscrition.html">
+        <i class="fas fa-credit-card"></i> <span>Subscriptions</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Profile">
+      <a href="Profile.html">
+        <i class="fas fa-user"></i> <span>Profile</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Logout">
+      <a href="index.html">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="search-container">
+      <input type="text" placeholder="Search reports..."/>
+    </div>
+    <div class="topbar-actions">
+      <button id="darkModeToggle" class="icon-btn">
+        <i class="fas fa-moon"></i>
+      </button>
+      <div class="notification">
+        <i class="fas fa-bell"></i>
+        <span class="badge">3</span>
+      </div>
+      <div class="profile-menu">
+        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-pic" id="profileMenuImage"/>
+        <span class="profile-name">Scout Name</span>
+        <div class="dropdown">
+          <a href="#" id="uploadPictureBtn"><i class="fas fa-upload"></i> Upload Picture</a>
+          <a href="#"><i class="fas fa-user"></i> View Account</a>
+          <a href="#"><i class="fas fa-edit"></i> Change Details</a>
+          <a href="#" id="deleteAccountBtn"><i class="fas fa-trash"></i> Delete Account</a>
+          <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-container">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-picture">
+          <img src="https://via.placeholder.com/100" alt="Profile Picture" id="profileImage"/>
+          <div class="upload-btn" id="changePictureBtn">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+        <div class="profile-info">
+          <h2 id="profileName">John Scoutman</h2>
+          <p id="profileRole">Professional Scout</p>
+          <p id="profileLocation"><i class="fas fa-map-marker-alt"></i> London, UK</p>
+          <div class="profile-stats">
+            <div class="stat">
+              <h3>42</h3>
+              <p>Reports</p>
+            </div>
+            <div class="stat">
+              <h3>5</h3>
+              <p>Years</p>
+            </div>
+            <div class="stat">
+              <h3>12</h3>
+              <p>Players</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" value="John"/>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" value="Scoutman"/>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" value="john.scoutman@example.com"/>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" value="+44 123 456 789"/>
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" value="London, UK"/>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="specialization">Specialization</label>
+          <select id="specialization">
+            <option>Goalkeepers</option>
+            <option selected>Defenders</option>
+            <option>Midfielders</option>
+            <option>Forwards</option>
+            <option>Youth Players</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio" rows="4">Experienced football scout with a keen eye for defensive talent. Specializing in identifying young defenders with potential for top-tier football.</textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveProfileBtn">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <button class="btn btn-outline" id="discardChangesBtn">
+            <i class="fas fa-undo"></i> Discard
+          </button>
+          <button class="btn btn-danger" id="deleteBtn">
+            <i class="fas fa-trash"></i> Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Picture Modal -->
+<div class="modal" id="uploadModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Upload Profile Picture</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <input type="file" id="profileUpload" accept="image/*"/>
+      </div>
+      <div id="imagePreview" style="margin-top: 15px; text-align: center; display: none;">
+        <img id="previewImg" src="#" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="cancelUpload">Cancel</button>
+      <button class="btn btn-primary" id="confirmUpload">Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Account Deletion</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete your account? This action cannot be undone. All your data and reports will be permanently deleted.</p>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="confirmDelete">Type "DELETE" to confirm</label>
+        <input type="text" id="confirmDelete" placeholder="DELETE"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="cancelDelete">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast" style="display: none;">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMessage">Your profile has been updated successfully!</span>
+</div>
+
+<script>
+  // DOM Elements
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const uploadModal = document.getElementById('uploadModal');
+  const deleteModal = document.getElementById('deleteModal');
+  const toast = document.getElementById('toast');
+  const profileUpload = document.getElementById('profileUpload');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImg = document.getElementById('previewImg');
+  const confirmDelete = document.getElementById('confirmDelete');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const profileImage = document.getElementById('profileImage');
+  const profileMenuImage = document.getElementById('profileMenuImage');
+  
+  // Database Simulation (using localStorage as a mock database)
+  const DB_NAME = 'scoutingdb';
+  const SCOUT_ID = 1; // In a real app, this would be the logged-in user's ID
+
+  // Initialize the database
+  function initializeDatabase() {
+    if (!localStorage.getItem(DB_NAME)) {
+      // Create initial database structure
+      const db = {
+        scouts: [
+          {
+            id: SCOUT_ID,
+            firstName: 'John',
+            lastName: 'Scoutman',
+            email: 'john.scoutman@example.com',
+            phone: '+44 123 456 789',
+            location: 'London, UK',
+            specialization: 'Defenders',
+            bio: 'Experienced football scout with a keen eye for defensive talent. Specializing in identifying young defenders with potential for top-tier football.',
+            profileImage: 'https://via.placeholder.com/100',
+            reports: 42,
+            experience: 5,
+            players: 12
+          }
+        ]
+      };
+      
+      localStorage.setItem(DB_NAME, JSON.stringify(db));
+      console.log('Database initialized');
+    }
+    
+    loadScoutData();
+  }
+
+  // Load scout data from the database
+  function loadScoutData() {
+    const db = JSON.parse(localStorage.getItem(DB_NAME));
+    const scout = db.scouts.find(s => s.id === SCOUT_ID);
+    
+    if (scout) {
+      // Populate form with scout data
+      document.getElementById('firstName').value = scout.firstName;
+      document.getElementById('lastName').value = scout.lastName;
+      document.getElementById('email').value = scout.email;
+      document.getElementById('phone').value = scout.phone;
+      document.getElementById('location').value = scout.location;
+      document.getElementById('specialization').value = scout.specialization;
+      document.getElementById('bio').value = scout.bio;
+      
+      // Update profile info
+      document.getElementById('profileName').textContent = `${scout.firstName} ${scout.lastName}`;
+      document.getElementById('profileRole').textContent = 'Professional Scout';
+      document.getElementById('profileLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${scout.location}`;
+      
+      // Update stats
+      document.querySelectorAll('.stat h3')[0].textContent = scout.reports;
+      document.querySelectorAll('.stat h3')[1].textContent = scout.experience;
+      document.querySelectorAll('.stat h3')[2].textContent = scout.players;
+      
+      // Set profile images
+      if (scout.profileImage) {
+        profileImage.src = scout.profileImage;
+        profileMenuImage.src = scout.profileImage;
+      }
+    }
+  }
+
+  // Save scout data to the database
+  function saveScoutData(scoutData) {
+    const db = JSON.parse(localStorage.getItem(DB_NAME));
+    const scoutIndex = db.scouts.findIndex(s => s.id === SCOUT_ID);
+    
+    if (scoutIndex !== -1) {
+      db.scouts[scoutIndex] = { ...db.scouts[scoutIndex], ...scoutData };
+      localStorage.setItem(DB_NAME, JSON.stringify(db));
+      console.log('Scout data saved to database');
+      return true;
+    }
+    
+    return false;
+  }
+
+  // Save profile picture to database
+  function saveProfilePicture(imageData) {
+    const db = JSON.parse(localStorage.getItem(DB_NAME));
+    const scoutIndex = db.scouts.findIndex(s => s.id === SCOUT_ID);
+    
+    if (scoutIndex !== -1) {
+      db.scouts[scoutIndex].profileImage = imageData;
+      localStorage.setItem(DB_NAME, JSON.stringify(db));
+      console.log('Profile picture saved to database');
+      return true;
+    }
+    
+    return false;
+  }
+
+  // Dark Mode Toggle
+  darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const icon = darkModeToggle.querySelector('i');
+    
+    if (document.body.classList.contains('dark-mode')) {
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      icon.classList.remove('fa-sun');
+      icon.classList.add('fa-moon');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+  
+  // Check for saved theme preference
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    const icon = darkModeToggle.querySelector('i');
+    icon.classList.remove('fa-moon');
+    icon.classList.add('fa-sun');
+  }
+  
+  // Modal Controls
+  function openModal(modal) {
+    modal.style.display = 'flex';
+  }
+  
+  function closeModal(modal) {
+    modal.style.display = 'none';
+  }
+  
+  // Upload Picture
+  document.getElementById('changePictureBtn').addEventListener('click', () => openModal(uploadModal));
+  document.getElementById('uploadPictureBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal(uploadModal);
+  });
+  
+  // Profile Image Upload Preview
+  profileUpload.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        imagePreview.style.display = 'block';
+      }
+      
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+  
+  // Confirm Upload
+  document.getElementById('confirmUpload').addEventListener('click', () => {
+    if (profileUpload.files && profileUpload.files[0]) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const imageData = e.target.result;
+        
+        // Save to database
+        if (saveProfilePicture(imageData)) {
+          // Update UI
+          profileImage.src = imageData;
+          profileMenuImage.src = imageData;
+          
+          showToast('Profile picture updated successfully!', 'success');
+          closeModal(uploadModal);
+        } else {
+          showToast('Error saving profile picture.', 'error');
+        }
+      }
+      
+      reader.readAsDataURL(profileUpload.files[0]);
+    } else {
+      showToast('Please select an image to upload.', 'error');
+    }
+  });
+  
+  // Delete Account
+  document.getElementById('deleteAccountBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal(deleteModal);
+  });
+  
+  document.getElementById('deleteBtn').addEventListener('click', () => {
+    openModal(deleteModal);
+  });
+  
+  // Confirm Delete Validation
+  confirmDelete.addEventListener('input', function() {
+    confirmDeleteBtn.disabled = this.value !== 'DELETE';
+  });
+  
+  // Confirm Delete Action
+  confirmDeleteBtn.addEventListener('click', () => {
+    // In a real application, you would send a request to your server here
+    // to delete the scout's account and all associated data
+    
+    showToast('Your account has been deleted successfully.', 'success');
+    
+    // Redirect to homepage after a delay
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 2000);
+    
+    closeModal(deleteModal);
+  });
+  
+  // Save Profile
+  document.getElementById('saveProfileBtn').addEventListener('click', () => {
+    // Get form values
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const location = document.getElementById('location').value;
+    const specialization = document.getElementById('specialization').value;
+    const bio = document.getElementById('bio').value;
+    
+    // Prepare data to save
+    const scoutData = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      location,
+      specialization,
+      bio
+    };
+    
+    // Save to database
+    if (saveScoutData(scoutData)) {
+      // Update profile info
+      document.getElementById('profileName').textContent = `${firstName} ${lastName}`;
+      document.getElementById('profileLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${location}`;
+      
+      showToast('Profile updated successfully!', 'success');
+    } else {
+      showToast('Error saving profile data.', 'error');
+    }
+  });
+  
+  // Discard Changes
+  document.getElementById('discardChangesBtn').addEventListener('click', () => {
+    // Reload data from database
+    loadScoutData();
+    showToast('Changes discarded.', 'success');
+  });
+  
+  // Close modals when clicking on close buttons or outside
+  document.querySelectorAll('.close-modal, .cancel-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const modal = this.closest('.modal');
+      closeModal(modal);
+    });
+  });
+  
+  window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+      closeModal(e.target);
+    }
+  });
+  
+  // Toast Notification
+  function showToast(message, type = 'success') {
+    const toastMessage = document.getElementById('toastMessage');
+    toastMessage.textContent = message;
+    
+    toast.className = 'toast';
+    toast.classList.add(type);
+    toast.style.display = 'flex';
+    
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 3000);
+  }
+  
+  // Initialize the page with data from the database
+  initializeDatabase();
+</script>
+
+</body>
+</html>

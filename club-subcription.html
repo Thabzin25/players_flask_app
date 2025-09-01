@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Subscription Management - Boronia FC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a4f8b;
+      --primary-dark: #0d3b66;
+      --secondary: #3bb77e;
+      --accent: #ff6b35;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7f9;
+      color: var(--dark);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar nav {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar nav a.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-weight: 500;
+    }
+
+    .sidebar nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--secondary);
+    }
+
+    .sidebar nav a i {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .sidebar nav a span {
+      transition: var(--transition);
+    }
+
+    .sidebar.collapsed nav a span {
+      display: none;
+    }
+
+    .club-badge {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .club-badge img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .club-badge h3 {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .club-badge h3 {
+      display: none;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+
+    .topbar h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .profile {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--light-gray);
+      transition: var(--transition);
+    }
+
+    .profile:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .profile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Subscription Plans */
+    .plans-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .plan-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .plan-card.featured {
+      border: 2px solid var(--secondary);
+      transform: scale(1.03);
+    }
+
+    .plan-card.featured::before {
+      content: 'RECOMMENDED';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--secondary);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-bottom-left-radius: 8px;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .plan-card.featured:hover {
+      transform: scale(1.03) translateY(-5px);
+    }
+
+    .plan-header {
+      padding: 25px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+
+    .plan-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .plan-price {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .plan-description {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .plan-features {
+      padding: 20px;
+    }
+
+    .plan-features ul {
+      list-style: none;
+    }
+
+    .plan-features li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .plan-features li i {
+      color: var(--secondary);
+      margin-right: 10px;
+    }
+
+    .plan-actions {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid var(--light-gray);
+    }
+
+    /* Current Subscription */
+    .current-subscription {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .subscription-header {
+      padding: 20px;
+      background: var(--light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .subscription-title {
+      font-size: 1.3rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .subscription-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: rgba(59, 183, 126, 0.15);
+      color: var(--secondary);
+    }
+
+    .status-pending {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ffc107;
+    }
+
+    .status-expired {
+      background: rgba(220, 53, 69, 0.15);
+      color: #dc3545;
+    }
+
+    .subscription-body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .subscription-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .subscription-actions {
+      padding: 20px;
+      background: var(--light);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    /* Billing History */
+    .billing-history {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .billing-header {
+      padding: 20px;
+      background: var(--light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .billing-title {
+      font-size: 1.3rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    th {
+      background: var(--light);
+      color: var(--primary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: rgba(26, 79, 139, 0.03);
+    }
+
+    .invoice-action {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .invoice-action:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* Buttons */
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2fa371;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--gray);
+    }
+
+    .btn-ghost:hover {
+      color: var(--primary);
+      background: rgba(26, 79, 139, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+      }
+      
+      .sidebar:not(.collapsed) {
+        width: 260px;
+        position: absolute;
+        height: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 15px 20px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .subscription-actions {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="menu-title">Menu</h2>
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <nav>
+      <a href="clubs.html">
+        <i class="fas fa-home"></i>
+        <span>Overview</span>
+      </a>
+      <a href="club-subscription.html" class="active">
+        <i class="fas fa-credit-card"></i>
+        <span>Subscription</span>
+      </a>
+      <a href="analytics.html">
+        <i class="fas fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="player-reports.html">
+        <i class="fas fa-file-alt"></i>
+        <span>Player Reports</span>
+      </a>
+      
+      <a href="settings.html">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="logout.html">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+    <div class="club-badge">
+      <img src="https://cdn-icons-png.flaticon.com/512/805/805401.png" alt="Boronia FC Logo">
+      <h3>Boronia FC</h3>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1>Subscription Management</h1>
+      <a class="profile" href="club-profile.html" title="Club Profile">
+        <img src="https://ui-avatars.com/api/?name=Boronia+FC&background=1a4f8b&color=fff" alt="Club profile" />
+      </a>
+    </header>
+
+    <div class="content">
+      <h2 class="section-title">Your Subscription</h2>
+      
+      <!-- Current Subscription -->
+      <section class="current-subscription">
+        <div class="subscription-header">
+          <h3 class="subscription-title">Boronia FC - Current Plan</h3>
+          <span class="subscription-status status-active">ACTIVE</span>
+        </div>
+        <div class="subscription-body">
+          <div class="subscription-detail">
+            <span class="detail-label">Plan</span>
+            <span class="detail-value">Pro Club Annual</span>
+          </div>
+          <div class="subscription-detail">
+            <span class="detail-label">Price</span>
+            <span class="detail-value">R2 999.99/year</span>
+          </div>
+          <div class="subscription-detail">
+            <span class="detail-label">Renewal Date</span>
+            <span class="detail-value">Jun 1, 2024</span>
+          </div>
+          <div class="subscription-detail">
+            <span class="detail-label">Users</span>
+            <span class="detail-value">5/10 Registered</span>
+          </div>
+        </div>
+        <div class="subscription-actions">
+          <button class="btn-primary">Upgrade Plan</button>
+          <button class="btn-outline">Cancel Subscription</button>
+          <button class="btn-ghost">Update Payment Method</button>
+        </div>
+      </section>
+
+      <h2 class="section-title">Available Plans</h2>
+      
+      <!-- Subscription Plans -->
+      <div class="plans-container">
+        <!-- Scout Plan -->
+        <article class="plan-card">
+          <div class="plan-header">
+            <h3 class="plan-name">Scout Basic</h3>
+            <div class="plan-price">$9.99<span>/month</span></div>
+            <p class="plan-description">For individual scouts</p>
+          </div>
+          <div class="plan-features">
+            <ul>
+              <li><i class="fas fa-check"></i> Access to 5 clubs</li>
+              <li><i class="fas fa-check"></i> 20 player reports monthly</li>
+              <li><i class="fas fa-check"></i> Basic analytics</li>
+              <li><i class="fas fa-check"></i> Email support</li>
+              <li><i class="fas fa-times" style="color: #dc3545;"></i> Advanced filters</li>
+              <li><i class="fas fa-times" style="color: #dc3545;"></i> Export capabilities</li>
+            </ul>
+          </div>
+          <div class="plan-actions">
+            <button class="btn-outline">Select Plan</button>
+          </div>
+        </article>
+
+        <!-- Scout Pro Plan -->
+        <article class="plan-card featured">
+          <div class="plan-header">
+            <h3 class="plan-name">Scout Pro</h3>
+            <div class="plan-price">$19.99<span>/month</span></div>
+            <p class="plan-description">For professional scouts</p>
+          </div>
+          <div class="plan-features">
+            <ul>
+              <li><i class="fas fa-check"></i> Access to 20 clubs</li>
+              <li><i class="fas fa-check"></i> Unlimited player reports</li>
+              <li><i class="fas fa-check"></i> Advanced analytics</li>
+              <li><i class="fas fa-check"></i> Priority support</li>
+              <li><i class="fas fa-check"></i> Advanced filters</li>
+              <li><i class="fas fa-check"></i> Export capabilities</li>
+            </ul>
+          </div>
+          <div class="plan-actions">
+            <button class="btn-secondary">Select Plan</button>
+          </div>
+        </article>
+
+        <!-- Club Plan -->
+        <article class="plan-card">
+          <div class="plan-header">
+            <h3 class="plan-name">Club Premium</h3>
+            <div class="plan-price">$49.99<span>/month</span></div>
+            <p class="plan-description">For football clubs</p>
+          </div>
+          <div class="plan-features">
+            <ul>
+              <li><i class="fas fa-check"></i> Unlimited scouts</li>
+              <li><i class="fas fa-check"></i> Unlimited player reports</li>
+              <li><i class="fas fa-check"></i> Full analytics suite</li>
+              <li><i class="fas fa-check"></i> 24/7 support</li>
+              <li><i class="fas fa-check"></i> Custom reporting</li>
+              <li><i class="fas fa-check"></i> API access</li>
+            </ul>
+          </div>
+          <div class="plan-actions">
+            <button class="btn-outline">Select Plan</button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Billing History -->
+      <h2 class="section-title">Billing History</h2>
+      <section class="billing-history">
+        <div class="billing-header">
+          <h3 class="billing-title">Past Invoices</h3>
+          <button class="btn-outline">Download All Invoices</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jun 1, 2023</td>
+                <td>Pro Club Annual Subscription</td>
+                <td>$299.99</td>
+                <td><span class="status-active">Paid</span></td>
+                <td><a href="#" class="invoice-action">Download</a></td>
+              </tr>
+              <tr>
+                <td>May 1, 2023</td>
+                <td>Pro Club Annual Subscription</td>
+                <td>$299.99</td>
+                <td><span class="status-active">Paid</span></td>
+                <td><a href="#" class="invoice-action">Download</a></td>
+              </tr>
+              <tr>
+                <td>Apr 1, 2023</td>
+                <td>Pro Club Annual Subscription</td>
+                <td>$299.99</td>
+                <td><span class="status-active">Paid</span></td>
+                <td><a href="#" class="invoice-action">Download</a></td>
+              </tr>
+              <tr>
+                <td>Mar 1, 2023</td>
+                <td>Pro Club Annual Subscription</td>
+                <td>$299.99</td>
+                <td><span class="status-active">Paid</span></td>
+                <td><a href="#" class="invoice-action">Download</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+    
+    // Add active class to current page link
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop();
+      const links = document.querySelectorAll('nav a');
+      
+      links.forEach(link => {
+        const linkPage = link.getAttribute('href');
+        if (linkPage === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      // Plan selection functionality
+      const planButtons = document.querySelectorAll('.plan-actions button');
+      planButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const planName = this.closest('.plan-card').querySelector('.plan-name').textContent;
+          alert(`You've selected the ${planName}. This would redirect to a payment page in a real application.`);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

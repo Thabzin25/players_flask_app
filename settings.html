@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings - Football Scouting System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --secondary: #4285f4;
+            --accent: #34a853;
+            --warning: #fbbc05;
+            --danger: #ea4335;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+            --border: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            position: relative;
+        }
+
+        .top-bar {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item:hover:before {
+            opacity: 1;
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .menu-item.active:before {
+            opacity: 1;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            animation: slideDown 0.5s ease;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: var(--primary-light);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .user-info i {
+            margin-left: 8px;
+            font-size: 18px;
+        }
+
+        /* Settings Content */
+        .settings-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .settings-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--dark);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-group:hover {
+            background: var(--primary-light);
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-label h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .toggle-label p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d62d0;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d33426;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4e5154;
+            transform: translateY(-2px);
+        }
+
+        .danger-zone {
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            background: #fff5f5;
+        }
+
+        .danger-zone h3 {
+            color: var(--danger);
+            margin-bottom: 15px;
+        }
+
+        .danger-zone p {
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo-text,
+            .sidebar .menu-text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+
+       
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="top-bar">
+                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <div class="logo"><i class="fas fa-futbol"></i> <span class="logo-text">Admin</span></div>
+            </div>
+
+            <ul class="menu">
+                <li class="menu-item active" title="Dashboard">
+                    <a href="admin.html" style="color: inherit; text-decoration: none;"><i class="fas fa-home"></i> <span class="menu-text">Dashboard</span></a>
+                </li>
+
+                <!-- Players -->
+                <li class="menu-item" title="Players">
+                    <i class="fas fa-user"></i> <a href="players.html">Players</a>
+                </li>
+
+                <!-- Scouts -->
+                <li class="menu-item" title="Scouts">
+                    <i class="fas fa-users"></i> <a href="Scoutmanger.html">Scouts</a>
+                </li>
+
+                <!-- Teams -->
+                <li class="menu-item" title="Teams">
+                    <i class="fas fa-futbol"></i> <a href="teams.html">Teams</a>
+                </li>
+
+
+                <!-- Subscriptions -->
+                <li class="menu-item" title="Subscriptions">
+                    <a href="subscriptions.html" style="color: inherit; text-decoration: none;"><i class="fas fa-credit-card"></i> <span class="menu-text">Subscriptions</span></a>
+                </li>
+
+                <!-- Reports -->
+                <li class="menu-item" title="Reports">
+                    <a href="admin-Reports.html" style="color: inherit; text-decoration: none;"><i class="fas fa-file-alt"></i> <span class="menu-text">Reports</span></a>
+                </li>
+
+            
+                <!-- Settings -->
+                <li class="menu-item" title="Settings">
+                    <i class="fas fa-cog"></i> 
+                    <a href="settings.html" class="menu-text">Settings</a>
+                </li>
+
+            </ul>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Admin Settings</h1>
+                <div class="user-info">
+                    <span>Admin <i class="fas fa-user-shield"></i></span>
+                </div>
+            </header>
+
+            <div class="settings-container">
+                <!-- Account Settings -->
+                <div class="settings-section fade-in">
+                    <h3>Account Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" value="admin_user">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" value="admin@footballscouting.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveAccountBtn"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-section fade-in" style="animation-delay: 0.1s;">
+                    <h3>Notification Preferences</h3>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Email Notifications</h4>
+                            <p>Receive emails about system updates and reports</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>New Report Alerts</h4>
+                            <p>Get notified when scouts submit new reports</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="reportAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Scout Activity</h4>
+                            <p>Receive notifications about scout login activity</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="scoutActivity" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Monthly Reports</h4>
+                            <p>Get monthly performance reports</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="monthlyReports">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveNotificationsBtn"><i class="fas fa-save"></i> Save Preferences</button>
+                    </div>
+                </div>
+                
+                <!-- System Settings -->
+                <div class="settings-section fade-in" style="animation-delay: 0.2s;">
+                    <h3>System Settings</h3>
+                    
+                    <div class="form-group">
+                        <label for="timezone">Timezone</label>
+                        <select id="timezone">
+                            <option value="utc">UTC</option>
+                            <option value="est" selected>Eastern Time (ET)</option>
+                            <option value="pst">Pacific Time (PT)</option>
+                            <option value="cet">Central European Time (CET)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dateFormat">Date Format</label>
+                        <select id="dateFormat">
+                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resultsPerPage">Results Per Page</label>
+                        <select id="resultsPerPage">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveSystemBtn"><i class="fas fa-save"></i> Save System Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Data Management -->
+                <div class="settings-section fade-in" style="animation-delay: 0.3s;">
+                    <h3>Data Management</h3>
+                    
+                    <div class="form-group">
+                        <label for="autoBackup">Automatic Backup</label>
+                        <select id="autoBackup">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="never">Never</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" id="exportDataBtn"><i class="fas fa-download"></i> Export Data</button>
+                        <button class="btn btn-primary" id="backupNowBtn"><i class="fas fa-save"></i> Backup Now</button>
+                    </div>
+                    
+                    <div class="danger-zone">
+                        <h3>Danger Zone</h3>
+                        <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                        <button class="btn btn-danger" id="deleteAccountBtn"><i class="fas fa-trash"></i> Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Account Deletion</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="form-group">
+                <p>Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently erased.</p>
+            </div>
+            <div class="form-group">
+                <label for="confirmDelete">Type "DELETE" to confirm</label>
+                <input type="text" id="confirmDelete" placeholder="Type DELETE here">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const saveAccountBtn = document.getElementById('saveAccountBtn');
+        const saveNotificationsBtn = document.getElementById('saveNotificationsBtn');
+        const saveSystemBtn = document.getElementById('saveSystemBtn');
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        const backupNowBtn = document.getElementById('backupNowBtn');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeModal = document.querySelector('.close');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const confirmDeleteInput = document.getElementById('confirmDelete');
+
+        // Save account settings
+        saveAccountBtn.addEventListener('click', () => {
+            saveAccountBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            setTimeout(() => {
+                saveAccountBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                saveAccountBtn.classList.add('pulse');
+                
+                setTimeout(() => {
+                    saveAccountBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                    saveAccountBtn.classList.remove('pulse');
+                }, 1500);
+            }, 1000);
+        });
+
+        // Save notification settings
+        saveNotificationsBtn.addEventListener('click', () => {
+            saveNotificationsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            setTimeout(() => {
+                saveNotificationsBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                saveNotificationsBtn.classList.add('pulse');
+                
+                setTimeout(() => {
+                    saveNotificationsBtn.innerHTML = '<i class="fas fa-save"></i> Save Preferences';
+                    saveNotificationsBtn.classList.remove('pulse');
+                }, 1500);
+            }, 1000);
+        });
+
+        // Save system settings
+        saveSystemBtn.addEventListener('click', () => {
+            saveSystemBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            setTimeout(() => {
+                saveSystemBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                saveSystemBtn.classList.add('pulse');
+                
+                setTimeout(() => {
+                    saveSystemBtn.innerHTML = '<i class="fas fa-save"></i> Save System Settings';
+                    saveSystemBtn.classList.remove('pulse');
+                }, 1500);
+            }, 1000);
+        });
+
+        // Export data
+        exportDataBtn.addEventListener('click', () => {
+            exportDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            
+            setTimeout(() => {
+                exportDataBtn.innerHTML = '<i class="fas fa-download"></i> Export Data';
+                alert('Data exported successfully!');
+            }, 1500);
+        });
+
+        // Backup now
+        backupNowBtn.addEventListener('click', () => {
+            backupNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Backing up...';
+            
+            setTimeout(() => {
+                backupNowBtn.innerHTML = '<i class="fas fa-save"></i> Backup Now';
+                alert('Backup completed successfully!');
+            }, 1500);
+        });
+
+        // Open delete confirmation modal
+        deleteAccountBtn.addEventListener('click', () => {
+            deleteModal.style.display = 'flex';
+        });
+
+        // Close delete confirmation modal
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            confirmDeleteInput.value = '';
+        }
+
+        // Close modal when X is clicked
+        closeModal.addEventListener('click', closeDeleteModal);
+
+        // Close modal when cancel is clicked
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Delete account
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (confirmDeleteInput.value === 'DELETE') {
+                confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                
+                setTimeout(() => {
+                    alert('Account deleted successfully! Redirecting to login page...');
+                    closeDeleteModal();
+                    confirmDeleteBtn.innerHTML = 'Delete Account';
+                }, 1500);
+            } else {
+                alert('Please type "DELETE" to confirm account deletion.');
+            }
+        });
+
+        // Theme toggle functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-theme');
+            themeToggle.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            
+            // Save theme preference to localStorage
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+    </script>
+</body>
+</html>

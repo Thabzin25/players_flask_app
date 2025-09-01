@@ -1,0 +1,676 @@
+/* ===== Base Styles ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+body.dark-mode {
+    background: #121212;
+    color: white;
+}
+body.dark-mode .topbar {
+    background: #1e1e1e;
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+body.dark-mode .card {
+    background: rgba(0,0,0,0.4);
+}
+
+/* ===== Sidebar ===== */
+/* Sidebar base */
+.sidebar {
+    width: 220px;
+    background: white;
+    color: black;
+    height: 100vh;
+    position: fixed;
+    transition: width 0.3s;
+    overflow: hidden;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+.sidebar.collapsed { width: 60px; }
+
+/* Sidebar logo/menu */
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    background: #f7f7f7;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.sidebar .menu-toggle {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Sidebar items */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar ul li {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s, transform 0.2s;
+}
+.sidebar ul li i {
+    font-size: 18px;
+    min-width: 30px;
+    text-align: center;
+}
+.sidebar ul li:hover {
+    background: rgba(0,0,0,0.05);
+    transform: translateX(3px);
+}
+
+/* Collapsed - hide text */
+.sidebar.collapsed ul li span {
+    display: none;
+}
+
+/* Tooltip when collapsed */
+.sidebar.collapsed ul li:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 65px;
+    background: black;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+    font-size: 13px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    animation: fadeIn 0.2s ease;
+}
+
+/* Active item */
+.sidebar ul li.active {
+    background: rgba(0,0,0,0.1);
+    border-left: 4px solid black;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Main Content ===== */
+.main {
+    margin-left: 220px;
+    transition: margin-left 0.3s;
+}
+.main.collapsed {
+    margin-left: 60px;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin-left: 220px; /* matches sidebar width */
+    transition: margin-left 0.3s;
+}
+
+.sidebar.collapsed ~ .topbar {
+    margin-left: 60px; /* when collapsed */
+}
+
+.search-container input {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.2);
+    width: 250px;
+    transition: all 0.2s;
+}
+.search-container input:focus {
+    outline: none;
+    border-color: black;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.notification {
+    position: relative;
+    cursor: pointer;
+}
+.notification i {
+    font-size: 18px;
+}
+.notification .badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+}
+
+.profile-menu {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.profile-menu img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.profile-menu .dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    min-width: 180px;
+    z-index: 100;
+}
+.profile-menu:hover .dropdown {
+    display: block;
+}
+.profile-menu .dropdown a {
+    display: block;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+}
+.profile-menu .dropdown a:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+body.dark-mode {
+    background: #121212;
+    color: white;
+}
+body.dark-mode .topbar {
+    background: #1e1e1e;
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+body.dark-mode .search-container input {
+    background: #222;
+    color: white;
+    border-color: rgba(255,255,255,0.2);
+}
+
+/* ===== Stats Cards ===== */
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+.card {
+    flex: 1;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+}
+body.dark .card {
+    background: rgba(0,0,0,0.4);
+}
+.card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.card:nth-child(3) {
+    animation-delay: 0.4s;
+}
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+@keyframes fadeUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== Dashboard Toggles ===== */
+.dashboard-toggles {
+    display: flex;
+    gap: 10px;
+    margin: 15px 20px;
+}
+.toggle-btn {
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 14px;
+    background: black;
+    color: white;
+}
+.toggle-btn:hover {
+    background: gray;
+}
+.toggle-btn.active {
+    background: white;
+    color: black;
+    border: 1px solid black;
+}
+/* ===== Subscriptions Section ===== */
+.subscriptions {
+    margin: 30px 20px;
+}
+
+.subscriptions h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subscriptions p {
+    margin-bottom: 20px;
+    color: rgba(0,0,0,0.7);
+}
+
+body.dark-mode .subscriptions p {
+    color: rgba(255,255,255,0.7);
+}
+
+/* Subscription Plan Cards */
+.subscription-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.plan-card {
+    flex: 1 1 250px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+body.dark-mode .plan-card {
+    background: rgba(0,0,0,0.4);
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.plan-card h3 {
+    margin: 10px 0;
+    font-size: 20px;
+}
+
+.plan-card p {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: rgba(0,0,0,0.6);
+}
+
+body.dark-mode .plan-card p {
+    color: rgba(255,255,255,0.7);
+}
+
+.plan-card ul {
+    list-style: none;
+    margin-bottom: 15px;
+}
+
+.plan-card ul li {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.plan-card.featured {
+    border: 2px solid #000;
+}
+
+/* Buttons */
+.btn, .btn-accent, .btn-small, .btn-small.danger {
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn {
+    background: black;
+    color: white;
+}
+
+.btn:hover {
+    background: gray;
+}
+
+.btn-accent {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-accent:hover {
+    background: #e68900;
+}
+
+.btn-small {
+    padding: 4px 10px;
+    font-size: 13px;
+    background: #ccc;
+}
+
+.btn-small.danger {
+    background: #e53935;
+    color: white;
+}
+
+.btn-small.danger:hover {
+    background: #c62828;
+}
+
+/* Subscription Table */
+.subscriptions-table {
+    margin-top: 30px;
+    overflow-x: auto;
+}
+
+.subscriptions-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subscriptions-table th, 
+.subscriptions-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+body.dark-mode .subscriptions-table th,
+body.dark-mode .subscriptions-table td {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.subscriptions-table th {
+    background: rgba(0,0,0,0.05);
+    font-weight: 600;
+}
+
+body.dark-mode .subscriptions-table th {
+    background: rgba(255,255,255,0.05);
+}
+
+.status.active {
+    color: green;
+    font-weight: bold;
+}
+
+.status.overdue {
+    color: red;
+    font-weight: bold;
+}
+/* ===== Player Scouting Styles ===== */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 8px;
+}
+
+body.dark-mode .filters {
+  background: rgba(0,0,0,0.4);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.filter-group select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+body.dark-mode .filter-group select {
+  background: #222;
+  color: white;
+  border-color: rgba(255,255,255,0.2);
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
+.player-results {
+  margin-top: 20px;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.results-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.players-table th, 
+.players-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+body.dark-mode .players-table th,
+body.dark-mode .players-table td {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.players-table th {
+  background: rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+
+body.dark-mode .players-table th {
+  background: rgba(255,255,255,0.05);
+}
+
+.players-table tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+body.dark-mode .players-table tr:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 700px;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+body.dark-mode .modal-content {
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: black;
+}
+
+body.dark-mode .close:hover {
+  color: white;
+}
+
+.player-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  padding: 8px 0;
+}
+
+.player-stats {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 8px;
+}
+
+body.dark-mode .player-stats {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Search container adjustment */
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-container input {
+  margin-right: 10px;
+}
+
+.Menu-item a {
+  color: white;       /* make text white */
+  text-decoration: none; /* remove underline */
+}
+
+.Menu-item a:hover {
+  color: #f1c40f;     /* optional: show yellow on hover */
+}
+
+
+/* Sidebar / Nav Links */
+.nav-links .link-text {
+  color: black;       /* text will now be black */
+  display: inline;    /* show text again */
+}
+
+/* style links */
+.nav-links a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: black; /* link text + icons will be black */
+  transition: background 0.3s;
+}
+
+.nav-links a:hover {
+  background: #f1f1f1; /* subtle highlight */
+  color: #000; /* keep black text on hover */
+}
+
+/* Make all sidebar links invisible but still clickable */
+.sidebar ul li a {
+  color: black;       /* hides text */
+  text-decoration: none;    /* remove underline */
+}
+
+/* Optional: hide icons too */
+.sidebar ul li a i {
+  color: black;       /* hides icons if you want */
+}
+
+/* Keep hover background for clickable feedback */
+.sidebar ul li a:hover {
+  background: rgba(0,0,0,0.05); /* subtle hover highlight */
+}

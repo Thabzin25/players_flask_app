@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="player.css">
+</head>
+<body>
+
+<div class="profile-page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar collapsed">
+    <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+    <ul class="menu">
+        <li class="menu-item" title="Dashboard"><i class="fas fa-tachometer-alt"></i><span class="menu-text">Dashboard</span></li>
+        <li class="menu-item" title="My Team"><i class="fas fa-futbol"></i><span class="menu-text">My Team</span></li>
+        <li class="menu-item" title="Achievements"><i class="fas fa-trophy"></i><span class="menu-text">Achievements</span></li>
+    </ul>
+    <button class="theme-toggle"><i class="fas fa-sun"></i></button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="page-title">Dashboard</div>
+        <div class="profile-menu">
+            <img src="https://via.placeholder.com/50" id="topProfileImg" alt="Profile Picture">
+            <div class="dropdown">
+                <label for="photoUploadDropdown" class="upload-photo">Upload Photo</label>
+                <input type="file" id="photoUploadDropdown" accept="image/*" style="display:none;">
+                <div class="user-info">
+                    <p><strong>Name:</strong> John Doe</p>
+                    <p><strong>Age:</strong> 22</p>
+                    <p><strong>Position:</strong> Forward</p>
+                    <p><strong>Team:</strong> FC Lions</p>
+                </div>
+                <button class="delete-account">Delete Account</button>
+                <button class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="profile-card">
+        <h2>Profile Info</h2>
+        <div class="profile-photo">
+            <img id="profileImg" src="https://via.placeholder.com/150" alt="Player Photo">
+            <input type="file" id="photoUpload" accept="image/*">
+        </div>
+
+        <!--<form id="playerForm">
+            <label>Name: <input type="text" id="playerName" value="John Doe" required></label>
+            <label>Age: <input type="number" id="playerAge" value="22" required></label>
+            <label>Position: <input type="text" id="playerPosition" value="Forward" required></label>
+            <label>Team: <input type="text" id="playerTeam" value="FC Lions" disabled></label>
+            <label>Status: 
+                <select id="playerStatus">
+                    <option value="Active" selected>Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </label>
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save</button>
+                <button type="button" class="delete-btn"><i class="fas fa-trash"></i> Delete Profile</button>
+            </div>
+        </form> -->
+        <button class="logout-btn main-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-card">
+        <h2>Performance Stats</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>Goals</h3>
+                <div class="progress-bar"><div class="progress" style="width: 80%;"></div></div>
+            </div>
+            <div class="stat-item">
+                <h3>Assists</h3>
+                <div class="progress-bar"><div class="progress" style="width: 60%;"></div></div>
+            </div>
+            <div class="stat-item">
+                <h3>Matches</h3>
+                <div class="progress-bar"><div class="progress" style="width: 90%;"></div></div>
+            </div>
+            <div class="stat-item">
+                <h3>Minutes Played</h3>
+                <div class="progress-bar"><div class="progress" style="width: 70%;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="achievements-card">
+        <h2>Achievements</h2>
+        <div class="badges">
+            <div class="badge" title="Top Scorer"><i class="fas fa-award"></i></div>
+            <div class="badge" title="Player of the Month"><i class="fas fa-star"></i></div>
+            <div class="badge" title="MVP"><i class="fas fa-medal"></i></div>
+        </div>
+    </div>
+
+  </main>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

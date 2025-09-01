@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        
+        :root {
+            --primary: #4361ee;
+            --primary-gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f77f00;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --background: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #dddddd;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        .dark {
+            --primary-gradient: linear-gradient(135deg, #3a0ca3, #4361ee);
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #f0f0f0;
+            --border: #444444;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        .top-bar {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .sidebar-toggle:hover {
+            transform: rotate(180deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateX(-100%);
+            transition: var(--transition);
+        }
+
+        .menu-item:hover::before {
+            transform: translateX(0);
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 30px;
+        }
+
+        .menu-item a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .menu-item.active::before {
+            transform: translateX(0);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .submenu {
+            list-style: none;
+            padding-left: 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .dropdown:hover .submenu {
+            max-height: 300px;
+        }
+
+        .submenu li {
+            padding: 12px 0;
+        }
+
+        .submenu a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .submenu a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .theme-toggle {
+            margin: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            align-self: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            transition: var(--transition);
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 80px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .user-info:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px var(--shadow);
+        }
+
+        .content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            margin: 30px 0 20px;
+            color: var(--secondary);
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--secondary);
+            margin-left: 5px;
+        }
+
+        input, select, textarea {
+            padding: 15px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        button {
+            padding: 15px 25px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-top-left-radius: 15px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 15px;
+        }
+
+        td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        tr {
+            transition: var(--transition);
+        }
+
+        tr:last-child td:first-child {
+            border-bottom-left-radius: 15px;
+        }
+
+        tr:last-child td:last-child {
+            border-bottom-right-radius: 15px;
+        }
+
+        tr:hover {
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        tr:hover td {
+            transform: translateX(5px);
+        }
+
+        .btn-small {
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .danger {
+            background: var(--danger);
+        }
+        .menu-item a {
+  color: white;       /* make text white */
+  text-decoration: none; /* remove underline */
+}
+
+.menu-item a:hover {
+  color: #f1c40f;     /* optional: show yellow on hover */
+}
+        .danger:hover {
+            background: #d1144a;
+            box-shadow: 0 8px 15px rgba(247, 37, 133, 0.3);
+        }
+
+        .success {
+            background: var(--success);
+        }
+
+        .success:hover {
+            background: #3aa8d0;
+            box-shadow: 0 8px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        .warning {
+            background: var(--warning);
+        }
+
+        .warning:hover {
+            background: #e57c00;
+            box-shadow: 0 8px 15px rgba(247, 127, 0, 0.3);
+        }
+
+        .info {
+            background: var(--info);
+        }
+
+        .info:hover {
+            background: #3a7aca;
+            box-shadow: 0 8px 15px rgba(72, 149, 239, 0.3);
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            animation: fadeIn 0.5s, fadeOut 0.5s 2.5s forwards;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px var(--shadow);
+        }
+
+        .stat-card h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card .description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-gradient);
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px var(--shadow);
+        }
+
+        .chart-card h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        /* Plan Cards */
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .plan-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card.popular::after {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--primary);
+            color: white;
+            padding: 5px 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+
+        .plan-card.premium {
+            border-top-color: gold;
+        }
+
+        .plan-card.pro {
+            border-top-color: var(--info);
+        }
+
+        .plan-card.basic {
+            border-top-color: var(--success);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px var(--shadow);
+        }
+
+        .plan-card h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.4rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features i {
+            color: var(--success);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(67, 97, 238, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 600px;
+            animation: slideIn 0.4s;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        /* Loading spinner */
+        .loader {
+            border: 5px solid var(--background);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Badge */
+        .badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--primary-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+            
+            .sidebar.collapsed ~ .main-content {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .logo-text, .menu-text {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+                padding: 20px;
+            }
+            
+            form {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container,
+            .plans-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .submenu {
+                position: absolute;
+                left: 80px;
+                background: var(--primary);
+                width: 200px;
+                border-radius: 0 10px 10px 0;
+                box-shadow: var(--card-shadow);
+                z-index: 1001;
+                padding: 15px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar.collapsed {
+                width: 80px;
+            }
+            
+            .sidebar-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1100;
+                background: var(--primary);
+                padding: 12px;
+                border-radius: 10px;
+                box-shadow: var(--card-shadow);
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                align-self: flex-end;
+            }
+            
+            .table-container {
+                border-radius: 10px;
+            }
+            
+            table {
+                min-width: 700px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .content {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .modal-content {
+                padding: 25px;
+            }
+            
+            .stat-card,
+            .chart-card {
+                padding: 20px;
+            }
+            
+            .stat-card .value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    
+        /* Your existing CSS remains unchanged */
+        :root {
+            --primary: #4361ee;
+            --primary-gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f77f00;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --background: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #dddddd;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        .dark {
+            --primary-gradient: linear-gradient(135deg, #3a0ca3, #4361ee);
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #f0f0f0;
+            --border: #444444;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* All your existing CSS remains the same */
+        /* ... (truncated for brevity, but your full CSS is preserved) ... */
+
+        .header-with-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0 20px;
+        }
+
+        .header-with-button h2 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="top-bar">
+                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <div class="logo"><i class="fas fa-futbol"></i> <span class="logo-text">Admin</span></div>
+            </div>
+
+            <ul class="menu">
+                <li class="menu-item" title="Dashboard">
+                    <a href="admin.html"><i class="fas fa-home"></i> <span class="menu-text">Dashboard</span></a>
+                </li>
+
+                <!-- Players Dropdown -->
+                <li class="menu-item" title="Players">
+                    <a href="players.html"><i class="fas fa-user"></i> <span class="menu-text">Players</span></a>
+                </li>
+
+                <!-- Scouts Dropdown -->
+                <li class="menu-item" title="Scouts">
+                    <a href="Scoutmanger.html"><i class="fas fa-users"></i> <span class="menu-text">Scouts</span></a>
+                </li>
+
+                <!-- Teams Dropdown -->
+                <li class="menu-item" title="Teams">
+                    <a href="teams.html"><i class="fas fa-futbol"></i> <span class="menu-text">Teams</span></a>
+                </li>
+
+                <!-- Subscriptions -->
+                <!-- Subscriptions -->
+                <li class="menu-item" title="Subscriptions">
+                    <a href="subscriptions.html" style="color: inherit; text-decoration: none;"><i class="fas fa-credit-card"></i> <span class="menu-text">Subscriptions</span></a>
+                </li>
+                <!-- Reports -->
+                <li class="menu-item" title="Reports">
+                    <a href="admin-Reports.html"><i class="fas fa-file-alt"></i> <span class="menu-text">Reports</span></a>
+                </li>
+
+                <!-- Analytics -->
+                <li class="menu-item" title="Analytics">
+                    <a href="analytics.html"><i class="fas fa-chart-line"></i> <span class="menu-text">Analytics</span></a>
+                </li>
+
+                <!-- Settings -->
+                <li class="menu-item" title="Settings">
+                    <a href="settings.html"><i class="fas fa-cog"></i> <span class="menu-text">Settings</span></a>
+                </li>
+            </ul>
+
+            <button class="theme-toggle"><i class="fas fa-sun"></i></button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Subscription Management</h1>
+                <div class="user-info">
+                    <span>Admin <i class="fas fa-user-shield"></i></span>
+                </div>
+            </header>
+
+            <section class="content">
+                <h2>Subscription Overview</h2>
+                <div class="stats-container" id="statsContainer">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-users"></i> Total Subscriptions</h3>
+                        <div class="value" id="totalSubscriptions">0</div>
+                        <div class="description">Active subscriptions in the system</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3><i class="fas fa-dollar-sign"></i> Monthly Revenue</h3>
+                        <div class="value" id="monthlyRevenue">$0</div>
+                        <div class="description">Current month revenue</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3><i class="fas fa-chart-line"></i> Growth Rate</h3>
+                        <div class="value" id="growthRate">0%</div>
+                        <div class="description">From last month</div>
+                    </div>
+                </div>
+
+                <h2>Revenue Charts</h2>
+                <div class="chart-container">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Subscription Distribution</h3>
+                        <canvas id="subscriptionChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line"></i> Monthly Revenue</h3>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <h2>Subscription Plans</h2>
+                <div class="plans-container">
+                    <div class="plan-card basic popular">
+                        <h3>Basic Plan <span class="badge">Most Popular</span></h3>
+                        <div class="plan-price">$29<span>/month</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Up to 10 players</li>
+                            <li><i class="fas fa-check"></i> Basic analytics</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                            <li><i class="fas fa-check"></i> 1 scout license</li>
+                        </ul>
+                        <button class="btn-small" data-plan="basic"><i class="fas fa-edit"></i> Edit Plan</button>
+                    </div>
+
+                    <div class="plan-card pro">
+                        <h3>Pro Plan</h3>
+                        <div class="plan-price">$79<span>/month</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Up to 50 players</li>
+                            <li><i class="fas fa-check"></i> Advanced analytics</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> 5 scout licenses</li>
+                        </ul>
+                        <button class="btn-small" data-plan="pro"><i class="fas fa-edit"></i> Edit Plan</button>
+                    </div>
+
+                    <div class="plan-card premium">
+                        <h3>Premium Plan</h3>
+                        <div class="plan-price">$149<span>/month</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Unlimited players</li>
+                            <li><i class="fas fa-check"></i> Premium analytics</li>
+                            <li><i class="fas fa-check"></i> 24/7 phone support</li>
+                            <li><i class="fas fa-check"></i> 10 scout licenses</li>
+                        </ul>
+                        <button class="btn-small" data-plan="premium"><i class="fas fa-edit"></i> Edit Plan</button>
+                    </div>
+                </div>
+
+                <div class="header-with-button">
+                    <h2>All Subscriptions</h2>
+                    <button class="pulse" id="addSubscriptionBtn"><i class="fas fa-plus"></i> Add New Subscription</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Team/Scout</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Start Date</th>
+                                <th>Renewal Date</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscriptionsTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center;">
+                                    <div class="loader" id="tableLoader"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Subscription Modal -->
+    <div class="modal" id="addSubscriptionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Subscription</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="addSubscriptionForm">
+                <div class="form-group">
+                    <label for="subscriberType">Subscriber Type</label>
+                    <select id="subscriberType" name="subscriberType" required>
+                        <option value="">Select Type</option>
+                        <option value="team">Team</option>
+                        <option value="scout">Scout</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subscriber">Subscriber</label>
+                    <select id="subscriber" name="subscriberId" required>
+                        <option value="">Select Subscriber</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plan">Plan</label>
+                    <select id="plan" name="planId" required>
+                        <option value="">Select Plan</option>
+                        <option value="basic">Basic ($29/month)</option>
+                        <option value="pro">Pro ($79/month)</option>
+                        <option value="premium">Premium ($149/month)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" name="paymentMethod" required>
+                        <option value="">Select Method</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                
+                <button type="submit"><i class="fas fa-check"></i> Create Subscription</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Subscription Modal -->
+    <div class="modal" id="viewSubscriptionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Subscription Details</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="subscriptionDetails">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History Modal -->
+    <div class="modal" id="paymentHistoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Payment History</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentHistoryBody">
+                        <!-- Content will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database schema mapping
+        const STATUS_MAPPING = {
+            1: 'active',
+            2: 'expired',
+            3: 'pending',
+            4: 'canceled'
+        };
+
+        const PLAN_MAPPING = {
+            'basic': { name: 'Basic Plan', price: 29 },
+            'pro': { name: 'Pro Plan', price: 79 },
+            'premium': { name: 'Premium Plan', price: 149 }
+        };
+
+        const STATUS_COLORS = {
+            'active': '#4cc9f0',
+            'expired': '#f72585',
+            'pending': '#f77f00',
+            'canceled': '#666'
+        };
+
+        // Mock data for teams and scouts
+        const MOCK_TEAMS = [
+            { clubId: 1, name: 'FC Barcelona' },
+            { clubId: 2, name: 'Real Madrid' },
+            { clubId: 3, name: 'Manchester United' },
+            { clubId: 4, name: 'Bayern Munich' },
+            { clubId: 5, name: 'Juventus' }
+        ];
+
+        const MOCK_SCOUTS = [
+            { scoutId: 1, name: 'John Smith' },
+            { scoutId: 2, name: 'Emma Johnson' },
+            { scoutId: 3, name: 'Michael Williams' },
+            { scoutId: 4, name: 'Sarah Brown' },
+            { scoutId: 5, name: 'David Jones' }
+        ];
+
+        // Initialize data in localStorage if not exists
+        function initializeData() {
+            if (!localStorage.getItem('subscriptions')) {
+                const initialSubscriptions = [
+                    {
+                        subscriptionId: 1,
+                        description: "FC Barcelona Basic Subscription",
+                        plan: "basic",
+                        statusId: 1,
+                        scoutId: null,
+                        clubId: 1,
+                        startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        paymentMethod: "credit_card",
+                        paymentHistory: [
+                            { date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], amount: 29, method: "credit_card", status: "completed" }
+                        ]
+                    },
+                    {
+                        subscriptionId: 2,
+                        description: "John Smith Pro Subscription",
+                        plan: "pro",
+                        statusId: 1,
+                        scoutId: 1,
+                        clubId: null,
+                        startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        paymentMethod: "paypal",
+                        paymentHistory: [
+                            { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], amount: 79, method: "paypal", status: "completed" }
+                        ]
+                    },
+                    {
+                        subscriptionId: 3,
+                        description: "Real Madrid Premium Subscription",
+                        plan: "premium",
+                        statusId: 3,
+                        scoutId: null,
+                        clubId: 2,
+                        startDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        renewalDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        paymentMethod: "bank_transfer",
+                        paymentHistory: []
+                    }
+                ];
+                localStorage.setItem('subscriptions', JSON.stringify(initialSubscriptions));
+            }
+
+            if (!localStorage.getItem('nextSubscriptionId')) {
+                localStorage.setItem('nextSubscriptionId', '4');
+            }
+        }
+
+        // API simulation using localStorage
+        const apiRequest = {
+            // Subscriptions
+            getSubscriptions: () => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                return Promise.resolve(subscriptions.map(sub => {
+                    const status = STATUS_MAPPING[sub.statusId] || 'pending';
+                    const plan = PLAN_MAPPING[sub.plan] || { name: 'Unknown Plan', price: 0 };
+                    
+                    // Find team or scout name
+                    let team_name = null;
+                    let scout_name = null;
+                    
+                    if (sub.clubId) {
+                        const team = MOCK_TEAMS.find(t => t.clubId === sub.clubId);
+                        team_name = team ? team.name : 'Unknown Team';
+                    }
+                    
+                    if (sub.scoutId) {
+                        const scout = MOCK_SCOUTS.find(s => s.scoutId === sub.scoutId);
+                        scout_name = scout ? scout.name : 'Unknown Scout';
+                    }
+                    
+                    return {
+                        ...sub,
+                        status,
+                        plan_name: plan.name,
+                        amount: plan.price,
+                        team_name,
+                        scout_name
+                    };
+                }));
+            },
+            
+            getSubscription: (id) => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const sub = subscriptions.find(s => s.subscriptionId === parseInt(id));
+                
+                if (!sub) return Promise.reject(new Error('Subscription not found'));
+                
+                const status = STATUS_MAPPING[sub.statusId] || 'pending';
+                const plan = PLAN_MAPPING[sub.plan] || { name: 'Unknown Plan', price: 0 };
+                
+                // Find team or scout name
+                let team_name = null;
+                let scout_name = null;
+                
+                if (sub.clubId) {
+                    const team = MOCK_TEAMS.find(t => t.clubId === sub.clubId);
+                    team_name = team ? team.name : 'Unknown Team';
+                }
+                
+                if (sub.scoutId) {
+                    const scout = MOCK_SCOUTS.find(s => s.scoutId === sub.scoutId);
+                    scout_name = scout ? scout.name : 'Unknown Scout';
+                }
+                
+                return Promise.resolve({
+                    ...sub,
+                    status,
+                    plan_name: plan.name,
+                    amount: plan.price,
+                    team_name,
+                    scout_name
+                });
+            },
+            
+            createSubscription: (data) => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const nextId = parseInt(localStorage.getItem('nextSubscriptionId') || '1');
+                
+                const newSubscription = {
+                    subscriptionId: nextId,
+                    description: `${data.subscriberType === 'team' ? MOCK_TEAMS.find(t => t.clubId === parseInt(data.subscriberId))?.name : MOCK_SCOUTS.find(s => s.scoutId === parseInt(data.subscriberId))?.name} ${PLAN_MAPPING[data.planId].name}`,
+                    plan: data.planId,
+                    statusId: 1, // active
+                    scoutId: data.subscriberType === 'scout' ? parseInt(data.subscriberId) : null,
+                    clubId: data.subscriberType === 'team' ? parseInt(data.subscriberId) : null,
+                    startDate: data.startDate,
+                    renewalDate: new Date(new Date(data.startDate).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    paymentMethod: data.paymentMethod,
+                    paymentHistory: [
+                        { 
+                            date: data.startDate, 
+                            amount: PLAN_MAPPING[data.planId].price, 
+                            method: data.paymentMethod, 
+                            status: "completed" 
+                        }
+                    ]
+                };
+                
+                subscriptions.push(newSubscription);
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+                localStorage.setItem('nextSubscriptionId', (nextId + 1).toString());
+                
+                return Promise.resolve(newSubscription);
+            },
+            
+            updateSubscription: (id, data) => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const index = subscriptions.findIndex(s => s.subscriptionId === parseInt(id));
+                
+                if (index === -1) return Promise.reject(new Error('Subscription not found'));
+                
+                subscriptions[index] = { ...subscriptions[index], ...data };
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+                
+                return Promise.resolve(subscriptions[index]);
+            },
+            
+            deleteSubscription: (id) => {
+                let subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                subscriptions = subscriptions.filter(s => s.subscriptionId !== parseInt(id));
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+                
+                return Promise.resolve({ success: true });
+            },
+            
+            renewSubscription: (id) => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const index = subscriptions.findIndex(s => s.subscriptionId === parseInt(id));
+                
+                if (index === -1) return Promise.reject(new Error('Subscription not found'));
+                
+                const sub = subscriptions[index];
+                const plan = PLAN_MAPPING[sub.plan] || { price: 0 };
+                
+                // Update renewal date
+                const newRenewalDate = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                subscriptions[index].renewalDate = newRenewalDate;
+                
+                // Add payment record
+                subscriptions[index].paymentHistory.push({
+                    date: new Date().toISOString().split('T')[0],
+                    amount: plan.price,
+                    method: sub.paymentMethod,
+                    status: "completed"
+                });
+                
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+                
+                return Promise.resolve(subscriptions[index]);
+            },
+            
+            getSubscriptionPayments: (id) => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const sub = subscriptions.find(s => s.subscriptionId === parseInt(id));
+                
+                if (!sub) return Promise.reject(new Error('Subscription not found'));
+                
+                return Promise.resolve(sub.paymentHistory || []);
+            },
+            
+            // Statistics
+            getSubscriptionStats: () => {
+                const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+                const activeSubs = subscriptions.filter(s => s.statusId === 1).length;
+                
+                let monthlyRevenue = 0;
+                subscriptions.forEach(sub => {
+                    if (sub.statusId === 1) { // active
+                        const plan = PLAN_MAPPING[sub.plan] || { price: 0 };
+                        monthlyRevenue += plan.price;
+                    }
+                });
+                
+                // Mock growth rate
+                const growthRate = 12.5;
+                
+                return Promise.resolve({
+                    totalSubscriptions: activeSubs,
+                    monthlyRevenue: monthlyRevenue,
+                    growthRate: growthRate
+                });
+            },
+            
+            // Teams and Scouts
+            getTeams: () => Promise.resolve(MOCK_TEAMS),
+            getScouts: () => Promise.resolve(MOCK_SCOUTS)
+        };
+
+        // Global variables
+        let subscriptions = [];
+        let teams = [];
+        let scouts = [];
+
+        // Sidebar toggle
+        const sidebar = document.querySelector('.sidebar');
+        document.querySelector('.sidebar-toggle').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Light/Dark mode toggle
+        const themeBtn = document.querySelector('.theme-toggle');
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            if (document.body.classList.contains('dark')) {
+                themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+
+        // Elements
+        const subscriptionsTableBody = document.getElementById("subscriptionsTableBody");
+        const statsContainer = document.getElementById("statsContainer");
+        const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
+        const addSubscriptionModal = document.getElementById("addSubscriptionModal");
+        const viewSubscriptionModal = document.getElementById("viewSubscriptionModal");
+        const paymentHistoryModal = document.getElementById("paymentHistoryModal");
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        const subscriberTypeSelect = document.getElementById("subscriberType");
+        const subscriberSelect = document.getElementById("subscriber");
+
+        // Show temporary message
+        function showMessage(msg, color = "#10b981") {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.textContent = msg;
+            messageDiv.style.background = color;
+            messageDiv.style.color = "#fff";
+            document.querySelector(".content").prepend(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+
+        // Load subscription statistics
+        async function loadStatistics() {
+            try {
+                const stats = await apiRequest.getSubscriptionStats();
+                
+                document.getElementById("totalSubscriptions").textContent = stats.totalSubscriptions;
+                document.getElementById("monthlyRevenue").textContent = `$${stats.monthlyRevenue}`;
+                document.getElementById("growthRate").textContent = `${stats.growthRate}%`;
+            } catch (err) {
+                console.error("Error loading statistics:", err);
+                showMessage("Failed to load statistics", "#f59e0b");
+            }
+        }
+
+        // Load teams and scouts for dropdown
+        async function loadSubscribers() {
+            try {
+                // Load teams
+                teams = await apiRequest.getTeams();
+                
+                // Load scouts
+                scouts = await apiRequest.getScouts();
+                
+            } catch (err) {
+                console.error("Error loading subscribers:", err);
+                showMessage("Failed to load subscribers", "#f59e0b");
+            }
+        }
+
+        // Update subscriber dropdown based on type selection
+        subscriberTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+            subscriberSelect.innerHTML = '<option value="">Select Subscriber</option>';
+            
+            if (type === 'team') {
+                teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.clubId;
+                    option.textContent = team.name;
+                    subscriberSelect.appendChild(option);
+                });
+            } else if (type === 'scout') {
+                scouts.forEach(scout => {
+                    const option = document.createElement('option');
+                    option.value = scout.scoutId;
+                    option.textContent = scout.name;
+                    subscriberSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Load subscription data for table
+        async function loadSubscriptions() {
+            try {
+                subscriptions = await apiRequest.getSubscriptions();
+                subscriptionsTableBody.innerHTML = "";
+                
+                if (subscriptions.length === 0) {
+                    subscriptionsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No subscriptions found</td></tr>`;
+                    return;
+                }
+                
+                subscriptions.forEach((subscription, index) => {
+                    const row = document.createElement("tr");
+                    row.style.animationDelay = `${index * 0.05}s`;
+                    
+                    // Determine status color and text
+                    const statusColor = STATUS_COLORS[subscription.status] || "#4cc9f0";
+                    const statusText = subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1);
+                    
+                    // Format dates
+                    const startDate = new Date(subscription.startDate).toLocaleDateString();
+                    const renewalDate = new Date(subscription.renewalDate).toLocaleDateString();
+                    
+                    row.innerHTML = `
+                        <td>${subscription.team_name || subscription.scout_name}</td>
+                        <td>${subscription.plan_name}</td>
+                        <td><span style="color: ${statusColor}; font-weight: bold">${statusText}</span></td>
+                        <td>${startDate}</td>
+                        <td>${renewalDate}</td>
+                        <td>$${subscription.amount}</td>
+                        <td>
+                            <button class="btn-small info view-btn" data-id="${subscription.subscriptionId}"><i class="fas fa-eye"></i> View</button>
+                            <button class="btn-small danger cancel-btn" data-id="${subscription.subscriptionId}"><i class="fas fa-times"></i> Cancel</button>
+                        </td>
+                    `;
+                    
+                    // Add event listeners to buttons
+                    row.querySelector('.view-btn').addEventListener('click', () => {
+                        viewSubscription(subscription.subscriptionId);
+                    });
+                    
+                    row.querySelector('.cancel-btn').addEventListener('click', () => {
+                        cancelSubscription(subscription.subscriptionId);
+                    });
+                    
+                    subscriptionsTableBody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Error loading subscriptions:", err);
+                subscriptionsTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger);">Error loading subscriptions: ${err.message}</td></tr>`;
+            }
+        }
+
+        // View subscription details
+        async function viewSubscription(subscriptionId) {
+            try {
+                const subscription = await apiRequest.getSubscription(subscriptionId);
+                
+                // Format dates
+                const startDate = new Date(subscription.startDate).toLocaleDateString();
+                const renewalDate = new Date(subscription.renewalDate).toLocaleDateString();
+                
+                // Load payment history
+                const payments = await apiRequest.getSubscriptionPayments(subscriptionId);
+                
+                let paymentHistoryHTML = '';
+                if (payments.length > 0) {
+                    paymentHistoryHTML = `
+                        <h3 style="margin-top: 20px;">Payment History</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${payments.map(payment => `
+                                        <tr>
+                                            <td>${new Date(payment.date).toLocaleDateString()}</td>
+                                            <td>$${payment.amount}</td>
+                                            <td>${payment.method}</td>
+                                            <td>${payment.status}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    paymentHistoryHTML = '<p>No payment history found.</p>';
+                }
+                
+                document.getElementById('subscriptionDetails').innerHTML = `
+                    <div class="subscription-detail">
+                        <h3>${subscription.team_name || subscription.scout_name}</h3>
+                        <p><strong>Plan:</strong> ${subscription.plan_name} ($${subscription.amount}/month)</p>
+                        <p><strong>Status:</strong> <span style="color: ${STATUS_COLORS[subscription.status]}">${subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}</span></p>
+                        <p><strong>Start Date:</strong> ${startDate}</p>
+                        <p><strong>Renewal Date:</strong> ${renewalDate}</p>
+                        <p><strong>Subscriber Type:</strong> ${subscription.team_name ? 'Team' : 'Scout'}</p>
+                        <p><strong>Description:</strong> ${subscription.description}</p>
+                    </div>
+                    ${paymentHistoryHTML}
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn-small success" id="renewSubscriptionBtn"><i class="fas fa-sync-alt"></i> Renew</button>
+                        <button class="btn-small warning" id="viewPaymentHistoryBtn"><i class="fas fa-history"></i> Payment History</button>
+                    </div>
+                `;
+                
+                // Add event listeners to buttons
+                document.getElementById('renewSubscriptionBtn').addEventListener('click', () => {
+                    renewSubscription(subscriptionId);
+                });
+                
+                document.getElementById('viewPaymentHistoryBtn').addEventListener('click', () => {
+                    viewPaymentHistory(subscriptionId);
+                });
+                
+                viewSubscriptionModal.style.display = 'flex';
+            } catch (err) {
+                console.error("Error viewing subscription:", err);
+                showMessage("Failed to load subscription details", "#f59e0b");
+            }
+        }
+
+        // View payment history
+        async function viewPaymentHistory(subscriptionId) {
+            try {
+                const payments = await apiRequest.getSubscriptionPayments(subscriptionId);
+                
+                const paymentHistoryBody = document.getElementById('paymentHistoryBody');
+                paymentHistoryBody.innerHTML = '';
+                
+                if (payments.length > 0) {
+                    payments.forEach(payment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(payment.date).toLocaleDateString()}</td>
+                            <td>$${payment.amount}</td>
+                            <td>${payment.method}</td>
+                            <td>${payment.status}</td>
+                        `;
+                        paymentHistoryBody.appendChild(row);
+                    });
+                } else {
+                    paymentHistoryBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No payment history found</td></tr>';
+                }
+                
+                viewSubscriptionModal.style.display = 'none';
+                paymentHistoryModal.style.display = 'flex';
+            } catch (err) {
+                console.error("Error viewing payment history:", err);
+                showMessage("Failed to load payment history", "#f59e0b");
+            }
+        }
+
+        // Cancel subscription
+        async function cancelSubscription(subscriptionId) {
+            if (!confirm("Are you sure you want to cancel this subscription?")) return;
+            
+            try {
+                await apiRequest.updateSubscription(subscriptionId, { statusId: 4 }); // canceled
+                
+                showMessage("Subscription canceled successfully");
+                loadSubscriptions();
+                loadStatistics();
+            } catch (err) {
+                console.error("Error canceling subscription:", err);
+                showMessage("Failed to cancel subscription", "#f59e0b");
+            }
+        }
+
+        // Renew subscription
+        async function renewSubscription(subscriptionId) {
+            try {
+                await apiRequest.renewSubscription(subscriptionId);
+                
+                showMessage("Subscription renewed successfully");
+                viewSubscriptionModal.style.display = 'none';
+                loadSubscriptions();
+                loadStatistics();
+            } catch (err) {
+                console.error("Error renewing subscription:", err);
+                showMessage("Failed to renew subscription", "#f59e0b");
+            }
+        }
+
+        // Add new subscription
+        addSubscriptionBtn.addEventListener('click', () => {
+            // Set today's date as default for start date
+            document.getElementById('startDate').valueAsDate = new Date();
+            addSubscriptionModal.style.display = 'flex';
+        });
+
+        // Handle add subscription form submission
+        document.getElementById('addSubscriptionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const subscriptionData = {
+                subscriberType: formData.get('subscriberType'),
+                subscriberId: formData.get('subscriberId'),
+                planId: formData.get('planId'),
+                startDate: formData.get('startDate'),
+                paymentMethod: formData.get('paymentMethod')
+            };
+            
+            try {
+                await apiRequest.createSubscription(subscriptionData);
+                
+                showMessage("Subscription added successfully");
+                addSubscriptionModal.style.display = 'none';
+                this.reset();
+                loadSubscriptions();
+                loadStatistics();
+            } catch (err) {
+                console.error("Error adding subscription:", err);
+                showMessage("Failed to add subscription", "#f59e0b");
+            }
+        });
+
+        // Close modals
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                addSubscriptionModal.style.display = 'none';
+                viewSubscriptionModal.style.display = 'none';
+                paymentHistoryModal.style.display = 'none';
+            });
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === addSubscriptionModal) {
+                addSubscriptionModal.style.display = 'none';
+            }
+            if (e.target === viewSubscriptionModal) {
+                viewSubscriptionModal.style.display = 'none';
+            }
+            if (e.target === paymentHistoryModal) {
+                paymentHistoryModal.style.display = 'none';
+            }
+        });
+
+        // Initialize charts
+        function initCharts() {
+            // Subscription Distribution Chart
+            const subscriptionCtx = document.getElementById('subscriptionChart').getContext('2d');
+            const subscriptionChart = new Chart(subscriptionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Basic Plan', 'Pro Plan', 'Premium Plan'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: [
+                            '#4cc9f0',
+                            '#4895ef',
+                            '#4361ee'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Monthly Revenue ($)',
+                        data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 27000, 30000, 32000, 31000, 35000],
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderColor: '#4361ee',
+                        borderWidth: 3,
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Plan edit buttons
+        document.querySelectorAll('[data-plan]').forEach(button => {
+            button.addEventListener('click', () => {
+                const plan = button.getAttribute('data-plan');
+                showMessage(`Edit functionality for ${plan} plan would open here`, "#4361ee");
+            });
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+            loadStatistics();
+            loadSubscribers();
+            loadSubscriptions();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Player Scouting - Football Scout System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-light: #e8f0fe;
+      --secondary: #4285f4;
+      --accent: #34a853;
+      --warning: #fbbc05;
+      --danger: #ea4335;
+      --dark: #202124;
+      --light: #f8f9fa;
+      --gray: #5f6368;
+      --border: #dadce0;
+    }
+    body {
+      background: var(--light);
+      color: var(--dark);
+      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      box-shadow: 0 0 15px rgba(0,0,0,0.08);
+      z-index: 100;
+      transition: width 0.3s;
+    }
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      padding: 24px 20px;
+      font-size: 22px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar .logo i {
+      margin-right: 12px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar ul li {
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .sidebar ul li.active,
+    .sidebar ul li:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      font-size: 16px;
+    }
+    .sidebar ul li i {
+      margin-right: 16px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    .sidebar ul li span {
+      font-weight: 500;
+    }
+    .main {
+      margin-left: 260px;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--light);
+      transition: margin-left 0.3s;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 32px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .search-container input {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      background: var(--primary-light);
+      color: var(--dark);
+      outline: none;
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .icon-btn {
+      background: var(--primary-light);
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .icon-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .notification {
+      position: relative;
+      font-size: 20px;
+      color: var(--primary);
+    }
+    .notification .badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      padding: 2px 6px;
+      font-weight: 700;
+    }
+    .profile-menu {
+      display: flex;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      gap: 10px;
+    }
+    .profile-pic {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+    }
+    .profile-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .profile-menu .dropdown {
+      display: none;
+      position: absolute;
+      top: 48px;
+      right: 0;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 180px;
+      z-index: 10;
+      flex-direction: column;
+      padding: 10px 0;
+    }
+    .profile-menu:hover .dropdown {
+      display: flex;
+    }
+    .profile-menu .dropdown a {
+      color: var(--dark);
+      text-decoration: none;
+      padding: 10px 18px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .profile-menu .dropdown a:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .filters {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .filter-group label {
+      font-weight: 500;
+      color: var(--primary);
+    }
+    .filter-group select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      background: var(--primary-light);
+      color: var(--dark);
+      outline: none;
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-accent:hover {
+      background: #249944;
+    }
+    .loading {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+    }
+    .player-results {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .results-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-small {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-small:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .players-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+    }
+    .players-table th {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .players-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .players-table tr:hover {
+      background: #f9f9f9;
+    }
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .modal-content .close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 24px;
+      color: var(--gray);
+      cursor: pointer;
+    }
+    .player-info {
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 18px;
+    }
+    .info-item {
+      font-size: 15px;
+      color: var(--dark);
+    }
+    .player-stats {
+      margin-bottom: 18px;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover {
+      background: var(--secondary);
+    }
+    body.dark {
+      background: var(--dark);
+      color: var(--light);
+    }
+    body.dark .sidebar {
+      background: linear-gradient(180deg, #222 0%, #333 100%);
+      color: var(--light);
+    }
+    body.dark .sidebar ul li a,
+    body.dark .sidebar .logo-text {
+      color: var(--light);
+    }
+    body.dark .main {
+      background: #222;
+    }
+    body.dark .topbar,
+    body.dark .player-results,
+    body.dark .modal-content,
+    body.dark .content,
+    body.dark .dashboard-toggles {
+      background: #23272f;
+      color: var(--light);
+    }
+    body.dark .search-container input,
+    body.dark .toggle-btn,
+    body.dark .filter-group select,
+    body.dark .btn-small {
+      background: #23272f;
+      color: var(--light);
+      border: 1px solid #444;
+    }
+    body.dark .btn-small:hover {
+      background: var(--primary);
+      color: white;
+    }
+    body.dark .btn {
+      background: var(--primary);
+      color: white;
+    }
+    body.dark .btn:hover {
+      background: var(--secondary);
+    }
+    body.dark .players-table th {
+      background: #23272f;
+      color: var(--primary-light);
+    }
+    body.dark .players-table td {
+      color: var(--light);
+    }
+    body.dark .modal-content .close {
+      color: #b0b0b0;
+    }
+    @media (max-width: 900px) {
+      .main {
+        margin-left: 80px;
+      }
+      .sidebar {
+        width: 80px;
+      }
+      .sidebar .logo-text,
+      .sidebar ul li span {
+        display: none;
+      }
+    }
+    @media (max-width: 600px) {
+      .main {
+        margin-left: 0;
+        padding: 0;
+      }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+      }
+      .topbar,
+      .content {
+        padding: 16px;
+      }
+      .filters {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .player-info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo">
+    <i class="fas fa-bars menu-toggle" title="Menu"></i>
+    <span class="logo-text">Dashboard</span>
+  </div>
+  <ul>
+    <li class="active" data-tooltip="Home">
+      <a href="Scouts.html">
+        <i class="fas fa-home"></i> <span>Home</span>
+      </a>
+    </li>
+    <li data-tooltip="View Players">
+      <a href="scout-player.html">
+        <i class="fas fa-users"></i> <span>View Players</span>
+      </a>
+    </li>
+    <li data-tooltip="Generate Reports">
+      <a href="scout-GenerateReports.html">
+        <i class="fas fa-file-alt"></i> <span>Generate Reports</span>
+      </a>
+    </li>
+    <li id="subscriptionsMenu" data-tooltip="Subscriptions">
+      <a href="DemoSubscrition.html">
+        <i class="fas fa-credit-card"></i> <span>Subscriptions</span>
+      </a>
+    </li>
+    <li data-tooltip="Profile">
+      <a href="Profile.html">
+        <i class="fas fa-user"></i> <span>Profile</span>
+      </a>
+    </li>
+    <li data-tooltip="Logout">
+      <a href="index.html">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="search-container">
+      <input type="text" id="playerSearch" placeholder="Search players by name, club, or position..."/>
+      <button id="searchBtn" class="icon-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    <div class="topbar-actions">
+      <button id="darkModeToggle" class="icon-btn">
+        <i class="fas fa-moon"></i>
+      </button>
+      <div class="notification">
+        <i class="fas fa-bell"></i>
+        <span class="badge">3</span>
+      </div>
+      <div class="profile-menu">
+        <img src="profileicon.png" alt="Profile" class="profile-pic"/>
+        <span class="profile-name">Profile</span>
+        <div class="dropdown">
+          <a href="#"><i class="fas fa-upload"></i> Upload Picture</a>
+          <a href="#"><i class="fas fa-user"></i> View Account</a>
+          <a href="#"><i class="fas fa-edit"></i> Change Details</a>
+          <a href="#"><i class="fas fa-trash"></i> Delete Account</a>
+          <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Scouting Content -->
+  <div class="content">
+    <h1>Player Scouting</h1>
+    <p>Search for players and generate scouting reports using our web scraping technology.</p>
+    
+    <!-- Search Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="positionFilter">Position:</label>
+        <select id="positionFilter">
+          <option value="">All Positions</option>
+          <option value="Goalkeeper">Goalkeeper</option>
+          <option value="Defender">Defender</option>
+          <option value="Midfielder">Midfielder</option>
+          <option value="Forward">Forward</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="ageFilter">Age Range:</label>
+        <select id="ageFilter">
+          <option value="">All Ages</option>
+          <option value="16-20">16-20</option>
+          <option value="21-25">21-25</option>
+          <option value="26-30">26-30</option>
+          <option value="31+">31+</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="leagueFilter">League:</label>
+        <select id="leagueFilter">
+          <option value="">All Leagues</option>
+          <option value="Premier League">Premier League</option>
+          <option value="La Liga">La Liga</option>
+          <option value="Serie A">Serie A</option>
+          <option value="Bundesliga">Bundesliga</option>
+          <option value="Ligue 1">Ligue 1</option>
+        </select>
+      </div>
+      
+      <button id="scrapeBtn" class="btn-accent">
+        <i class="fas fa-download"></i> Fetch Latest Data
+      </button>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading" style="display: none;">
+      <i class="fas fa-spinner fa-spin"></i> Scraping player data...
+    </div>
+    
+    <!-- Player Results -->
+    <div id="playerResults" class="player-results">
+      <div class="results-header">
+        <h2>Player Database <span id="resultCount">(0 players)</span></h2>
+        <div class="results-actions">
+          <button id="exportBtn" class="btn-small">
+            <i class="fas fa-download"></i> Export
+          </button>
+          <button id="compareBtn" class="btn-small">
+            <i class="fas fa-compare"></i> Compare
+          </button>
+        </div>
+      </div>
+      
+      <table class="players-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Position</th>
+            <th>Club</th>
+            <th>Nationality</th>
+            <th>Rating</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="playersTableBody">
+          <!-- Player data will be populated here -->
+        </tbody>
+      </table>
+      
+      <div class="pagination">
+        <button id="prevPage" class="btn-small"><i class="fas fa-chevron-left"></i></button>
+        <span id="currentPage">Page 1</span>
+        <button id="nextPage" class="btn-small"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    
+    <!-- Player Detail Modal -->
+    <div id="playerModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="playerDetails">
+          <!-- Player details will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // DOM elements
+  const playerSearch = document.getElementById('playerSearch');
+  const searchBtn = document.getElementById('searchBtn');
+  const scrapeBtn = document.getElementById('scrapeBtn');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const playersTableBody = document.getElementById('playersTableBody');
+  const resultCount = document.getElementById('resultCount');
+  const playerModal = document.getElementById('playerModal');
+  const playerDetails = document.getElementById('playerDetails');
+  const closeModal = document.querySelector('.close');
+  
+  // Dark mode toggle
+  document.getElementById("darkModeToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+  });
+  
+  // Event listeners
+  searchBtn.addEventListener('click', searchPlayers);
+  playerSearch.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchPlayers();
+  });
+  
+  scrapeBtn.addEventListener('click', startScrapingProcess);
+  
+  // Close modal
+  closeModal.addEventListener('click', () => {
+    playerModal.style.display = 'none';
+  });
+  
+  // Sample player data (in a real app, this would come from your database or API)
+  let samplePlayers = [
+    {
+      id: 1,
+      name: "John Smith",
+      age: 24,
+      position: "Midfielder",
+      club: "Manchester United",
+      nationality: "English",
+      rating: 84,
+      height: "180cm",
+      weight: "75kg",
+      value: "€35M"
+    },
+    {
+      id: 2,
+      name: "Carlos Rodriguez",
+      age: 22,
+      position: "Forward",
+      club: "Real Madrid",
+      nationality: "Spanish",
+      rating: 88,
+      height: "175cm",
+      weight: "70kg",
+      value: "€65M"
+    },
+    {
+      id: 3,
+      name: "Luca Bianchi",
+      age: 28,
+      position: "Defender",
+      club: "Juventus",
+      nationality: "Italian",
+      rating: 82,
+      height: "188cm",
+      weight: "82kg",
+      value: "€28M"
+    }
+  ];
+  
+  // Initialize with sample data
+  populatePlayerTable(samplePlayers);
+  
+  // Function to search players
+  function searchPlayers() {
+    const searchTerm = playerSearch.value.toLowerCase();
+    const positionFilter = document.getElementById('positionFilter').value;
+    
+    // Filter players based on search criteria
+    const filteredPlayers = samplePlayers.filter(player => {
+      const matchesSearch = player.name.toLowerCase().includes(searchTerm) || 
+                           player.club.toLowerCase().includes(searchTerm) ||
+                           player.position.toLowerCase().includes(searchTerm);
+      
+      const matchesPosition = positionFilter ? player.position === positionFilter : true;
+      
+      return matchesSearch && matchesPosition;
+    });
+    
+    populatePlayerTable(filteredPlayers);
+  }
+  
+  // Function to populate the player table
+  function populatePlayerTable(players) {
+    playersTableBody.innerHTML = '';
+    resultCount.textContent = `(${players.length} players)`;
+    
+    players.forEach(player => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="checkbox" class="player-checkbox" data-id="${player.id}"></td>
+        <td>${player.name}</td>
+        <td>${player.age}</td>
+        <td>${player.position}</td>
+        <td>${player.club}</td>
+        <td>${player.nationality}</td>
+        <td>${player.rating}</td>
+        <td>
+          <button class="btn-small view-player" data-id="${player.id}">View</button>
+          <button class="btn-small scout-player" data-id="${player.id}">Scout</button>
+        </td>
+      `;
+      playersTableBody.appendChild(row);
+    });
+    
+    // Add event listeners to view buttons
+    document.querySelectorAll('.view-player').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const playerId = e.target.getAttribute('data-id');
+        const player = players.find(p => p.id == playerId);
+        showPlayerDetails(player);
+      });
+    });
+    
+    // Add event listeners to scout buttons
+    document.querySelectorAll('.scout-player').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const playerId = e.target.getAttribute('data-id');
+        const player = players.find(p => p.id == playerId);
+        generateScoutReport(player);
+      });
+    });
+  }
+  
+  // Function to show player details in modal
+  function showPlayerDetails(player) {
+    playerDetails.innerHTML = `
+      <h2>${player.name}</h2>
+      <div class="player-info">
+        <div class="info-item"><strong>Age:</strong> ${player.age}</div>
+        <div class="info-item"><strong>Position:</strong> ${player.position}</div>
+        <div class="info-item"><strong>Club:</strong> ${player.club}</div>
+        <div class="info-item"><strong>Nationality:</strong> ${player.nationality}</div>
+        <div class="info-item"><strong>Rating:</strong> ${player.rating}</div>
+        <div class="info-item"><strong>Height:</strong> ${player.height}</div>
+        <div class="info-item"><strong>Weight:</strong> ${player.weight}</div>
+        <div class="info-item"><strong>Market Value:</strong> ${player.value}</div>
+      </div>
+      <div class="player-stats">
+        <h3>Performance Statistics</h3>
+        <p>Detailed stats would appear here from the web scraper</p>
+      </div>
+      <button class="btn generate-report" data-id="${player.id}"><i class="fas fa-download"></i> Generate Detailed Report</button>
+    `;
+    
+    playerModal.style.display = 'flex';
+    
+    // Add event listener to generate report button
+    document.querySelector('.generate-report').addEventListener('click', async () => {
+      await generateScoutReport(player);
+    });
+  }
+  
+  // Function to generate a scout report (scraping for a single player)
+  async function generateScoutReport(player) {
+    loadingIndicator.style.display = 'block';
+    playerModal.style.display = 'none';
+    try {
+      // You can pass more player info if needed
+      const response = await fetch('http://localhost:3001/api/scrape-player', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: player.name, club: player.club, position: player.position })
+      });
+      const updatedPlayer = await response.json();
+      // Update the player in the table
+      samplePlayers = samplePlayers.map(p => p.id === player.id ? updatedPlayer : p);
+      populatePlayerTable(samplePlayers);
+      loadingIndicator.style.display = 'none';
+      alert(`Detailed scouting report for ${player.name} generated and updated!`);
+    } catch (error) {
+      console.error('Scout report failed:', error);
+      loadingIndicator.style.display = 'none';
+      alert('Failed to generate detailed report. Please try again later.');
+    }
+  }
+  
+  // Function to start the web scraping process for all filters
+  async function startScrapingProcess() {
+    const league = document.getElementById('leagueFilter').value;
+    const position = document.getElementById('positionFilter').value;
+    loadingIndicator.style.display = 'block';
+    try {
+      const response = await fetch('http://localhost:3001/api/scrape-players', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ league, position })
+      });
+      const players = await response.json();
+      samplePlayers = players;
+      populatePlayerTable(players);
+      loadingIndicator.style.display = 'none';
+      alert('Player data successfully updated from online sources!');
+    } catch (error) {
+      console.error('Scraping failed:', error);
+      loadingIndicator.style.display = 'none';
+      alert('Failed to fetch player data. Please try again later.');
+    }
+  }
+</script>
+
+</body>
+</html>

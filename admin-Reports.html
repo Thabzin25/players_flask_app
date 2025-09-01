@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Reports - Football Scouting System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    /* Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Make all sidebar links invisible but still clickable */
+.sidebar ul li a {
+  color: black;       /* hides text */
+  text-decoration: none;    /* remove underline */
+}
+
+/* Optional: hide icons too */
+.sidebar ul li a i {
+  color: black;       /* hides icons if you want */
+}
+
+/* Keep hover background for clickable feedback */
+.sidebar ul li a:hover {
+  background: rgba(0,0,0,0.05); /* subtle hover highlight */
+}
+
+    .Menu-item a {
+  color: white;       /* make text white */
+  text-decoration: none; /* remove underline */
+}
+
+.Menu-item a:hover {
+  color: #f1c40f;     /* optional: show yellow on hover */
+}
+
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark {
+      background-color: #1a1a1a;
+      color: #f5f5f5;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      width: 250px;
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark .sidebar {
+      background: #2d2d2d;
+      border-right: 1px solid #444;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      height: 70px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    body.dark .logo {
+      border-bottom: 1px solid #444;
+    }
+    
+    .menu-toggle {
+      margin-right: 15px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    
+    .logo-text {
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .sidebar ul {
+      list-style: none;
+      padding: 20px 0;
+    }
+    
+    .sidebar ul li {
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar ul li:hover {
+      background: #f0f0f0;
+    }
+    
+    body.dark .sidebar ul li:hover {
+      background: #3d3d3d;
+    }
+    
+    .sidebar ul li.active {
+      background: #f0f0f0;
+      border-left: 4px solid #333;
+    }
+    
+    body.dark .sidebar ul li.active {
+      background: #3d3d3d;
+      border-left: 4px solid #f5f5f5;
+    }
+    
+    .sidebar ul li i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 25px;
+      text-align: center;
+    }
+    
+    .sidebar ul li span {
+      flex: 1;
+    }
+    
+    /* Main Content */
+    .main {
+      margin-left: 250px;
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+    
+    /* Top Bar */
+    .topbar {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    
+    body.dark .topbar {
+      background: #2d2d2d;
+      border-bottom: 1px solid #444;
+    }
+    
+    .search-container {
+      flex: 1;
+      max-width: 500px;
+    }
+    
+    .search-container input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .search-container input {
+      background: #3d3d3d;
+      border: 1px solid #555;
+      color: #f5f5f5;
+    }
+    
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+    }
+    
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      margin-left: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .icon-btn:hover {
+      background: #f0f0f0;
+    }
+    
+    body.dark .icon-btn:hover {
+      background: #3d3d3d;
+    }
+    
+    .notification {
+      position: relative;
+      margin-left: 15px;
+      cursor: pointer;
+    }
+    
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    
+    .profile-menu {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      cursor: pointer;
+    }
+    
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+    .menu-item a {
+  color: white;       /* make text white */
+  text-decoration: none; /* remove underline */
+}
+
+.menu-item a:hover {
+  color: #f1c40f;     /* optional: show yellow on hover */
+}
+
+    
+    .dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: white;
+      width: 200px;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    body.dark .dropdown {
+      background: #2d2d2d;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .profile-menu:hover .dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .dropdown a {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .dropdown a {
+      color: #f5f5f5;
+    }
+    
+    .dropdown a:hover {
+      background: #f0f0f0;
+    }
+    
+    body.dark .dropdown a:hover {
+      background: #3d3d3d;
+    }
+    
+    .dropdown a i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Content Area */
+    .content {
+      padding: 20px;
+    }
+    
+    .page-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    
+    /* Dashboard Toggles */
+    .dashboard-toggles {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .toggle-btn {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .toggle-btn {
+      background: #2d2d2d;
+      border: 1px solid #555;
+      color: #f5f5f5;
+    }
+    
+    .toggle-btn.active {
+      background: #333;
+      color: white;
+    }
+    
+    body.dark .toggle-btn.active {
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .card {
+      background: #2d2d2d;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card h2 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .card p {
+      color: #777;
+    }
+    
+    body.dark .card p {
+      color: #aaa;
+    }
+    
+    /* Reports List */
+    .reports-container {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .reports-container {
+      background: #2d2d2d;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .reports-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .reports-list {
+      display: grid;
+      gap: 15px;
+    }
+    
+    .report-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark .report-item {
+      border: 1px solid #444;
+    }
+    
+    .report-item:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark .report-item:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .report-info h3 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    
+    .report-info p {
+      color: #777;
+      font-size: 14px;
+    }
+    
+    body.dark .report-info p {
+      color: #aaa;
+    }
+    
+    .report-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    body.dark .action-btn {
+      background: #3d3d3d;
+      color: #f5f5f5;
+    }
+    
+    .action-btn:hover {
+      background: #e0e0e0;
+    }
+    
+    body.dark .action-btn:hover {
+      background: #4d4d4d;
+    }
+    
+    .btn-view {
+      background: #3498db;
+      color: white;
+    }
+    
+    .btn-view:hover {
+      background: #2980b9;
+    }
+    
+    .btn-download {
+      background: #27ae60;
+      color: white;
+    }
+    
+    .btn-download:hover {
+      background: #2ecc71;
+    }
+    
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-delete:hover {
+      background: #c0392b;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 700px;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    body.dark .modal-content {
+      background: #2d2d2d;
+    }
+    
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    body.dark .modal-header {
+      border-bottom: 1px solid #444;
+    }
+    
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #777;
+      transition: all 0.3s ease;
+    }
+    
+    .close-modal:hover {
+      color: #333;
+    }
+    
+    body.dark .close-modal:hover {
+      color: #f5f5f5;
+    }
+    
+    .modal-body {
+      margin-bottom: 20px;
+    }
+    
+    .report-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .detail-group {
+      margin-bottom: 15px;
+    }
+    
+    .detail-group h4 {
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #777;
+    }
+    
+    body.dark .detail-group h4 {
+      color: #aaa;
+    }
+    
+    .detail-group p {
+      font-size: 16px;
+    }
+    
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn i {
+      margin-right: 8px;
+    }
+    
+    .btn-primary {
+      background: #333;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #555;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    body.dark .btn-secondary {
+      background: #3d3d3d;
+      color: #f5f5f5;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0f0;
+    }
+    
+    body.dark .btn-secondary:hover {
+      background: #4d4d4d;
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      background: #333;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .toast i {
+      margin-right: 10px;
+    }
+    
+    .toast.success {
+      background: #27ae60;
+    }
+    
+    .toast.error {
+      background: #e74c3c;
+    }
+    
+    /* New Report Indicator */
+    .new-report-indicator {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 12px;
+      height: 12px;
+      background: #e74c3c;
+      border-radius: 50%;
+    }
+    
+    .new-report {
+      animation: pulse 2s infinite;
+      border: 2px solid #27ae60;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .slide-in {
+      animation: slideIn 0.5s ease forwards;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 70px;
+      }
+      
+      .sidebar .logo-text,
+      .sidebar ul li span {
+        display: none;
+      }
+      
+      .sidebar ul li {
+        justify-content: center;
+      }
+      
+      .sidebar ul li i {
+        margin-right: 0;
+      }
+      
+      .main {
+        margin-left: 70px;
+      }
+      
+      .report-details {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .topbar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+      }
+      
+      .search-container {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 10px;
+      }
+      
+      .report-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .report-actions {
+        margin-top: 15px;
+        width: 100%;
+        justify-content: flex-end;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo">
+    <i class="fas fa-bars menu-toggle" title="Menu"></i>
+    <span class="logo-text">Admin Dashboard</span>
+  </div>
+  <ul>
+    <li data-tooltip="Dashboard">
+      <a href="admin.html">
+        <i class="fas fa-home"></i> <span>Dashboard</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Players">
+      <a href="players.html">
+        <i class="fas fa-running"></i> <span>Players</span>
+      </a>
+    </li>
+    <!-- Teams -->
+                <li class="menu-item" title="Teams">
+                    <i class="fas fa-futbol"></i> <a href="teams.html">Teams</a>
+                </li>
+    <li data-tooltip="Manage Scouts">
+      <a href="Scoutmanger.html">
+        <i class="fas fa-users"></i> <span>Manage Scouts</span>
+      </a>
+    </li>
+    
+    <li class="active" data-tooltip="Reports">
+      <a href="admin-Reports.html">
+        <i class="fas fa-file-alt"></i> <span>Reports</span>
+      </a>
+    </li>
+
+    
+
+    <li data-tooltip="Subscriptions">
+      <a href="subscriptions.html">
+        <i class="fas fa-credit-card"></i> <span>Subscriptions</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Settings">
+      <a href="settings.html">
+        <i class="fas fa-cog"></i> <span>Settings</span>
+      </a>
+    </li>
+
+    <li data-tooltip="Logout">
+      <a href="index.html">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="search-container">
+      <input type="text" placeholder="Search reports..." id="searchReports"/>
+    </div>
+    <div class="topbar-actions">
+      <button id="darkModeToggle" class="icon-btn">
+        <i class="fas fa-moon"></i>
+      </button>
+      <div class="notification">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notificationCount">0</span>
+      </div>
+      <div class="profile-menu">
+        <img src="profileicon.png" alt="Profile" class="profile-pic"/>
+        <span class="profile-name">Admin</span>
+        <div class="dropdown">
+          <a href="#"><i class="fas fa-user"></i> View Account</a>
+          <a href="#"><i class="fas fa-edit"></i> Change Details</a>
+          <a href="#"><i class="fas fa-trash"></i> Delete Account</a>
+          <a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Toggles -->
+  <div class="dashboard-toggles">
+    <button class="toggle-btn active" data-filter="all">All Reports</button>
+    <button class="toggle-btn" data-filter="unread">Unread</button>
+    <button class="toggle-btn" data-filter="priority">Priority</button>
+    <button class="toggle-btn" id="refreshBtn">
+      <i class="fas fa-sync-alt"></i> Check for New Reports
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h1 class="page-title">Scouting Reports</h1>
+    
+    <!-- Stats -->
+    <div class="stats">
+      <div class="card">
+        <h2 id="totalReports">0</h2>
+        <p>Total Reports</p>
+      </div>
+      <div class="card">
+        <h2 id="unreadReports">0</h2>
+        <p>Unread Reports</p>
+      </div>
+      <div class="card">
+        <h2 id="priorityReports">0</h2>
+        <p>Priority Reports</p>
+      </div>
+      <div class="card">
+        <h2 id="newReports">0</h2>
+        <p>New Reports</p>
+      </div>
+    </div>
+    
+    <!-- Reports List -->
+    <div class="reports-container slide-in">
+      <div class="reports-header">
+        <h2>Recent Reports</h2>
+        <div class="report-filters">
+          <select id="reportFilter" class="form-control">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="rating">Highest Rating</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="reports-list" id="reportsList">
+        <!-- Reports will be dynamically added here -->
+        <div class="no-reports">Loading reports...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Detail Modal -->
+<div class="modal" id="reportModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Player Scouting Report</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="report-details" id="reportDetails">
+        <!-- Report details will be dynamically added here -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="closeModal">
+        <i class="fas fa-times"></i> Close
+      </button>
+      <button class="btn btn-primary" id="downloadReport">
+        <i class="fas fa-download"></i> Download Report
+      </button>
+      <button class="btn btn-danger" id="deleteReport">
+        <i class="fas fa-trash"></i> Delete Report
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Deletion</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete this report? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+      <button class="btn btn-danger" id="confirmDelete">Delete Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMessage">Operation completed successfully</span>
+</div>
+
+<script>
+  // Dark mode toggle
+  document.getElementById("darkModeToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    const isDarkMode = document.body.classList.contains("dark");
+    localStorage.setItem("darkMode", isDarkMode);
+    
+    // Update icon
+    const icon = document.getElementById("darkModeToggle").querySelector("i");
+    icon.className = isDarkMode ? "fas fa-sun" : "fas fa-moon";
+  });
+
+  // Check for saved dark mode preference
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    const icon = document.getElementById("darkModeToggle").querySelector("i");
+    icon.className = "fas fa-sun";
+  }
+
+  // Global variables
+  let allReports = [];
+  let unreadReports = [];
+  let currentReportId = null;
+  let newReportsCount = 0;
+
+  // Initialize the page
+  document.addEventListener('DOMContentLoaded', function() {
+    loadReports();
+    setupEventListeners();
+    startReportChecker();
+  });
+
+  // Set up event listeners
+  function setupEventListeners() {
+    // Filter reports
+    document.getElementById('reportFilter').addEventListener('change', function() {
+      renderReports();
+    });
+    
+    // Dashboard toggles
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+      if (button.id !== 'refreshBtn') {
+        button.addEventListener('click', function() {
+          document.querySelectorAll('.toggle-btn').forEach(btn => {
+            if (btn.id !== 'refreshBtn') btn.classList.remove('active');
+          });
+          this.classList.add('active');
+          renderReports();
+        });
+      }
+    });
+    
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+      checkForNewReports();
+      this.classList.add('rotating');
+      setTimeout(() => {
+        this.classList.remove('rotating');
+      }, 1000);
+    });
+    
+    // Search functionality
+    document.getElementById('searchReports').addEventListener('input', function() {
+      renderReports();
+    });
+    
+    // Modal close buttons
+    document.querySelectorAll('.close-modal, #closeModal, #cancelDelete').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.modal').forEach(modal => {
+          modal.classList.remove('active');
+        });
+      });
+    });
+  }
+
+  // Load reports from localStorage
+  const API_BASE_URL = "http://localhost:5000"; // Change to your backend URL
+
+function loadReports() {
+    fetch(`${API_BASE_URL}/player-reports`)
+        .then(response => {
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            // Map backend player data to report format expected by UI
+            allReports = data.players.map((player, index) => ({
+                id: index + 1, // Generate unique id
+                playerName: player.name,
+                position: player.position,
+                overallRating: player.rating || 0,
+                potentialRating: player.rating || 0,
+                matchDate: new Date().toISOString(),
+                opponent: "Unknown",
+                finalScore: "N/A",
+                strengths: "N/A",
+                weaknesses: "N/A",
+                additionalNotes: "",
+                scout: "System",
+                createdAt: new Date().toISOString(),
+                status: "sent",
+                priority: false
+            }));
+
+            // Mark all as unread initially
+            unreadReports = allReports.map(report => report.id);
+
+            updateStats();
+            renderReports();
+        })
+        .catch(error => {
+            console.error("Error loading reports:", error);
+            document.getElementById('reportsList').innerHTML = '<div class="no-reports">Failed to load reports.</div>';
+            showToast('Failed to load reports', 'error');
+        });
+}
+
+
+  // Check for new reports periodically
+  function startReportChecker() {
+    // Check every 10 seconds for new reports
+    setInterval(checkForNewReports, 10000);
+  }
+
+  // Check for new reports
+  function checkForNewReports() {
+    const storedReports = localStorage.getItem('scoutReports');
+    if (!storedReports) return;
+    
+    const reports = JSON.parse(storedReports);
+    const sentReports = reports.filter(report => report.status === 'sent');
+    
+    // Check if there are new reports
+    const newReports = sentReports.filter(report => 
+      !allReports.some(r => r.id === report.id)
+    );
+    
+    if (newReports.length > 0) {
+      // Add new reports
+      allReports = [...allReports, ...newReports];
+      
+      // Add to unread reports
+      newReports.forEach(report => {
+        if (!unreadReports.includes(report.id)) {
+          unreadReports.push(report.id);
+        }
+      });
+      
+      // Update notification count
+      newReportsCount += newReports.length;
+      document.getElementById('notificationCount').textContent = newReportsCount;
+      document.getElementById('newReports').textContent = newReportsCount;
+      
+      // Show notification
+      showToast(`${newReports.length} new report(s) received!`, 'success');
+      
+      // Save admin data
+      saveAdminData();
+      
+      // Update UI
+      updateStats();
+      renderReports();
+      
+      // Highlight new reports
+      highlightNewReports(newReports.map(r => r.id));
+    }
+  }
+
+  // Highlight new reports
+  function highlightNewReports(reportIds) {
+    reportIds.forEach(id => {
+      const reportElement = document.querySelector(`.report-item[data-id="${id}"]`);
+      if (reportElement) {
+        reportElement.classList.add('new-report');
+        setTimeout(() => {
+          reportElement.classList.remove('new-report');
+        }, 5000);
+      }
+    });
+  }
+
+  // Save admin data to localStorage
+  function saveAdminData() {
+    const adminData = {
+      unreadReports: unreadReports,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem('adminReports', JSON.stringify(adminData));
+  }
+
+  // Update statistics
+  function updateStats() {
+    const total = allReports.length;
+    const unread = unreadReports.length;
+    const priority = allReports.filter(report => report.priority).length;
+    
+    document.getElementById('totalReports').textContent = total;
+    document.getElementById('unreadReports').textContent = unread;
+    document.getElementById('priorityReports').textContent = priority;
+    document.getElementById('newReports').textContent = newReportsCount;
+  }
+
+  // Render reports to the list
+  function renderReports() {
+    const reportsList = document.getElementById('reportsList');
+    const filterValue = document.querySelector('.toggle-btn.active').dataset.filter;
+    const sortValue = document.getElementById('reportFilter').value;
+    const searchValue = document.getElementById('searchReports').value.toLowerCase();
+    
+    // Filter reports based on selection
+    let filteredReports = allReports;
+    
+    // Apply status filter
+    if (filterValue !== 'all') {
+      if (filterValue === 'unread') {
+        filteredReports = filteredReports.filter(report => unreadReports.includes(report.id));
+      } else if (filterValue === 'priority') {
+        filteredReports = filteredReports.filter(report => report.priority);
+      }
+    }
+    
+    // Apply search filter
+    if (searchValue) {
+      filteredReports = filteredReports.filter(report => 
+        report.playerName.toLowerCase().includes(searchValue) ||
+        (report.scout && report.scout.toLowerCase().includes(searchValue)) ||
+        report.position.toLowerCase().includes(searchValue) ||
+        report.opponent.toLowerCase().includes(searchValue)
+      );
+    }
+    
+    // Sort reports
+    if (sortValue === 'newest') {
+      filteredReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortValue === 'oldest') {
+      filteredReports.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } else if (sortValue === 'rating') {
+      filteredReports.sort((a, b) => b.overallRating - a.overallRating);
+    }
+    
+    // Clear the list
+    reportsList.innerHTML = '';
+    
+    if (filteredReports.length === 0) {
+      reportsList.innerHTML = '<div class="no-reports">No reports found</div>';
+      return;
+    }
+    
+    // Add reports to the list
+    filteredReports.forEach(report => {
+      const reportItem = document.createElement('div');
+      reportItem.className = 'report-item';
+      reportItem.dataset.id = report.id;
+      
+      if (unreadReports.includes(report.id)) {
+        reportItem.style.borderLeft = '4px solid #3498db';
+      }
+      
+      if (report.priority) {
+        reportItem.style.borderLeft = '4px solid #e74c3c';
+      }
+      
+      const formattedDate = new Date(report.matchDate).toLocaleDateString();
+      const createdDate = new Date(report.createdAt).toLocaleDateString();
+      const scoutName = report.scout || 'Unknown Scout';
+      
+      reportItem.innerHTML = `
+        <div class="report-info">
+          <h3>${report.playerName} - ${report.position} ${report.priority ? '<span style="color:#e74c3c">(Priority)</span>' : ''}</h3>
+          <p>Scouted by ${scoutName} on ${createdDate} | vs ${report.opponent} on ${formattedDate}</p>
+          <p>Overall: ${report.overallRating}/10 | Potential: ${report.potentialRating}/10 | Status: ${unreadReports.includes(report.id) ? 'Unread' : 'Read'}</p>
+        </div>
+        <div class="report-actions">
+          <button class="action-btn btn-view" title="View Report">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn btn-download" title="Download Report">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="action-btn btn-delete" title="Delete Report">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
+      
+      reportsList.appendChild(reportItem);
+      
+      // Add event listeners to action buttons
+      const actions = reportItem.querySelector('.report-actions');
+      actions.querySelector('.btn-view').addEventListener('click', () => viewReport(report.id));
+      actions.querySelector('.btn-download').addEventListener('click', () => downloadReport(report.id));
+      actions.querySelector('.btn-delete').addEventListener('click', () => openDeleteModal(report.id));
+    });
+  }
+
+  // View report function
+  function viewReport(id) {
+    const report = allReports.find(r => r.id === id);
+    
+    // Mark as read
+    if (unreadReports.includes(id)) {
+      unreadReports = unreadReports.filter(reportId => reportId !== id);
+      saveAdminData();
+      updateStats();
+    }
+    
+    const formattedDate = new Date(report.matchDate).toLocaleDateString();
+    const createdDate = new Date(report.createdAt).toLocaleDateString();
+    const scoutName = report.scout || 'Unknown Scout';
+    
+    // Populate modal with report details
+    document.getElementById('reportDetails').innerHTML = `
+      <div class="detail-group">
+        <h4>Player Name</h4>
+        <p>${report.playerName}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Age</h4>
+        <p>${report.age}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Position</h4>
+        <p>${report.position}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Match Date</h4>
+        <p>${formattedDate}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Opponent</h4>
+        <p>${report.opponent}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Final Score</h4>
+        <p>${report.finalScore}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Overall Rating</h4>
+        <p>${report.overallRating}/10</p>
+      </div>
+      <div class="detail-group">
+        <h4>Potential Rating</h4>
+        <p>${report.potentialRating}/10</p>
+      </div>
+      <div class="detail-group">
+        <h4>Scout Name</h4>
+        <p>${scoutName}</p>
+      </div>
+      <div class="detail-group full-width">
+        <h4>Strengths</h4>
+        <p>${report.strengths}</p>
+      </div>
+      <div class="detail-group full-width">
+        <h4>Weaknesses</h4>
+        <p>${report.weaknesses}</p>
+      </div>
+      <div class="detail-group full-width">
+        <h4>Additional Notes</h4>
+        <p>${report.additionalNotes || 'N/A'}</p>
+      </div>
+      <div class="detail-group">
+        <h4>Report Date</h4>
+        <p>${createdDate}</p>
+      </div>
+    `;
+    
+    // Set up modal buttons
+    document.getElementById('downloadReport').onclick = function() {
+      downloadReport(id);
+    };
+    
+    document.getElementById('deleteReport').onclick = function() {
+      document.getElementById('reportModal').classList.remove('active');
+      openDeleteModal(id);
+    };
+    
+    // Set current report ID
+    currentReportId = id;
+    
+    // Show modal
+    document.getElementById('reportModal').classList.add('active');
+    
+    // Refresh reports list to update read status
+    renderReports();
+  }
+
+  // Download report function
+  function downloadReport(id) {
+    const report = allReports.find(r => r.id === id);
+    const scoutName = report.scout || 'Unknown Scout';
+    
+    // Create a simple text representation of the report
+    const reportText = `
+      PLAYER SCOUTING REPORT
+      ======================
+      
+      Player Name: ${report.playerName}
+      Age: ${report.age}
+      Position: ${report.position}
+      
+      Match Details:
+      - Date: ${new Date(report.matchDate).toLocaleDateString()}
+      - Opponent: ${report.opponent}
+      - Final Score: ${report.finalScore}
+      
+      Strengths:
+      ${report.strengths}
+      
+      Weaknesses:
+      ${report.weaknesses}
+      
+      Additional Notes:
+      ${report.additionalNotes || 'N/A'}
+      
+      Ratings:
+      - Overall: ${report.overallRating}/10
+      - Potential: ${report.potentialRating}/10
+      
+      Scout: ${scoutName}
+      Report Generated: ${new Date(report.createdAt).toLocaleString()}
+    `;
+    
+    // Create a Blob with the report text
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary link to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Scout_Report_${report.playerName.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    
+    showToast('Report downloaded successfully!', 'success');
+  }
+
+  // Open delete confirmation modal
+  function openDeleteModal(id) {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('active');
+    currentReportId = id;
+    
+    document.getElementById('confirmDelete').onclick = function() {
+      deleteReport(id);
+      modal.classList.remove('active');
+    };
+  }
+
+  // Delete report function
+  function deleteReport(id) {
+    // Remove from all reports
+    allReports = allReports.filter(report => report.id !== id);
+    
+    // Remove from unread reports
+    unreadReports = unreadReports.filter(reportId => reportId !== id);
+    
+    // Update scout reports in localStorage
+    const storedReports = localStorage.getItem('scoutReports');
+    if (storedReports) {
+      let scoutReports = JSON.parse(storedReports);
+      scoutReports = scoutReports.filter(report => report.id !== id);
+      localStorage.setItem('scoutReports', JSON.stringify(scoutReports));
+    }
+    
+    // Save admin data
+    saveAdminData();
+    
+    // Update UI
+    updateStats();
+    renderReports();
+    
+    showToast('Report deleted successfully!', 'success');
+  }
+
+  // Show toast notification
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.querySelector('#toastMessage').textContent = message;
+    toast.className = `toast ${type} show`;
+    
+    setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
+</script>
+
+</body>
+</html>

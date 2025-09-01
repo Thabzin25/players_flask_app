@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Left: visual (40%) -->
+    <div class="visual">
+      <img src="logo.png" alt="Football illustration">
+    </div>
+
+    <!-- Right: form (60%) -->
+    <div class="form-area">
+      <h1>Football Scouting System</h1>
+
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <select id="role" required>
+          <option value="" disabled selected>Select role</option>
+          <option>Admin</option>
+          <option>Scout</option>
+          <option>Player</option>
+          <option>Football Club</option>
+        </select>
+        <button type="submit">Log in</button>
+      </form>
+
+      <div class="meta-links">
+        <a href="register.html">Sign up</a>
+        <a href="#">Forgot password?</a>
+      </div>
+
+      <div class="divider" role="separator" aria-hidden="true">
+        <span>or continue with</span>
+      </div>
+
+      <!-- Icon-only providers -->
+      <div class="providers" role="group" aria-label="Continue with">
+        <button class="icon-btn" type="button" aria-label="Continue with Google" title="Continue with Google">
+          <img src="google.svg" alt="">
+        </button>
+        <button class="icon-btn" type="button" aria-label="Continue with Facebook" title="Continue with Facebook">
+          <img src="facebook.svg" alt="">
+        </button>
+        <button class="icon-btn" type="button" aria-label="Continue with Twitter" title="Continue with Twitter">
+          <img src="twitter.svg" alt="">
+        </button>
+        <button class="icon-btn" type="button" aria-label="Continue with Apple" title="Continue with Apple">
+          <img src="apple.svg" alt="">
+        </button>
+        <button class="icon-btn" type="button" aria-label="Continue with TikTok" title="Continue with TikTok">
+          <img src="tick tock.svg" alt="">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dummy users (email + password + role)
+    const users = [
+      { email: "admin@test.com", password: "admin123", role: "Admin" },
+      { email: "scout@test.com", password: "scout123", role: "Scout" },
+      { email: "player@test.com", password: "player123", role: "Player" },
+      { email: "club@test.com", password: "club123", role: "Football Club" },
+    ];
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
+
+      const user = users.find(u => u.email === email && u.password === password && u.role === role);
+
+      if (user) {
+        alert(`✅ Welcome ${role}! Redirecting...`);
+        if (role === "Admin") {
+          window.location.href = "admin.html";
+        } else if (role === "Scout") {
+          window.location.href = "Scouts.html";
+        } else if (role === "Player") {
+          window.location.href = "player-dashboard.html";
+        } else if (role === "Football Club") {
+          window.location.href = "club.html";
+        }
+      } else {
+        alert("❌ Invalid credentials or role. Try again.");
+      }
+    });
+  </script>
+</body>
+</html>

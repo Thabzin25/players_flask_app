@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Club Settings - Boronia FC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a4f8b;
+      --primary-dark: #0d3b66;
+      --secondary: #3bb77e;
+      --accent: #ff6b35;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7f9;
+      color: var(--dark);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar nav {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar nav a.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-weight: 500;
+    }
+
+    .sidebar nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--secondary);
+    }
+
+    .sidebar nav a i {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .sidebar nav a span {
+      transition: var(--transition);
+    }
+
+    .sidebar.collapsed nav a span {
+      display: none;
+    }
+
+    .club-badge {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .club-badge img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .club-badge h3 {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .club-badge h3 {
+      display: none;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+
+    .topbar h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .profile {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--light-gray);
+      transition: var(--transition);
+    }
+
+    .profile:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .profile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Settings Tabs */
+    .settings-tabs {
+      display: flex;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 25px;
+      overflow-x: auto;
+    }
+
+    .settings-tab {
+      padding: 15px 25px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--gray);
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .settings-tab:hover {
+      color: var(--primary);
+    }
+
+    .settings-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .settings-tab i {
+      margin-right: 8px;
+    }
+
+    /* Settings Content */
+    .settings-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .settings-content.active {
+      display: block;
+    }
+
+    /* Form Cards */
+    .form-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 25px;
+      box-shadow: var(--shadow);
+      margin-bottom: 25px;
+    }
+
+    .form-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .form-title {
+      font-size: 1.2rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .form-subtitle {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-top: 5px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 79, 139, 0.2);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .avatar-upload {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--light-gray);
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--light);
+      border: 1px dashed var(--gray);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .upload-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* User List */
+    .user-list {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .user-header {
+      padding: 20px;
+      background: var(--light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .user-title {
+      font-size: 1.3rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    th {
+      background: var(--light);
+      color: var(--primary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr {
+      transition: var(--transition);
+    }
+
+    tr:hover {
+      background: rgba(26, 79, 139, 0.03);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      border: 2px solid var(--light-gray);
+    }
+
+    .user-name {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-role {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .role-admin {
+      background: rgba(59, 183, 126, 0.15);
+      color: var(--secondary);
+    }
+
+    .role-manager {
+      background: rgba(26, 79, 139, 0.15);
+      color: var(--primary);
+    }
+
+    .role-scout {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+    }
+
+    .btn-edit {
+      background: rgba(59, 183, 126, 0.15);
+      color: var(--secondary);
+    }
+
+    .btn-edit:hover {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.15);
+      color: #dc3545;
+    }
+
+    .btn-delete:hover {
+      background: #dc3545;
+      color: white;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--secondary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .notification-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-info {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .notification-desc {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    /* Danger Zone */
+    .danger-zone {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 25px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid #dc3545;
+    }
+
+    .danger-header {
+      margin-bottom: 20px;
+    }
+
+    .danger-title {
+      font-size: 1.2rem;
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .danger-subtitle {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-top: 5px;
+    }
+
+    .danger-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2fa371;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #bd2130;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--gray);
+    }
+
+    .btn-ghost:hover {
+      color: var(--primary);
+      background: rgba(26, 79, 139, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+      }
+      
+      .sidebar:not(.collapsed) {
+        width: 260px;
+        position: absolute;
+        height: 100%;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 15px 20px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .settings-tabs {
+        flex-direction: column;
+      }
+      
+      .settings-tab {
+        border-bottom: none;
+        border-left: 3px solid transparent;
+      }
+      
+      .settings-tab.active {
+        border-bottom: none;
+        border-left-color: var(--primary);
+      }
+      
+      .avatar-upload {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="menu-title">Menu</h2>
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <nav>
+      <a href="clubs.html">
+        <i class="fas fa-home"></i>
+        <span>Overview</span>
+      </a>
+      <a href="club-subcription.html">
+        <i class="fas fa-credit-card"></i>
+        <span>Subscription</span>
+      </a>
+      <a href="analytics.html">
+        <i class="fas fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="player-reports.html">
+        <i class="fas fa-file-alt"></i>
+        <span>Player Reports</span>
+      </a>
+      
+      <a href="settings.html" class="active">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="logout.html">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+    <div class="club-badge">
+      <img src="https://cdn-icons-png.flaticon.com/512/805/805401.png" alt="Boronia FC Logo">
+      <h3>Boronia FC</h3>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1>Club Settings</h1>
+      <a class="profile" href="club-profile.html" title="Club Profile">
+        <img src="https://ui-avatars.com/api/?name=Boronia+FC&background=1a4f8b&color=fff" alt="Club profile" />
+      </a>
+    </header>
+
+    <div class="content">
+      <h2 class="section-title">Manage Your Club Settings</h2>
+      
+      <div class="settings-tabs">
+        <div class="settings-tab active" data-tab="profile">
+          <i class="fas fa-id-card"></i> Club Profile
+        </div>
+        <div class="settings-tab" data-tab="users">
+          <i class="fas fa-users"></i> User Management
+        </div>
+        <div class="settings-tab" data-tab="notifications">
+          <i class="fas fa-bell"></i> Notifications
+        </div>
+        <div class="settings-tab" data-tab="privacy">
+          <i class="fas fa-shield-alt"></i> Privacy & Security
+        </div>
+        <div class="settings-tab" data-tab="integrations">
+          <i class="fas fa-plug"></i> Integrations
+        </div>
+      </div>
+
+      <!-- Club Profile Settings -->
+      <div class="settings-content active" id="profile-tab">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Club Information</h3>
+            <p class="form-subtitle">Update your club's basic information and how it appears to others</p>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="clubName">Club Name</label>
+              <input type="text" id="clubName" value="Boronia FC">
+            </div>
+            <div class="form-group">
+              <label for="foundedYear">Year Founded</label>
+              <input type="number" id="foundedYear" value="1972">
+            </div>
+            <div class="form-group">
+              <label for="clubLocation">Location</label>
+              <input type="text" id="clubLocation" value="Melbourne, Australia">
+            </div>
+            <div class="form-group">
+              <label for="stadium">Home Stadium</label>
+              <input type="text" id="stadium" value="Parkside Stadium">
+            </div>
+            <div class="form-group">
+              <label for="clubWebsite">Website</label>
+              <input type="url" id="clubWebsite" value="https://boroniafc.example.com">
+            </div>
+            <div class="form-group">
+              <label for="clubEmail">Contact Email</label>
+              <input type="email" id="clubEmail" value="admin@boroniafc.example.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="clubDescription">Club Description</label>
+            <textarea id="clubDescription">Boronia FC is a community football club based in Melbourne, Australia. We pride ourselves on developing young talent and promoting sportsmanship both on and off the field.</textarea>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Club Logo & Branding</h3>
+            <p class="form-subtitle">Upload your club's logo and choose accent colors</p>
+          </div>
+          <div class="avatar-upload">
+            <div class="avatar-preview">
+              <img src="https://cdn-icons-png.flaticon.com/512/805/805401.png" alt="Club Logo">
+            </div>
+            <label class="upload-btn">
+              <i class="fas fa-upload"></i> Upload New Logo
+              <input type="file" style="display: none;" accept="image/*">
+            </label>
+          </div>
+          <div class="form-grid" style="margin-top: 20px;">
+            <div class="form-group">
+              <label for="primaryColor">Primary Color</label>
+              <input type="color" id="primaryColor" value="#1a4f8b">
+            </div>
+            <div class="form-group">
+              <label for="secondaryColor">Secondary Color</label>
+              <input type="color" id="secondaryColor" value="#3bb77e">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary">Save Changes</button>
+      </div>
+
+      <!-- User Management -->
+      <div class="settings-content" id="users-tab">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Add New User</h3>
+            <p class="form-subtitle">Invite new members to manage your club's account</p>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="userName">Full Name</label>
+              <input type="text" id="userName" placeholder="Enter full name">
+            </div>
+            <div class="form-group">
+              <label for="userEmail">Email Address</label>
+              <input type="email" id="userEmail" placeholder="Enter email address">
+            </div>
+            <div class="form-group">
+              <label for="userRole">Role</label>
+              <select id="userRole">
+                <option value="admin">Administrator</option>
+                <option value="manager">Manager</option>
+                <option value="scout">Scout</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-outline">Send Invitation</button>
+        </div>
+
+        <div class="user-list">
+          <div class="user-header">
+            <h3 class="user-title">Current Users</h3>
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search users...">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Last Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="user-name">
+                      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="user-avatar">
+                      <span>Alex Johnson</span>
+                    </div>
+                  </td>
+                  <td><span class="user-role role-admin">Administrator</span></td>
+                  <td>Active</td>
+                  <td>Today, 14:32</td>
+                  <td>
+                    <div class="actions">
+                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-name">
+                      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar">
+                      <span>Sarah Williams</span>
+                    </div>
+                  </td>
+                  <td><span class="user-role role-manager">Manager</span></td>
+                  <td>Active</td>
+                  <td>Yesterday, 09:15</td>
+                  <td>
+                    <div class="actions">
+                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-name">
+                      <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="User" class="user-avatar">
+                      <span>Michael Brown</span>
+                    </div>
+                  </td>
+                  <td><span class="user-role role-scout">Scout</span></td>
+                  <td>Active</td>
+                  <td>2 days ago</td>
+                  <td>
+                    <div class="actions">
+                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Settings -->
+      <div class="settings-content" id="notifications-tab">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Notification Preferences</h3>
+            <p class="form-subtitle">Manage how you receive notifications from the system</p>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Email Notifications</div>
+              <div class="notification-desc">Receive important updates via email</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Player Reports</div>
+              <div class="notification-desc">Get notified when new player reports are available</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Match Reminders</div>
+              <div class="notification-desc">Receive reminders for upcoming matches</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Subscription Alerts</div>
+              <div class="notification-desc">Get notified about your subscription status</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Newsletter</div>
+              <div class="notification-desc">Receive our monthly newsletter with tips and updates</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <button class="btn-primary">Save Preferences</button>
+      </div>
+
+      <!-- Privacy & Security -->
+      <div class="settings-content" id="privacy-tab">
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Privacy Settings</h3>
+            <p class="form-subtitle">Control how your club's information is shared</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="profileVisibility">Profile Visibility</label>
+            <select id="profileVisibility">
+              <option value="public">Public - Anyone can view our club profile</option>
+              <option value="scouts">Scouts Only - Only verified scouts can view our profile</option>
+              <option value="private">Private - Only invited users can view our profile</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="dataSharing">Data Sharing</label>
+            <select id="dataSharing">
+              <option value="anonymous">Anonymous - Share anonymous data for analytics</option>
+              <option value="limited">Limited - Share limited data with partners</option>
+              <option value="none">None - Don't share any data</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Security Settings</h3>
+            <p class="form-subtitle">Manage your account security</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" placeholder="Enter current password">
+          </div>
+          
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password">
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+          </div>
+          
+          <button class="btn-primary">Update Password</button>
+        </div>
+        
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">Two-Factor Authentication</h3>
+            <p class="form-subtitle">Add an extra layer of security to your account</p>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-info">
+              <div class="notification-title">Enable Two-Factor Authentication</div>
+              <div class="notification-desc">Require a verification code in addition to your password</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <button class="btn-outline">Set Up 2FA</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <div class="danger-header">
+          <h3 class="danger-title">Danger Zone</h3>
+          <p class="danger-subtitle">Irreversible and destructive actions</p>
+        </div>
+        
+        <div class="danger-actions">
+          <button class="btn-outline">
+            <i class="fas fa-download"></i> Export All Data
+          </button>
+          <button class="btn-outline">
+            <i class="fas fa-trash"></i> Delete Recent Activity
+          </button>
+          <button class="btn-danger">
+            <i class="fas fa-trash-alt"></i> Delete Club Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+    
+    // Tab switching functionality
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.settings-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Hide all tab contents
+        document.querySelectorAll('.settings-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        
+        // Show the selected tab content
+        const tabId = `${this.getAttribute('data-tab')}-tab`;
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Avatar upload preview
+    const avatarUpload = document.querySelector('.avatar-upload input[type="file"]');
+    const avatarPreview = document.querySelector('.avatar-preview img');
+    
+    avatarUpload.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          avatarPreview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>

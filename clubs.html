@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boronia FC — Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a4f8b;
+      --primary-dark: #0d3b66;
+      --secondary: #3bb77e;
+      --accent: #ff6b35;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7f9;
+      color: var(--dark);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar nav {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar nav a.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-weight: 500;
+    }
+
+    .sidebar nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--secondary);
+    }
+
+    .sidebar nav a i {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .sidebar nav a span {
+      transition: var(--transition);
+    }
+
+    .sidebar.collapsed nav a span {
+      display: none;
+    }
+
+    .club-badge {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .club-badge img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .club-badge h3 {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .club-badge h3 {
+      display: none;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+
+    .topbar h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .profile {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--light-gray);
+      transition: var(--transition);
+    }
+
+    .profile:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .profile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--light-gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-head h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .status {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status--active {
+      background: rgba(59, 183, 126, 0.15);
+      color: var(--secondary);
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .kv {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kv div {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .kv div:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .k {
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .v {
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    input[type="text"] {
+      padding: 10px 12px;
+      border: 1px solid var(--light-gray);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 79, 139, 0.2);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card-actions {
+      padding: 15px 20px;
+      background: var(--light);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+
+    button:not(.outline):not(.ghost) {
+      background: var(--primary);
+      color: white;
+    }
+
+    button:not(.outline):not(.ghost):hover {
+      background: var(--primary-dark);
+    }
+
+    button.outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    button.outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--gray);
+    }
+
+    button.ghost:hover {
+      color: var(--primary);
+      background: rgba(26, 79, 139, 0.1);
+    }
+
+    /* Reports Section */
+    #reports {
+      margin-top: 20px;
+    }
+
+    #reports .card-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .search {
+      padding: 8px 12px;
+      border: 1px solid var(--light-gray);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      min-width: 200px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    th {
+      background: var(--light);
+      color: var(--primary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: rgba(26, 79, 139, 0.03);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+      }
+      
+      .sidebar:not(.collapsed) {
+        width: 260px;
+        position: absolute;
+        height: 100%;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 15px 20px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .card-actions {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="menu-title">Menu</h2>
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <nav>
+      <a href="clubs.html" class="active">
+        <i class="fas fa-home"></i>
+        <span>Overview</span>
+      </a>
+      <a href="club-subcription.html">
+        <i class="fas fa-credit-card"></i>
+        <span>Subscription</span>
+      </a>
+      <a href="analytics.html">
+        <i class="fas fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="player-reports.html">
+        <i class="fas fa-file-alt"></i>
+        <span>Player Reports</span>
+      </a>
+      
+      <a href="club-settings.html">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="logout.html">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+    <div class="club-badge">
+      <img src="https://cdn-icons-png.flaticon.com/512/805/805401.png" alt="Boronia FC Logo">
+      <h3>Boronia FC</h3>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1>Boronia FC Dashboard</h1>
+      <a class="profile" href="club-profile.html" title="Club Profile">
+        <img src="https://ui-avatars.com/api/?name=Boronia+FC&background=1a4f8b&color=fff" alt="Club profile" />
+      </a>
+    </header>
+
+    <div class="content">
+      <h2 class="section-title">Club Overview</h2>
+      
+      <section class="cards-grid">
+        <!-- Overview -->
+        <article class="card" id="overview">
+          <header class="card-head">
+            <h3>Club Overview</h3>
+            <span class="status status--active">ACTIVE</span>
+          </header>
+          <div class="card-body kv">
+            <div><span class="k">Location</span><span class="v">CODERS, 2025</span></div>
+            <div><span class="k">Stadium</span><span class="v">Vaal Stadium</span></div>
+            <div><span class="k">Founded</span><span class="v">2020</span></div>
+            <div><span class="k">Members</span><span class="v">700</span></div>
+          </div>
+          <footer class="card-actions">
+            <button>Renew Subscription</button>
+            <button class="outline">View Details</button>
+          </footer>
+        </article>
+
+        <!-- Subscription -->
+        <article class="card" id="subscription">
+          <header class="card-head">
+            <h3>Subscription</h3>
+          </header>
+          <div class="card-body kv">
+            <div><span class="k">Plan</span><span class="v">Pro</span></div>
+            <div><span class="k">Billing</span><span class="v">Monthly</span></div>
+            <div><span class="k">Next Payment</span><span class="v">Jun 1, 2024</span></div>
+            <div><span class="k">Payment Method</span><span class="v">VISA — 1224</span></div>
+          </div>
+          <footer class="card-actions">
+            <button>Upgrade Plan</button>
+            <button class="outline">Pay Subscription</button>
+            <button class="ghost">Download Invoice History</button>
+          </footer>
+        </article>
+
+        <!-- Analytics -->
+        <article class="card" id="analytics">
+          <header class="card-head">
+            <h3>Quick Actions</h3>
+          </header>
+          <div class="card-body">
+            <div class="kv">
+              <div><span class="k">Matches Played</span><span class="v">24</span></div>
+              <div><span class="k">Upcoming Fixtures</span><span class="v">3</span></div>
+              <div><span class="k">Player Performance</span><span class="v">87%</span></div>
+            </div>
+          </div>
+          <footer class="card-actions">
+            <button>View Full Analytics</button>
+            <button class="outline">Generate Report</button>
+          </footer>
+        </article>
+      </section>
+
+      <!-- Player reports -->
+      <section class="card" id="reports">
+        <header class="card-head">
+          <h3>Player Reports</h3>
+          <input class="search" type="search" placeholder="Search player…" />
+        </header>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Position</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Logan Harris</td>
+                <td>Forward</td>
+                <td>7.5</td>
+                <td><button class="ghost">View Report</button></td>
+              </tr>
+              <tr>
+                <td>Noah Russell</td>
+                <td>Midfielder</td>
+                <td>7.3</td>
+                <td><button class="ghost">View Report</button></td>
+              </tr>
+              <tr>
+                <td>Ethan Moore</td>
+                <td>Forward</td>
+                <td>7.2</td>
+                <td><button class="ghost">View Report</button></td>
+              </tr>
+              <tr>
+                <td>Lucas Bennett</td>
+                <td>Defender</td>
+                <td>7.0</td>
+                <td><button class="ghost">View Report</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+    
+    // Add active class to current page link
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop();
+      const links = document.querySelectorAll('nav a');
+      
+      links.forEach(link => {
+        const linkPage = link.getAttribute('href');
+        if (linkPage === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

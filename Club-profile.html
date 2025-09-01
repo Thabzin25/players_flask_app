@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Club Profile</title>
+  <link rel="stylesheet" href="club-profile.css" />
+</head>
+<body>
+  <main class="profile-page">
+    <header class="profile-head">
+      <a href="clubs.html" class="back">← Back</a>
+      <h1>Club Profile</h1>
+      <a href="logout.html" class="logout">Logout</a>
+    </header>
+
+    <section class="card">
+      <h2>Club Details</h2>
+      <form class="form-grid">
+        <label>
+          <span>Club Name</span>
+          <input type="text" value="Boronia FC" />
+        </label>
+        <label>
+          <span>Location</span>
+          <input type="text" value="Melbourne" />
+        </label>
+        <label>
+          <span>Founded</span>
+          <input type="text" value="1985" />
+        </label>
+        <label class="full">
+          <span>Stadium</span>
+          <input type="text" value="Parkside Stadium" />
+        </label>
+        <div class="actions">
+          <button type="submit">Save Changes</button>
+          <button type="button" class="outline">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Profile Image</h2>
+      <div class="avatar-row">
+        <img id="avatarPreview" src="club-avatar.png" alt="Club avatar" />
+        <div class="upload">
+          <label class="file-btn">
+            <input id="avatarInput" type="file" accept="image/*" hidden />
+            Upload New Image
+          </label>
+          <p class="hint">PNG or JPG up to 5MB. Square images look best.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Image preview
+    const input = document.getElementById('avatarInput');
+    const preview = document.getElementById('avatarPreview');
+
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+      const reader = new FileReader();
+      reader.onload = (evt) => { preview.src = evt.target.result; };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>

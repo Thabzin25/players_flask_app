@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Players</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f77f00;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --background: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #dddddd;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        .dark {
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #f0f0f0;
+            --border: #444444;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 10px var(--shadow);
+        }
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+        .top-bar {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .menu-item a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+        .menu-item a:hover {
+            color: #f1c40f;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .submenu {
+            list-style: none;
+            padding-left: 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .dropdown:hover .submenu {
+            max-height: 200px;
+        }
+        .submenu li {
+            padding: 10px 0;
+        }
+        .submenu a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        .submenu a:hover {
+            color: white;
+        }
+        .theme-toggle {
+            margin: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            align-self: center;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 70px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        .content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px var(--shadow);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        h2 {
+            margin: 25px 0 15px;
+            color: var(--secondary);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        input, select {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+        }
+        button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: var(--secondary);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:hover {
+            background: rgba(67, 97, 238, 0.05);
+        }
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        .danger {
+            background: var(--danger);
+        }
+        .danger:hover {
+            background: #d1144a;
+        }
+        .success {
+            background: var(--success);
+        }
+        .success:hover {
+            background: #3aa8d0;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            .logo-text, .menu-text {
+                display: none;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.collapsed {
+                width: 70px;
+            }
+            .sidebar-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1100;
+                background: var(--primary);
+                padding: 10px;
+                border-radius: 5px;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="top-bar">
+                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <div class="logo"><i class="fas fa-futbol"></i> <span class="logo-text">Admin</span></div>
+            </div>
+            <ul class="menu">
+                <li class="menu-item" title="Dashboard">
+                    <a href="admin.html"><i class="fas fa-home"></i> <span class="menu-text">Dashboard</span></a>
+                </li>
+                <li class="menu-item" title="Players">
+                    <i class="fas fa-user"></i> <a href="players.html">players</a>
+                </li>
+                <li class="menu-item" title="Scouts">
+                    <i class="fas fa-users"></i> <a href="Scoutmanger.html">scouts</a>
+                </li>
+                <li class="menu-item" title="Teams">
+                    <i class="fas fa-futbol"></i> <a href="teams.html">Teams</a>
+                </li>
+                <li class="menu-item" title="Subscriptions">
+                    <a href="subscriptions.html"><i class="fas fa-credit-card"></i> <span class="menu-text">Subscriptions</span></a>
+                </li>
+                <li class="menu-item" title="Reports">
+                    <a href="admin-Reports.html"><i class="fas fa-file-alt"></i> <span class="menu-text">Reports</span></a>
+                </li>
+                <li class="menu-item" title="Analytics">
+                    <i class="fas fa-chart-line"></i> <span class="menu-text">Analytics</span>
+                </li>
+                <li class="menu-item" title="Settings">
+                    <i class="fas fa-cog"></i> <span class="menu-text">Settings</span>
+                </li>
+            </ul>
+            <button class="theme-toggle"><i class="fas fa-sun"></i></button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Players Management</h1>
+                <div class="user-info">
+                    <span>Admin <i class="fas fa-user-shield"></i></span>
+                </div>
+            </header>
+
+            <section class="content">
+                <h2>Add New Player</h2>
+                <form id="addPlayerForm">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="date" name="dob" placeholder="Date of Birth" required>
+                    <input type="text" name="position" placeholder="Position" required>
+                    <button type="submit">Add Player</button>
+                </form>
+
+                <h2>Players List</h2>
+                <button id="refreshBtn" style="margin-bottom:15px;">Refresh List</button>
+                <input type="text" id="searchInput" placeholder="Search by name..." style="margin-bottom:15px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Position</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        <!-- Player rows will appear here dynamically -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.querySelector('.sidebar');
+        document.querySelector('.sidebar-toggle').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Light/Dark mode toggle
+        const themeBtn = document.querySelector('.theme-toggle');
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            if (document.body.classList.contains('dark')) {
+                themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        });
+
+        // Backend API URL
+        const API_URL = "https://players-flask-app.onrender.com";
+
+        // Elements
+        const playersTableBody = document.getElementById("playersTableBody");
+        const addPlayerForm = document.getElementById("addPlayerForm");
+        const refreshBtn = document.getElementById("refreshBtn");
+        const searchInput = document.getElementById("searchInput");
+
+        // Store all players for filtering
+        let allPlayers = [];
+
+        // Show temporary message
+        function showMessage(msg, color = "#10b981") {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.textContent = msg;
+            messageDiv.style.background = color;
+            document.querySelector(".content").prepend(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+
+        // Format date to display as age
+        function calculateAge(dob) {
+            if (!dob) return null;
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        // Add a single player to table
+        function addPlayerToTable(player) {
+            const row = document.createElement("tr");
+            const age = player.age || (player.dob ? calculateAge(player.dob) : 'N/A');
+
+            row.innerHTML = `
+                <td>${player.name || 'N/A'}</td>
+                <td>${age}</td>
+                <td>${player.position || 'N/A'}</td>
+                <td>
+                    <button class="btn-small danger delete-btn" data-id="${player.id || player.playerId}">Delete</button>
+                </td>
+            `;
+
+            // Delete button
+            row.querySelector(".delete-btn").addEventListener("click", async () => {
+                if (!confirm("Are you sure you want to delete this player?")) return;
+                try {
+                    const response = await fetch(`${API_URL}/players/${player.id || player.playerId}`, { 
+                        method: "DELETE" 
+                    });
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showMessage("Player deleted successfully", "#ef4444");
+                        loadPlayers(); // Refresh after delete
+                    } else {
+                        throw new Error(result.error);
+                    }
+                } catch (err) {
+                    console.error("Error deleting player:", err);
+                    showMessage("Error deleting player: " + err.message, "#f59e0b");
+                }
+            });
+
+            playersTableBody.appendChild(row);
+        }
+
+        // Render players (filtered or all)
+        function renderPlayers(players) {
+            playersTableBody.innerHTML = "";
+            players.forEach(player => addPlayerToTable(player));
+        }
+
+        // Fetch all players
+        async function loadPlayers() {
+            try {
+                const response = await fetch(`${API_URL}/players`);
+                if (!response.ok) throw new Error('Failed to fetch players');
+                allPlayers = await response.json();
+                renderPlayers(allPlayers);
+            } catch (err) {
+                console.error("Error loading players:", err);
+                showMessage("Failed to load players", "#f59e0b");
+            }
+        }
+
+        // Add player form
+        addPlayerForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(addPlayerForm);
+            const dob = formData.get("dob");
+            const age = dob ? calculateAge(dob) : null;
+
+            const playerData = {
+                name: formData.get("name"),
+                age: typeof age === "number" && !isNaN(age) ? age : null,
+                position: formData.get("position")
+            };
+
+            if (!playerData.name || playerData.age === null || !playerData.position) {
+                showMessage("Name, age, and position are required", "#f59e0b");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/players`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify(playerData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    addPlayerForm.reset();
+                    showMessage("Player added successfully");
+                    loadPlayers();
+                } else {
+                    showMessage(result.error || "Failed to add player", "#f59e0b");
+                }
+            } catch (err) {
+                console.error("Error adding player:", err);
+                showMessage("Failed to add player: " + err.message, "#f59e0b");
+            }
+        });
+
+        // Refresh button
+        refreshBtn.addEventListener("click", loadPlayers);
+
+        // Search/filter as you type
+        searchInput.addEventListener("input", function() {
+            const query = this.value.toLowerCase();
+            const filtered = allPlayers.filter(p => (p.name || '').toLowerCase().includes(query));
+            renderPlayers(filtered);
+        });
+
+        // Initial load
+        loadPlayers();
+    </script>
+</body>
+</html>

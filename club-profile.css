@@ -1,0 +1,28 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f6f7fb; color: #111; }
+
+.profile-page { max-width: 1000px; margin: 24px auto; padding: 0 16px; display: grid; gap: 16px; }
+.profile-head { display: flex; align-items: center; justify-content: space-between; }
+.back, .logout { text-decoration: none; color: #111; padding: 8px 10px; border-radius: 6px; }
+.back:hover, .logout:hover { background: #eee; }
+
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04); padding: 16px; }
+.card h2 { margin: 0 0 12px 0; font-size: 1.1rem; }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.form-grid label { display: grid; gap: 6px; color: #374151; }
+.form-grid input { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem; }
+label.full { grid-column: 1 / -1; }
+
+.actions { display: flex; gap: 8px; margin-top: 8px; }
+button { padding: 10px 12px; border-radius: 8px; background: #111; color: #fff; border: 1px solid #111; cursor: pointer; font-weight: 600; }
+button.outline { background: #fff; color: #111; border-color: #ddd; }
+
+.avatar-row { display: flex; align-items: center; gap: 16px; }
+#avatarPreview { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb; }
+
+.file-btn {
+  display: inline-block; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff; font-weight: 600;
+}
+.file-btn:hover { background: #f3f4f6; }
+.hint { margin: 6px 0 0; font-size: .85rem; color: #6b7280; }
