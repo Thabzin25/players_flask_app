@@ -67,12 +67,22 @@ def home():
 def get_players():
     name_filter = request.args.get("name")
     position_filter = request.args.get("position")
+    page = int(request.args.get("page", 1))   # default page = 1
+    limit = int(request.args.get("limit", 50))  # default limit = 50
+    limit = min(limit, 100)  # hard cap = 100
+    skip = (page - 1) * limit
+
     query = {}
     if name_filter:
         query["name"] = {"$regex": name_filter, "$options": "i"}
     if position_filter:
         query["position"] = position_filter
-    raw_players = list(players_collection.find(query, {"_id": 0}))
+
+    total_players = players_collection.count_documents(query)
+
+    raw_players = list(
+        players_collection.find(query, {"_id": 0}).skip(skip).limit(limit)
+    )
 
     def transform_player(p):
         # --- Age ---
@@ -123,7 +133,14 @@ def get_players():
         }
 
     players = [transform_player(p) for p in raw_players]
-    return jsonify(players)
+
+    return jsonify({
+        "page": page,
+        "limit": limit,
+        "total_players": total_players,
+        "total_pages": (total_players + limit - 1) // limit,
+        "players": players
+    })
 
 @app.route("/players/<player_name>", methods=["GET"])
 def get_player(player_name):
