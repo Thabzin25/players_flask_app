@@ -672,6 +672,47 @@
       background: rgba(26, 79, 139, 0.1);
     }
 
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: var(--border-radius);
+      background: white;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      z-index: 3000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--secondary);
+    }
+
+    .toast.error {
+      border-left: 4px solid #dc3545;
+    }
+
+    .toast i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
+    .toast.success i {
+      color: var(--secondary);
+    }
+
+    .toast.error i {
+      color: #dc3545;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
       .sidebar {
@@ -782,7 +823,7 @@
               <i class="fas fa-users"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-value">24</div>
+              <div class="stat-value" id="total-players">24</div>
               <div class="stat-label">Total Players</div>
             </div>
           </div>
@@ -792,7 +833,7 @@
               <i class="fas fa-star"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-value">7.2</div>
+              <div class="stat-value" id="average-rating">7.2</div>
               <div class="stat-label">Average Rating</div>
             </div>
           </div>
@@ -802,7 +843,7 @@
               <i class="fas fa-trophy"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-value">12</div>
+              <div class="stat-value" id="matches-won">12</div>
               <div class="stat-label">Matches Won</div>
             </div>
           </div>
@@ -812,7 +853,7 @@
               <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-info">
-              <div class="stat-value">87%</div>
+              <div class="stat-value" id="performance">87%</div>
               <div class="stat-label">Performance</div>
             </div>
           </div>
@@ -848,11 +889,11 @@
             <h3 class="player-title">Current Squad</h3>
             <div class="search-box">
               <i class="fas fa-search"></i>
-              <input type="text" placeholder="Search players...">
+              <input type="text" id="player-search" placeholder="Search players..." onkeyup="filterPlayers()">
             </div>
           </div>
           <div class="table-wrap">
-            <table>
+            <table id="players-table">
               <thead>
                 <tr>
                   <th>Player</th>
@@ -863,79 +904,8 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="player-name">
-                      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Player" class="player-img">
-                      <span>Logan Harris</span>
-                    </div>
-                  </td>
-                  <td>Forward</td>
-                  <td>24</td>
-                  <td>18</td>
-                  <td><span class="rating rating-high">7.5</span></td>
-                  <td>
-                    <div class="actions">
-                      <button class="action-btn btn-edit" onclick="openEditPlayerModal()"><i class="fas fa-edit"></i></button>
-                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="player-name">
-                      <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Player" class="player-img">
-                      <span>Noah Russell</span>
-                    </div>
-                  </td>
-                  <td>Midfielder</td>
-                  <td>22</td>
-                  <td>20</td>
-                  <td><span class="rating rating-high">7.3</span></td>
-                  <td>
-                    <div class="actions">
-                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
-                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="player-name">
-                      <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Player" class="player-img">
-                      <span>Ethan Moore</span>
-                    </div>
-                  </td>
-                  <td>Forward</td>
-                  <td>25</td>
-                  <td>16</td>
-                  <td><span class="rating rating-medium">7.2</span></td>
-                  <td>
-                    <div class="actions">
-                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
-                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="player-name">
-                      <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Player" class="player-img">
-                      <span>Lucas Bennett</span>
-                    </div>
-                  </td>
-                  <td>Defender</td>
-                  <td>23</td>
-                  <td>22</td>
-                  <td><span class="rating rating-medium">7.0</span></td>
-                  <td>
-                    <div class="actions">
-                      <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
-                      <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
+              <tbody id="players-table-body">
+                <!-- Player data will be inserted here dynamically -->
               </tbody>
             </table>
           </div>
@@ -945,11 +915,11 @@
   </main>
 
   <!-- Add Player Modal -->
-  <div class="modal" id="addPlayerModal">
+  <div class="modal" id="playerModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title">Add New Player</h3>
-        <button class="close-btn" onclick="closeModal('addPlayerModal')">&times;</button>
+        <h3 class="modal-title" id="modal-title">Add New Player</h3>
+        <button class="close-btn" onclick="closeModal('playerModal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -960,10 +930,10 @@
           <label for="playerPosition">Position</label>
           <select id="playerPosition">
             <option value="">Select Position</option>
-            <option value="forward">Forward</option>
-            <option value="midfielder">Midfielder</option>
-            <option value="defender">Defender</option>
-            <option value="goalkeeper">Goalkeeper</option>
+            <option value="Forward">Forward</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Defender">Defender</option>
+            <option value="Goalkeeper">Goalkeeper</option>
           </select>
         </div>
         <div class="form-group">
@@ -971,80 +941,172 @@
           <input type="number" id="playerAge" placeholder="Enter age">
         </div>
         <div class="form-group">
+          <label for="playerMatches">Matches Played</label>
+          <input type="number" id="playerMatches" placeholder="Enter matches played">
+        </div>
+        <div class="form-group">
           <label for="playerRating">Rating</label>
           <input type="number" id="playerRating" step="0.1" min="0" max="10" placeholder="0.0 - 10.0">
         </div>
+        <div class="form-group">
+          <label for="playerImage">Image URL (optional)</label>
+          <input type="text" id="playerImage" placeholder="Enter image URL">
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-outline" onclick="closeModal('addPlayerModal')">Cancel</button>
-        <button class="btn-primary">Add Player</button>
+        <button class="btn-outline" onclick="closeModal('playerModal')">Cancel</button>
+        <button class="btn-primary" id="modal-submit-btn" onclick="savePlayer()">Add Player</button>
       </div>
     </div>
   </div>
 
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Operation completed successfully</span>
+  </div>
+
   <script>
-    function toggleSidebar() {
-      document.querySelector('.sidebar').classList.toggle('collapsed');
+    // Database simulation using localStorage
+    const DB_NAME = 'boronia_fc_players';
+    let players = [];
+    let editingPlayerId = null;
+    let ratingsChart = null;
+    let positionChart = null;
+
+    // Initialize the application
+    function initApp() {
+      loadPlayers();
+      renderPlayersTable();
+      updateStats();
+      initCharts();
+      setupEventListeners();
     }
-    
-    // Tab switching functionality
-    document.querySelectorAll('.submenu-item').forEach(item => {
-      item.addEventListener('click', function() {
-        if (this.getAttribute('data-tab')) {
-          // Remove active class from all items
-          document.querySelectorAll('.submenu-item').forEach(i => {
-            i.classList.remove('active');
-          });
-          
-          // Add active class to clicked item
-          this.classList.add('active');
-          
-          // Hide all tab contents
-          document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.style.display = 'none';
-          });
-          
-          // Show the selected tab content
-          const tabId = `${this.getAttribute('data-tab')}-tab`;
-          document.getElementById(tabId).style.display = 'block';
-        }
-      });
-    });
-    
-    // Modal functionality
-    function openAddPlayerModal() {
-      document.getElementById('addPlayerModal').style.display = 'flex';
-    }
-    
-    function openEditPlayerModal() {
-      // In a real app, you would populate the form with player data
-      document.getElementById('addPlayerModal').style.display = 'flex';
-      document.querySelector('.modal-title').textContent = 'Edit Player';
-      document.querySelector('.modal-footer .btn-primary').textContent = 'Save Changes';
-    }
-    
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-      if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
+
+    // Load players from localStorage
+    function loadPlayers() {
+      const playersData = localStorage.getItem(DB_NAME);
+      if (playersData) {
+        players = JSON.parse(playersData);
+      } else {
+        // Initialize with sample data if no data exists
+        players = [
+          { id: 1, name: 'Logan Harris', position: 'Forward', age: 24, matches: 18, rating: 7.5, image: 'https://randomuser.me/api/portraits/men/32.jpg' },
+          { id: 2, name: 'Noah Russell', position: 'Midfielder', age: 22, matches: 20, rating: 7.3, image: 'https://randomuser.me/api/portraits/men/22.jpg' },
+          { id: 3, name: 'Ethan Moore', position: 'Forward', age: 25, matches: 16, rating: 7.2, image: 'https://randomuser.me/api/portraits/men/45.jpg' },
+          { id: 4, name: 'Lucas Bennett', position: 'Defender', age: 23, matches: 22, rating: 7.0, image: 'https://randomuser.me/api/portraits/men/67.jpg' }
+        ];
+        savePlayers();
       }
-    });
-    
+    }
+
+    // Save players to localStorage
+    function savePlayers() {
+      localStorage.setItem(DB_NAME, JSON.stringify(players));
+    }
+
+    // Render players table
+    function renderPlayersTable() {
+      const tableBody = document.getElementById('players-table-body');
+      tableBody.innerHTML = '';
+      
+      players.forEach(player => {
+        const row = document.createElement('tr');
+        
+        // Determine rating class
+        let ratingClass = 'rating-medium';
+        if (player.rating >= 7.5) ratingClass = 'rating-high';
+        if (player.rating < 6.5) ratingClass = 'rating-low';
+        
+        row.innerHTML = `
+          <td>
+            <div class="player-name">
+              <img src="${player.image || 'https://via.placeholder.com/40'}" alt="Player" class="player-img">
+              <span>${player.name}</span>
+            </div>
+          </td>
+          <td>${player.position}</td>
+          <td>${player.age}</td>
+          <td>${player.matches}</td>
+          <td><span class="rating ${ratingClass}">${player.rating}</span></td>
+          <td>
+            <div class="actions">
+              <button class="action-btn btn-edit" onclick="openEditPlayerModal(${player.id})"><i class="fas fa-edit"></i></button>
+              <button class="action-btn btn-delete" onclick="deletePlayer(${player.id})"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Filter players based on search input
+    function filterPlayers() {
+      const searchTerm = document.getElementById('player-search').value.toLowerCase();
+      const tableBody = document.getElementById('players-table-body');
+      tableBody.innerHTML = '';
+      
+      const filteredPlayers = players.filter(player => 
+        player.name.toLowerCase().includes(searchTerm) || 
+        player.position.toLowerCase().includes(searchTerm)
+      );
+      
+      filteredPlayers.forEach(player => {
+        const row = document.createElement('tr');
+        
+        // Determine rating class
+        let ratingClass = 'rating-medium';
+        if (player.rating >= 7.5) ratingClass = 'rating-high';
+        if (player.rating < 6.5) ratingClass = 'rating-low';
+        
+        row.innerHTML = `
+          <td>
+            <div class="player-name">
+              <img src="${player.image || 'https://via.placeholder.com/40'}" alt="Player" class="player-img">
+              <span>${player.name}</span>
+            </div>
+          </td>
+          <td>${player.position}</td>
+          <td>${player.age}</td>
+          <td>${player.matches}</td>
+          <td><span class="rating ${ratingClass}">${player.rating}</span></td>
+          <td>
+            <div class="actions">
+              <button class="action-btn btn-edit" onclick="openEditPlayerModal(${player.id})"><i class="fas fa-edit"></i></button>
+              <button class="action-btn btn-delete" onclick="deletePlayer(${player.id})"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Update dashboard statistics
+    function updateStats() {
+      document.getElementById('total-players').textContent = players.length;
+      
+      // Calculate average rating
+      const totalRating = players.reduce((sum, player) => sum + parseFloat(player.rating), 0);
+      const avgRating = players.length > 0 ? (totalRating / players.length).toFixed(1) : '0.0';
+      document.getElementById('average-rating').textContent = avgRating;
+      
+      // Update charts with new data
+      updateCharts();
+    }
+
     // Initialize charts
-    document.addEventListener('DOMContentLoaded', function() {
+    function initCharts() {
       // Ratings Distribution Chart
       const ratingsCtx = document.getElementById('ratingsChart').getContext('2d');
-      new Chart(ratingsCtx, {
+      ratingsChart = new Chart(ratingsCtx, {
         type: 'bar',
         data: {
           labels: ['6.0-6.5', '6.6-7.0', '7.1-7.5', '7.6-8.0', '8.1+'],
           datasets: [{
             label: 'Number of Players',
-            data: [3, 8, 9, 3, 1],
+            data: calculateRatingDistribution(),
             backgroundColor: [
               'rgba(255, 107, 53, 0.7)',
               'rgba(255, 193, 7, 0.7)',
@@ -1075,12 +1137,12 @@
       
       // Position Performance Chart
       const positionCtx = document.getElementById('positionChart').getContext('2d');
-      new Chart(positionCtx, {
+      positionChart = new Chart(positionCtx, {
         type: 'doughnut',
         data: {
           labels: ['Forwards', 'Midfielders', 'Defenders', 'Goalkeepers'],
           datasets: [{
-            data: [7.4, 7.2, 6.9, 7.1],
+            data: calculatePositionAverages(),
             backgroundColor: [
               'rgba(255, 107, 53, 0.7)',
               'rgba(59, 183, 126, 0.7)',
@@ -1106,7 +1168,227 @@
           }
         }
       });
-    });
+    }
+
+    // Update charts with current data
+    function updateCharts() {
+      if (ratingsChart) {
+        ratingsChart.data.datasets[0].data = calculateRatingDistribution();
+        ratingsChart.update();
+      }
+      
+      if (positionChart) {
+        positionChart.data.datasets[0].data = calculatePositionAverages();
+        positionChart.update();
+      }
+    }
+
+    // Calculate rating distribution for chart
+    function calculateRatingDistribution() {
+      const distribution = [0, 0, 0, 0, 0]; // 5 buckets: 6.0-6.5, 6.6-7.0, 7.1-7.5, 7.6-8.0, 8.1+
+      
+      players.forEach(player => {
+        const rating = player.rating;
+        if (rating >= 8.1) distribution[4]++;
+        else if (rating >= 7.6) distribution[3]++;
+        else if (rating >= 7.1) distribution[2]++;
+        else if (rating >= 6.6) distribution[1]++;
+        else if (rating >= 6.0) distribution[0]++;
+      });
+      
+      return distribution;
+    }
+
+    // Calculate average ratings by position for chart
+    function calculatePositionAverages() {
+      const positions = {
+        'Forward': { total: 0, count: 0 },
+        'Midfielder': { total: 0, count: 0 },
+        'Defender': { total: 0, count: 0 },
+        'Goalkeeper': { total: 0, count: 0 }
+      };
+      
+      players.forEach(player => {
+        if (positions[player.position]) {
+          positions[player.position].total += player.rating;
+          positions[player.position].count++;
+        }
+      });
+      
+      return [
+        positions['Forward'].count > 0 ? (positions['Forward'].total / positions['Forward'].count).toFixed(1) : 0,
+        positions['Midfielder'].count > 0 ? (positions['Midfielder'].total / positions['Midfielder'].count).toFixed(1) : 0,
+        positions['Defender'].count > 0 ? (positions['Defender'].total / positions['Defender'].count).toFixed(1) : 0,
+        positions['Goalkeeper'].count > 0 ? (positions['Goalkeeper'].total / positions['Goalkeeper'].count).toFixed(1) : 0
+      ];
+    }
+
+    // Open modal for adding a new player
+    function openAddPlayerModal() {
+      editingPlayerId = null;
+      document.getElementById('modal-title').textContent = 'Add New Player';
+      document.getElementById('modal-submit-btn').textContent = 'Add Player';
+      
+      // Clear form fields
+      document.getElementById('playerName').value = '';
+      document.getElementById('playerPosition').value = '';
+      document.getElementById('playerAge').value = '';
+      document.getElementById('playerMatches').value = '';
+      document.getElementById('playerRating').value = '';
+      document.getElementById('playerImage').value = '';
+      
+      openModal('playerModal');
+    }
+
+    // Open modal for editing a player
+    function openEditPlayerModal(playerId) {
+      const player = players.find(p => p.id === playerId);
+      if (!player) return;
+      
+      editingPlayerId = playerId;
+      document.getElementById('modal-title').textContent = 'Edit Player';
+      document.getElementById('modal-submit-btn').textContent = 'Save Changes';
+      
+      // Fill form fields with player data
+      document.getElementById('playerName').value = player.name;
+      document.getElementById('playerPosition').value = player.position;
+      document.getElementById('playerAge').value = player.age;
+      document.getElementById('playerMatches').value = player.matches;
+      document.getElementById('playerRating').value = player.rating;
+      document.getElementById('playerImage').value = player.image || '';
+      
+      openModal('playerModal');
+    }
+
+    // Save player (add new or update existing)
+    function savePlayer() {
+      const name = document.getElementById('playerName').value;
+      const position = document.getElementById('playerPosition').value;
+      const age = document.getElementById('playerAge').value;
+      const matches = document.getElementById('playerMatches').value;
+      const rating = document.getElementById('playerRating').value;
+      const image = document.getElementById('playerImage').value;
+      
+      // Simple validation
+      if (!name || !position || !age || !matches || !rating) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      if (editingPlayerId) {
+        // Update existing player
+        const playerIndex = players.findIndex(p => p.id === editingPlayerId);
+        if (playerIndex !== -1) {
+          players[playerIndex] = {
+            ...players[playerIndex],
+            name,
+            position,
+            age: parseInt(age),
+            matches: parseInt(matches),
+            rating: parseFloat(rating),
+            image: image || players[playerIndex].image
+          };
+          
+          showToast('Player updated successfully', 'success');
+        }
+      } else {
+        // Add new player
+        const newPlayer = {
+          id: players.length > 0 ? Math.max(...players.map(p => p.id)) + 1 : 1,
+          name,
+          position,
+          age: parseInt(age),
+          matches: parseInt(matches),
+          rating: parseFloat(rating),
+          image: image || `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 99)}.jpg`
+        };
+        
+        players.push(newPlayer);
+        showToast('Player added successfully', 'success');
+      }
+      
+      // Save to database and update UI
+      savePlayers();
+      renderPlayersTable();
+      updateStats();
+      closeModal('playerModal');
+    }
+
+    // Delete a player
+    function deletePlayer(playerId) {
+      if (confirm('Are you sure you want to delete this player?')) {
+        players = players.filter(p => p.id !== playerId);
+        savePlayers();
+        renderPlayersTable();
+        updateStats();
+        showToast('Player deleted successfully', 'success');
+      }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      
+      toastMessage.textContent = message;
+      toast.className = `toast ${type} show`;
+      
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 3000);
+    }
+
+    // Open modal
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'flex';
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Toggle sidebar
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Tab switching functionality
+      document.querySelectorAll('.submenu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          if (this.getAttribute('data-tab')) {
+            // Remove active class from all items
+            document.querySelectorAll('.submenu-item').forEach(i => {
+              i.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+              tab.style.display = 'none';
+            });
+            
+            // Show the selected tab content
+            const tabId = `${this.getAttribute('data-tab')}-tab`;
+            document.getElementById(tabId).style.display = 'block';
+          }
+        });
+      });
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+          event.target.style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
