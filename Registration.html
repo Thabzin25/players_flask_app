@@ -5,121 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Football Scouting Registration</title>
   <style>
+    :root {
+      --primary-color: #1a73e8;
+      --primary-hover: #0d62c9;
+      --error-color: #d93025;
+      --success-color: #188038;
+      --bg-light: white;
+      --text-light: black;
+      --bg-dark: #121212;
+      --container-dark: #1E1E1E;
+      --text-dark: white;
+      --border-light: #ccc;
+      --border-dark: #444;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      background: white;
-      color: black;
+      background: var(--bg-light);
+      color: var(--text-light);
       transition: background 0.3s, color 0.3s;
+      line-height: 1.6;
+      padding: 20px;
     }
+
     body.dark {
-      background: #121212;
-      color: white;
+      background: var(--bg-dark);
+      color: var(--text-dark);
     }
+
     .container {
       max-width: 600px;
       margin: 30px auto;
-      padding: 20px;
-      background: white;
+      padding: 25px;
+      background: var(--bg-light);
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px var(--shadow);
+      transition: background 0.3s;
     }
+
     body.dark .container {
-      background: #1E1E1E;
+      background: var(--container-dark);
     }
+
+    h2 {
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
     input, select {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
+      padding: 12px;
+      margin-top: 4px;
+      border: 1px solid var(--border-light);
       border-radius: 6px;
       background: inherit;
       color: inherit;
-      box-sizing: border-box;
+      font-size: 16px;
+      transition: border 0.3s;
     }
+
+    body.dark input, 
+    body.dark select {
+      border-color: var(--border-dark);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+
     .row {
       display: flex;
-      gap: 10px;
+      gap: 15px;
     }
-    .row input {
-      flex: 1;
-    }
+
     @media (max-width: 500px) {
       .row {
         flex-direction: column;
+        gap: 0;
       }
     }
+
     button {
-      width: 100%;
-      padding: 12px;
-      background: black;
+      padding: 14px;
+      background: var(--primary-color);
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
-      margin-top: 15px;
+      font-weight: bold;
+      transition: background 0.3s;
     }
+
     button:hover {
-      background: #333;
+      background: var(--primary-hover);
     }
+
     body.dark button {
-      background: white;
-      color: black;
+      background: var(--primary-color);
     }
+
     body.dark button:hover {
-      background: #ddd;
+      background: var(--primary-hover);
     }
+
     .flex {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 20px;
     }
-    /* Small Round Theme Toggle */
+
+    /* Theme Toggle */
     #themeToggle {
-      background: black;
+      background: var(--primary-color);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.3s;
     }
+
     #themeToggle:hover {
-      background: #333;
+      background: var(--primary-hover);
     }
-    body.dark #themeToggle {
-      background: white;
-      color: black;
-    }
-    body.dark #themeToggle:hover {
-      background: #ddd;
-    }
+
     .password-hint {
       font-size: 12px;
       color: gray;
+      margin-top: 4px;
     }
-    .strength {
+
+    .strength-meter {
+      margin-top: 8px;
       height: 6px;
       border-radius: 4px;
-      margin-top: 4px;
+      background: #eee;
+      overflow: hidden;
+    }
+
+    body.dark .strength-meter {
+      background: #333;
+    }
+
+    .strength-bar {
+      height: 100%;
       width: 0%;
       transition: width 0.3s, background 0.3s;
+      border-radius: 4px;
     }
+
     .password-wrapper {
       position: relative;
     }
-    .toggle-password{
+
+    .toggle-password {
       position: absolute;
-      right: 10px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       padding: 0;
       background: transparent;
       border: 0;
@@ -128,35 +200,104 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 50%;
     }
-    .toggle-password:hover { 
-      background: transparent; 
+
+    .toggle-password:hover {
+      background: rgba(0, 0, 0, 0.1);
     }
-    .password-wrapper input { 
-      padding-right: 40px; 
+
+    body.dark .toggle-password:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
+
+    .password-wrapper input {
+      padding-right: 45px;
+    }
+
     .error {
       font-size: 12px;
-      color: red;
+      color: var(--error-color);
+      margin-top: 4px;
       display: none;
     }
+
     .success-message {
       display: none;
       background: #d4edda;
-      color: #155724;
+      color: var(--success-color);
       padding: 15px;
       border-radius: 5px;
       margin-top: 20px;
       text-align: center;
     }
+
     body.dark .success-message {
-      background: #155724;
-      color: #d4edda;
+      background: rgba(24, 128, 56, 0.2);
+      color: #4ccf74;
     }
+
     .loading {
       display: none;
       text-align: center;
       margin-top: 20px;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary-color);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    body.dark .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top: 4px solid var(--primary-color);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .required::after {
+      content: "*";
+      color: var(--error-color);
+      margin-left: 3px;
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 5px;
+      color: var(--primary-color);
+      cursor: help;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
     }
   </style>
 </head>
@@ -165,60 +306,110 @@
   <div class="container">
     <div class="flex">
       <h2>Football Scouting Registration</h2>
-      <button type="button" id="themeToggle">🌙</button>
+      <button type="button" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
     </div>
 
-    <form id="registrationForm">
+    <form id="registrationForm" novalidate>
       <div class="row">
-        <input id="firstName" type="text" placeholder="First Name" required name="firstName">
-        <input id="lastName" type="text" placeholder="Last Name" required name="lastName">
+        <div class="form-group" style="flex: 1;">
+          <label for="firstName" class="required">First Name</label>
+          <input id="firstName" type="text" placeholder="Enter your first name" required name="firstName">
+          <div class="error" id="firstNameError">Please enter your first name</div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label for="lastName" class="required">Last Name</label>
+          <input id="lastName" type="text" placeholder="Enter your last name" required name="lastName">
+          <div class="error" id="lastNameError">Please enter your last name</div>
+        </div>
       </div>
 
-      <input id="email" type="email" placeholder="Email Address" required name="email">
-      <input id="mobile" type="tel" placeholder="Mobile Number" required name="mobile">
-
-      <select id="idType" required name="idType">
-        <option value="">ID Type</option>
-        <option value="SA ID">SA ID</option>
-        <option value="Passport">Passport</option>
-      </select>
-
-      <input id="idNumber" type="text" placeholder="ID or Passport Number" required name="idNumber">
-
-      <select id="country" required name="country">
-        <option value="">Select Country</option>
-        <option value="South Africa">South Africa</option>
-        <option value="Other">Other...</option>
-      </select>
-
-      <select id="gender" required name="gender">
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Prefer not to say">Prefer not to say</option>
-      </select>
-
-      <input id="dob" type="date" required name="dob">
-
-      <div class="password-wrapper">
-        <input type="password" id="password" placeholder="Password" required name="password">
-        <button type="button" class="toggle-password" data-target="password">👁</button>
+      <div class="form-group">
+        <label for="email" class="required">Email Address</label>
+        <input id="email" type="email" placeholder="Enter your email address" required name="email">
+        <div class="error" id="emailError">Please enter a valid email address</div>
       </div>
-      <div class="password-hint">Use at least 8 characters, mix uppercase, lowercase, numbers & symbols.</div>
-      <div id="strengthBar" class="strength"></div>
 
-      <div class="password-wrapper">
-        <input type="password" id="confirmPassword" placeholder="Confirm Password" required name="confirmPassword">
-        <button type="button" class="toggle-password" data-target="confirmPassword">👁</button>
+      <div class="form-group">
+        <label for="mobile" class="required">Mobile Number</label>
+        <input id="mobile" type="tel" placeholder="Enter your mobile number" required name="mobile">
+        <div class="error" id="mobileError">Please enter a valid mobile number</div>
       </div>
-      <div id="passwordError" class="error">Passwords do not match</div>
 
-      <select id="role" required name="role">
-        <option value="">Select Role</option>
-        <option value="Player">Player</option>
-        <option value="Scout">Scout</option>
-        <option value="Football Club">Football Club</option>
-      </select>
+      <div class="form-group">
+        <label for="idType" class="required">ID Type</label>
+        <select id="idType" required name="idType">
+          <option value="">Select ID Type</option>
+          <option value="SA ID">SA ID</option>
+          <option value="Passport">Passport</option>
+        </select>
+        <div class="error" id="idTypeError">Please select an ID type</div>
+      </div>
+
+      <div class="form-group">
+        <label for="idNumber" class="required">ID or Passport Number</label>
+        <input id="idNumber" type="text" placeholder="Enter your ID or passport number" required name="idNumber">
+        <div class="error" id="idNumberError">Please enter your ID or passport number</div>
+      </div>
+
+      <div class="form-group">
+        <label for="country" class="required">Country</label>
+        <select id="country" required name="country">
+          <option value="">Select Country</option>
+          <option value="South Africa">South Africa</option>
+          <option value="Other">Other...</option>
+        </select>
+        <div class="error" id="countryError">Please select your country</div>
+      </div>
+
+      <div class="form-group">
+        <label for="gender" class="required">Gender</label>
+        <select id="gender" required name="gender">
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+        <div class="error" id="genderError">Please select your gender</div>
+      </div>
+
+      <div class="form-group">
+        <label for="dob" class="required">Date of Birth</label>
+        <input id="dob" type="date" required name="dob">
+        <div class="error" id="dobError">Please enter your date of birth</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="required">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Create a secure password" required name="password">
+          <button type="button" class="toggle-password" data-target="password" aria-label="Show password">👁</button>
+        </div>
+        <div class="password-hint">Use at least 8 characters, mix uppercase, lowercase, numbers & symbols.</div>
+        <div class="strength-meter">
+          <div id="strengthBar" class="strength-bar"></div>
+        </div>
+        <div class="error" id="passwordError">Password must meet the requirements</div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword" class="required">Confirm Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="confirmPassword" placeholder="Confirm your password" required name="confirmPassword">
+          <button type="button" class="toggle-password" data-target="confirmPassword" aria-label="Show password">👁</button>
+        </div>
+        <div class="error" id="confirmPasswordError">Passwords do not match</div>
+      </div>
+
+      <div class="form-group">
+        <label for="role" class="required">Role</label>
+        <select id="role" required name="role">
+          <option value="">Select Role</option>
+          <option value="Player">Player</option>
+          <option value="Scout">Scout</option>
+          <option value="Football Club">Football Club</option>
+        </select>
+        <div class="error" id="roleError">Please select your role</div>
+      </div>
 
       <div id="roleFields"></div>
 
@@ -230,6 +421,7 @@
     </div>
 
     <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
       <p>Processing your registration...</p>
     </div>
   </div>
@@ -238,43 +430,234 @@
     // Dark/Light Mode
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
-    if (localStorage.getItem('theme') === 'dark') {
+    
+    // Check for saved theme preference or respect OS preference
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
       body.classList.add('dark');
       themeToggle.textContent = '☀️';
+      themeToggle.setAttribute('aria-label', 'Toggle light mode');
     }
+    
     themeToggle.addEventListener('click', () => {
       body.classList.toggle('dark');
       const isDark = body.classList.contains('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       themeToggle.textContent = isDark ? '☀️' : '🌙';
+      themeToggle.setAttribute('aria-label', isDark ? 'Toggle light mode' : 'Toggle dark mode');
     });
+
+    // Form validation and error handling
+    const form = document.getElementById('registrationForm');
+    const inputs = form.querySelectorAll('input, select');
+    const errorDivs = form.querySelectorAll('.error');
+    
+    // Clear all errors
+    function clearErrors() {
+      errorDivs.forEach(error => {
+        error.style.display = 'none';
+      });
+    }
+    
+    // Validate email format
+    function isValidEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+    
+    // Validate mobile number (basic international format)
+    function isValidMobile(mobile) {
+      const re = /^[+]?[0-9\s\-\(\)]{10,}$/;
+      return re.test(mobile);
+    }
+    
+    // Validate password strength
+    function checkPasswordStrength(password) {
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      return strength;
+    }
+    
+    // Validate form on input
+    inputs.forEach(input => {
+      input.addEventListener('blur', () => {
+        validateField(input);
+      });
+      
+      input.addEventListener('input', () => {
+        const errorId = input.id + 'Error';
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+          errorElement.style.display = 'none';
+        }
+        
+        // Special handling for password confirmation
+        if (input.id === 'password' || input.id === 'confirmPassword') {
+          const confirmPassword = document.getElementById('confirmPassword');
+          if (input.id === 'password' && confirmPassword.value) {
+            validateField(confirmPassword);
+          }
+        }
+      });
+    });
+    
+    // Validate individual field
+    function validateField(field) {
+      const errorElement = document.getElementById(field.id + 'Error');
+      if (!errorElement) return true;
+      
+      let isValid = true;
+      let errorMessage = '';
+      
+      if (field.hasAttribute('required') && !field.value.trim()) {
+        isValid = false;
+        errorMessage = field.getAttribute('data-error') || 'This field is required';
+      } else if (field.type === 'email' && !isValidEmail(field.value)) {
+        isValid = false;
+        errorMessage = 'Please enter a valid email address';
+      } else if (field.id === 'mobile' && !isValidMobile(field.value)) {
+        isValid = false;
+        errorMessage = 'Please enter a valid mobile number';
+      } else if (field.id === 'password' && checkPasswordStrength(field.value) < 3) {
+        isValid = false;
+        errorMessage = 'Password is too weak';
+      } else if (field.id === 'confirmPassword') {
+        const password = document.getElementById('password');
+        if (field.value !== password.value) {
+          isValid = false;
+          errorMessage = 'Passwords do not match';
+        }
+      }
+      
+      if (!isValid) {
+        errorElement.textContent = errorMessage;
+        errorElement.style.display = 'block';
+      } else {
+        errorElement.style.display = 'none';
+      }
+      
+      return isValid;
+    }
+    
+    // Validate entire form
+    function validateForm() {
+      clearErrors();
+      
+      let isValid = true;
+      inputs.forEach(input => {
+        if (!validateField(input)) {
+          isValid = false;
+        }
+      });
+      
+      return isValid;
+    }
 
     // Role-specific fields
     const roleSelect = document.getElementById('role');
     const roleFields = document.getElementById('roleFields');
+    
     roleSelect.addEventListener('change', () => {
       roleFields.innerHTML = '';
+      
       if (roleSelect.value === 'Scout') {
         roleFields.innerHTML = `
-          <input type="text" placeholder="Scouting License Number" required name="licenseNumber">
-          <input type="number" placeholder="Years of Experience" required name="experience">
-          <input type="text" placeholder="Region of Operation" required name="region">
+          <div class="form-group">
+            <label for="licenseNumber" class="required">Scouting License Number</label>
+            <input type="text" id="licenseNumber" placeholder="Enter your scouting license number" required name="licenseNumber">
+            <div class="error" id="licenseNumberError">Please enter your scouting license number</div>
+          </div>
+          <div class="form-group">
+            <label for="experience" class="required">Years of Experience</label>
+            <input type="number" id="experience" placeholder="Enter years of experience" required name="experience" min="0" max="50">
+            <div class="error" id="experienceError">Please enter valid years of experience</div>
+          </div>
+          <div class="form-group">
+            <label for="region" class="required">Region of Operation</label>
+            <input type="text" id="region" placeholder="Enter your region of operation" required name="region">
+            <div class="error" id="regionError">Please enter your region of operation</div>
+          </div>
         `;
       } else if (roleSelect.value === 'Football Club') {
         roleFields.innerHTML = `
-          <input type="text" placeholder="Club Name" required name="clubName">
-          <input type="text" placeholder="Club Registration Number" required name="clubRegistration">
-          <input type="text" placeholder="League" required name="league">
-          <input type="url" placeholder="Website/Social Link" name="website">
+          <div class="form-group">
+            <label for="clubName" class="required">Club Name</label>
+            <input type="text" id="clubName" placeholder="Enter your club name" required name="clubName">
+            <div class="error" id="clubNameError">Please enter your club name</div>
+          </div>
+          <div class="form-group">
+            <label for="clubRegistration" class="required">Club Registration Number</label>
+            <input type="text" id="clubRegistration" placeholder="Enter club registration number" required name="clubRegistration">
+            <div class="error" id="clubRegistrationError">Please enter your club registration number</div>
+          </div>
+          <div class="form-group">
+            <label for="league" class="required">League</label>
+            <input type="text" id="league" placeholder="Enter your league" required name="league">
+            <div class="error" id="leagueError">Please enter your league</div>
+          </div>
+          <div class="form-group">
+            <label for="website">Website/Social Link</label>
+            <input type="url" id="website" placeholder="Enter website or social media link" name="website">
+          </div>
         `;
       } else if (roleSelect.value === 'Player') {
         roleFields.innerHTML = `
-          <input type="text" placeholder="Preferred Position" required name="position">
-          <input type="text" placeholder="Dominant Foot" required name="foot">
-          <input type="number" placeholder="Height (cm)" required name="height">
-          <input type="number" placeholder="Weight (kg)" required name="weight">
-          <input type="text" placeholder="Current Club" name="currentClub">
+          <div class="form-group">
+            <label for="position" class="required">Preferred Position</label>
+            <input type="text" id="position" placeholder="Enter your preferred position" required name="position">
+            <div class="error" id="positionError">Please enter your preferred position</div>
+          </div>
+          <div class="form-group">
+            <label for="foot" class="required">Dominant Foot</label>
+            <select id="foot" required name="foot">
+              <option value="">Select Dominant Foot</option>
+              <option value="Right">Right</option>
+              <option value="Left">Left</option>
+              <option value="Both">Both</option>
+            </select>
+            <div class="error" id="footError">Please select your dominant foot</div>
+          </div>
+          <div class="form-group">
+            <label for="height" class="required">Height (cm)</label>
+            <input type="number" id="height" placeholder="Enter your height in cm" required name="height" min="100" max="250">
+            <div class="error" id="heightError">Please enter a valid height</div>
+          </div>
+          <div class="form-group">
+            <label for="weight" class="required">Weight (kg)</label>
+            <input type="number" id="weight" placeholder="Enter your weight in kg" required name="weight" min="30" max="200">
+            <div class="error" id="weightError">Please enter a valid weight</div>
+          </div>
+          <div class="form-group">
+            <label for="currentClub">Current Club</label>
+            <input type="text" id="currentClub" placeholder="Enter your current club" name="currentClub">
+          </div>
         `;
+      }
+      
+      // Add event listeners to new fields
+      if (roleFields.innerHTML) {
+        setTimeout(() => {
+          const newInputs = roleFields.querySelectorAll('input, select');
+          newInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+              validateField(input);
+            });
+            
+            input.addEventListener('input', () => {
+              const errorId = input.id + 'Error';
+              const errorElement = document.getElementById(errorId);
+              if (errorElement) {
+                errorElement.style.display = 'none';
+              }
+            });
+          });
+        }, 0);
       }
     });
 
@@ -282,28 +665,21 @@
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const strengthBar = document.getElementById('strengthBar');
-    const passwordError = document.getElementById('passwordError');
-
+    
     passwordInput.addEventListener('input', () => {
       const val = passwordInput.value;
-      let strength = 0;
-      if (val.length >= 8) strength++;
-      if (/[A-Z]/.test(val)) strength++;
-      if (/[a-z]/.test(val)) strength++;
-      if (/[0-9]/.test(val)) strength++;
-      if (/[^A-Za-z0-9]/.test(val)) strength++;
-
-      const colors = ["red", "orange", "yellow", "lightgreen", "green"];
+      const strength = checkPasswordStrength(val);
+      
+      const colors = ["#ff4d4d", "#ff9966", "#ffcc00", "#99cc33", "#33cc33"];
+      const labels = ["Very Weak", "Weak", "Medium", "Strong", "Very Strong"];
+      
       strengthBar.style.background = colors[strength - 1] || "transparent";
       strengthBar.style.width = (strength * 20) + "%";
-    });
-
-    // Confirm password check
-    confirmPasswordInput.addEventListener('input', () => {
-      if (confirmPasswordInput.value !== passwordInput.value) {
-        passwordError.style.display = 'block';
-      } else {
-        passwordError.style.display = 'none';
+      strengthBar.setAttribute('data-strength', labels[strength - 1] || '');
+      
+      // Validate confirm password when password changes
+      if (confirmPasswordInput.value) {
+        validateField(confirmPasswordInput);
       }
     });
 
@@ -311,29 +687,43 @@
     document.querySelectorAll('.toggle-password').forEach(btn => {
       btn.addEventListener('click', () => {
         const target = document.getElementById(btn.dataset.target);
-        target.type = target.type === 'password' ? 'text' : 'password';
+        const isPassword = target.type === 'password';
+        target.type = isPassword ? 'text' : 'password';
+        btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        btn.textContent = isPassword ? '🔒' : '👁';
       });
     });
 
     // Form submission
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // Validate passwords match
-      if (passwordInput.value !== confirmPasswordInput.value) {
-        passwordError.style.display = 'block';
+      if (!validateForm()) {
+        // Scroll to first error
+        const firstError = form.querySelector('.error[style="display: block"]');
+        if (firstError) {
+          firstError.closest('.form-group').scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
         return;
       }
       
       // Show loading indicator
       document.getElementById('loading').style.display = 'block';
+      form.style.display = 'none';
       
       // Collect form data
-      const formData = new FormData(e.target);
+      const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
       
       try {
-        // Send data to server
+        // Simulate API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // In a real application, you would send data to the server:
+        /*
         const response = await fetch('/register', {
           method: 'POST',
           headers: {
@@ -342,22 +732,36 @@
           body: JSON.stringify(data)
         });
         
-        const result = await response.json();
-        
-        if (response.ok) {
-          // Show success message
-          document.getElementById('successMessage').style.display = 'block';
-          e.target.reset();
-          strengthBar.style.width = '0%';
-        } else {
-          alert('Error: ' + result.message);
+        if (!response.ok) {
+          throw new Error('Registration failed');
         }
+        */
+        
+        // Show success message
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        
+        // Reset form
+        form.reset();
+        strengthBar.style.width = '0%';
+        roleFields.innerHTML = '';
+        
+        // In a real application, you might redirect the user here
+        // window.location.href = '/success';
+        
       } catch (error) {
         alert('Registration failed. Please try again.');
-      } finally {
         document.getElementById('loading').style.display = 'none';
+        form.style.display = 'block';
       }
     });
+
+    // Enhance date input with max date (minimum age 12 years)
+    const dobInput = document.getElementById('dob');
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setFullYear(today.getFullYear() - 12);
+    dobInput.max = maxDate.toISOString().split('T')[0];
   </script>
 
 </body>
