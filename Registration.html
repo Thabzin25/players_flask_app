@@ -35,6 +35,10 @@
       transition: background 0.3s, color 0.3s;
       line-height: 1.6;
       padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     body.dark {
@@ -44,7 +48,7 @@
 
     .container {
       max-width: 600px;
-      margin: 30px auto;
+      width: 100%;
       padding: 25px;
       background: var(--bg-light);
       border-radius: 10px;
@@ -59,6 +63,7 @@
     h2 {
       margin-bottom: 20px;
       color: var(--primary-color);
+      text-align: center;
     }
 
     .form-group {
@@ -117,6 +122,7 @@
       font-size: 16px;
       font-weight: bold;
       transition: background 0.3s;
+      width: 100%;
     }
 
     button:hover {
@@ -299,6 +305,7 @@
       justify-content: center;
       gap: 8px;
       padding: 10px 20px;
+      width: auto;
     }
     
     .back-button:hover {
