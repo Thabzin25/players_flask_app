@@ -8,6 +8,8 @@
     :root {
       --primary-color: #1a73e8;
       --primary-hover: #0d62c9;
+      --secondary-color: #6c757d;
+      --secondary-hover: #5a6268;
       --error-color: #d93025;
       --success-color: #188038;
       --bg-light: white;
@@ -268,36 +270,39 @@
       color: var(--error-color);
       margin-left: 3px;
     }
-
-    .tooltip {
-      position: relative;
-      display: inline-block;
-      margin-left: 5px;
-      color: var(--primary-color);
-      cursor: help;
-    }
-
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 200px;
-      background-color: #555;
-      color: #fff;
+    
+    /* Back to Login Button */
+    .back-to-login {
       text-align: center;
-      border-radius: 6px;
-      padding: 5px;
-      position: absolute;
-      z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -100px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      font-size: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
     }
-
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
+    
+    body.dark .back-to-login {
+      border-top: 1px solid #333;
+    }
+    
+    .back-to-login p {
+      margin-bottom: 10px;
+      color: #666;
+    }
+    
+    body.dark .back-to-login p {
+      color: #aaa;
+    }
+    
+    .back-button {
+      background: var(--secondary-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+    }
+    
+    .back-button:hover {
+      background: var(--secondary-hover);
     }
   </style>
 </head>
@@ -416,6 +421,13 @@
       <button type="submit">Register</button>
     </form>
 
+    <div class="back-to-login">
+      <p>Already have an account?</p>
+      <button type="button" class="back-button" id="backToLogin">
+        <span>←</span> Back to Login
+      </button>
+    </div>
+
     <div id="successMessage" class="success-message">
       Registration successful! You will receive a confirmation email shortly.
     </div>
@@ -447,6 +459,19 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       themeToggle.textContent = isDark ? '☀️' : '🌙';
       themeToggle.setAttribute('aria-label', isDark ? 'Toggle light mode' : 'Toggle dark mode');
+    });
+
+    // Back to Login button functionality
+    document.getElementById('backToLogin').addEventListener('click', () => {
+      // In a real application, this would redirect to the login page
+      // For demo purposes, we'll show an alert and simulate navigation
+      alert('Redirecting to login page...');
+      
+      // Simulate redirect after a brief delay
+      setTimeout(() => {
+        // In a real app: window.location.href = '/login';
+        console.log('Redirecting to login page');
+      }, 500);
     });
 
     // Form validation and error handling
@@ -722,6 +747,7 @@
         // Simulate API call with timeout
         await new Promise(resolve => setTimeout(resolve, 2000));
         
+        // Simulate successful registration
         // In a real application, you would send data to the server:
         /*
         const response = await fetch('/register', {
