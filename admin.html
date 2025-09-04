@@ -1,1461 +1,837 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Scouting Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary: #1a73e8;
-            --primary-light: #e8f0fe;
-            --secondary: #4285f4;
-            --accent: #34a853;
-            --warning: #fbbc05;
-            --danger: #ea4335;
-            --dark: #202124;
-            --light: #f8f9fa;
-            --gray: #5f6368;
-            --border: #dadce0;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
-
-        body {
-            background-color: #f5f7fa;
-            color: var(--dark);
-            overflow-x: hidden;
-        }
-
-        .dashboard {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            position: relative;
-        }
-
-        .sidebar.collapsed {
-            width: 80px;
-        }
-
-        .sidebar.collapsed .logo-text,
-        .sidebar.collapsed .menu-text {
-            display: none;
-        }
-
-        .top-bar {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            margin-right: 15px;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-toggle:hover {
-            transform: rotate(90deg);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .logo i {
-            margin-right: 10px;
-            font-size: 24px;
-        }
-
-        .menu {
-            list-style: none;
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-item:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: white;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .menu-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .menu-item:hover:before {
-            opacity: 1;
-        }
-
-        .menu-item i {
-            margin-right: 15px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .menu-item.active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .menu-item.active:before {
-            opacity: 1;
-        }
-
-        .submenu {
-            list-style: none;
-            padding-left: 30px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-        }
-
-        .menu-item.dropdown.open .submenu {
-            max-height: 500px;
-        }
-
-        .submenu li {
-            padding: 10px 0;
-        }
-
-        .submenu a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            display: block;
-            transition: color 0.2s ease;
-        }
-
-        .submenu a:hover {
-            color: white;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            animation: slideDown 0.5s ease;
-        }
-
-        header h1 {
-            font-size: 28px;
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            background: var(--primary-light);
-            padding: 10px 15px;
-            border-radius: 8px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .user-info i {
-            margin-left: 8px;
-            font-size: 18px;
-        }
-
-        /* Widgets Section */
-        .widgets {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .widget {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            transition: all 0.3s ease;
-            animation: fadeIn 0.6s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .widget:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--primary);
-        }
-
-        .widget:nth-child(2):before {
-            background: var(--accent);
-        }
-
-        .widget:nth-child(3):before {
-            background: var(--warning);
-        }
-
-        .widget:nth-child(4):before {
-            background: var(--danger);
-        }
-
-        .widget:nth-child(5):before {
-            background: var(--secondary);
-        }
-
-        .widget:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .widget i {
-            font-size: 32px;
-            margin-bottom: 15px;
-            color: var(--primary);
-            background: var(--primary-light);
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-        }
-
-        .widget:nth-child(2) i {
-            color: var(--accent);
-            background: rgba(52, 168, 83, 0.1);
-        }
-
-        .widget:nth-child(3) i {
-            color: var(--warning);
-            background: rgba(251, 188, 5, 0.1);
-        }
-
-        .widget:nth-child(4) i {
-            color: var(--danger);
-            background: rgba(234, 67, 53, 0.1);
-        }
-
-        .widget:nth-child(5) i {
-            color: var(--secondary);
-            background: rgba(66, 133, 244, 0.1);
-        }
-
-        .widget h3 {
-            font-size: 16px;
-            color: var(--gray);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .widget p {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--dark);
-        }
-                .menu-item a {
-        color: white;       /* make text white */
-        text-decoration: none; /* remove underline */
-        }
-
-        .menu-item a:hover {
-        color: #f1c40f;     /* optional: show yellow on hover */
-}
-        .widget-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .widget-link:hover {
-            color: var(--secondary);
-            transform: translateX(5px);
-        }
-
-        /* Charts Section */
-        .charts {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            animation: fadeIn 0.8s ease;
-        }
-
-        .chart h3 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .chart-placeholder {
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-light);
-            border-radius: 8px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* Player Management Styles */
-        .player-management {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .player-management h2 {
-            font-size: 22px;
-            color: var(--primary);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player-management h2 i {
-            font-size: 24px;
-        }
-
-        .player-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            background: var(--primary-light);
-            border-radius: 8px;
-            padding: 8px 15px;
-            width: 300px;
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
-            outline: none;
-            width: 100%;
-            margin-left: 10px;
-            color: var(--dark);
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0d62d9;
-        }
-
-        .players-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .players-table th {
-            background: var(--primary-light);
-            color: var(--primary);
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .players-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .players-table tr:hover {
-            background: #f9f9f9;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            margin-right: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .action-btn.view {
-            background: var(--primary);
-            color: white;
-        }
-
-        .action-btn.edit {
-            background: var(--warning);
-            color: white;
-        }
-
-        .action-btn.delete {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 500px;
-            max-width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-
-        .modal-header h2 {
-            color: var(--primary);
-            margin: 0;
-        }
-
-        .close {
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border);
-        }
-
-        /* Connection Status */
-        .connection-status {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin-left: 15px;
-        }
-
-        .connection-status.connected {
-            background-color: rgba(52, 168, 83, 0.2);
-            color: var(--accent);
-        }
-
-        .connection-status.disconnected {
-            background-color: rgba(251, 188, 5, 0.2);
-            color: var(--warning);
-        }
-
-        /* API Toggle */
-        .api-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Loading spinner */
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Error message */
-        .error-message {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-            text-align: center;
-            display: none;
-        }
-
-        /* Animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .charts {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 80px;
-            }
-            
-            .sidebar .logo-text,
-            .sidebar .menu-text {
-                display: none;
-            }
-            
-            .widgets {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .player-controls {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .widgets {
-                grid-template-columns: 1fr;
-            }
-            
-            header {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-
-            .players-table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Football Admin Dashboard</title>
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .connection-status { @apply flex items-center gap-2 text-sm px-2 py-1 rounded-full; }
+    .connected   { @apply bg-green-100 text-green-700; }
+    .disconnected{ @apply bg-yellow-100 text-yellow-700; }
+    .error-banner{ @apply hidden mt-2 text-sm text-red-700 bg-red-100 border border-red-200 rounded p-2; }
+    .loader      { @apply hidden text-sm text-gray-500; }
+    .hidden-section { display: none; }
+    .active-nav-item { @apply bg-slate-700; }
+  </style>
 </head>
-<body>
-    <div class="dashboard">
+<body class="min-h-screen bg-slate-50 flex">
+  <!-- Sidebar (updated with Scouts and Clubs) -->
+  <aside class="w-64 bg-slate-800 text-white min-h-screen p-4 hidden md:block">
+    <h2 class="text-xl font-bold mb-6">Dashboard</h2>
+    <nav class="space-y-2">
+      <a href="#overview" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-gauge mr-2"></i>Overview</a>
+      <a href="#players" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-users mr-2"></i>Players</a>
+      <a href="#scouts" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-user-secret mr-2"></i>Scouts</a>
+      <a href="#clubs" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-building mr-2"></i>Clubs</a>
+      <a href="#reports" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-clipboard-list mr-2"></i>Reports</a>
+      <a href="#addEdit\\" class="nav-item block px-3 py-2 rounded hover:bg-slate-700"><i class="fa-solid fa-plus mr-2"></i>Add / Edit Player</a>
+    </nav>
+  </aside>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="top-bar">
-                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
-                <div class="logo"><i class="fas fa-futbol"></i> <span class="logo-text">Admin</span></div>
-            </div>
-
-            <ul class="menu">
-                <li class="menu-item active" title="Dashboard">
-                    <a href="admin.html" style="color: inherit; text-decoration: none;"><i class="fas fa-home"></i> <span class="menu-text">Dashboard</span></a>
-                </li>
-
-                <!-- Players -->
-                <li class="menu-item" title="Players">
-                    <i class="fas fa-user"></i> <a href="players.html">Players</a>
-                </li>
-
-                <!-- Scouts -->
-                <li class="menu-item" title="Scouts">
-                    <i class="fas fa-users"></i> <a href="Scoutmanger.html">Scouts</a>
-                </li>
-
-                <!-- Teams -->
-                <li class="menu-item" title="Teams">
-                    <i class="fas fa-futbol"></i> <a href="teams.html">Teams</a>
-                </li>
-
-
-                <!-- Subscriptions -->
-                <li class="menu-item" title="Subscriptions">
-                    <a href="subscriptions.html" style="color: inherit; text-decoration: none;"><i class="fas fa-credit-card"></i> <span class="menu-text">Subscriptions</span></a>
-                </li>
-
-                <!-- Reports -->
-                <li class="menu-item" title="Reports">
-                    <a href="admin-Reports.html" style="color: inherit; text-decoration: none;"><i class="fas fa-file-alt"></i> <span class="menu-text">Reports</span></a>
-               
-               <!-- Analytics-->
-                <li class="menu-item" title="Analytics">
-                    <i class="fas fa-chart-line"></i> 
-                    <a href="admin-analytics.html.html" class="menu-text">Analytics</a>
-                </li>
-                <!-- Settings -->
-                <li class="menu-item" title="Settings">
-                    <i class="fas fa-cog"></i> 
-                    <a href="settings.html" class="menu-text">Settings</a>
-                </li>
-            
-                 <!-- Logout -->
-                <li class="menu-item" title="Settings">
-                    <i class="fas fa-sign-out-alt"></i> 
-                    <a href="index.html" class="menu-text">Logout</a>
-                </li>
-
-            </ul>
-
-            <button class="theme-toggle"><i class="fas fa-sun"></i></button>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <header>
-                <h1>Dashboard</h1>
-                <div class="user-info">
-                    <span>Admin <i class="fas fa-user-shield"></i></span>
-                </div>
-            </header>
-
-            <section class="widgets">
-                <div class="widget">
-                    <i class="fas fa-user-check"></i>
-                    <h3>Players Scouted</h3>
-                    <p id="players-count">0</p>
-                </div>
-                <div class="widget">
-                    <i class="fas fa-file"></i>
-                    <h3>Reports Pending</h3>
-                    <p id="reports-count">0</p>
-                </div>
-                <div class="widget">
-                    <i class="fas fa-futbol"></i>
-                    <h3>Clubs Registered</h3>
-                    <p id="clubs-count">0</p>
-                </div>
-                <div class="widget">
-                    <i class="fas fa-star"></i>
-                    <h3>Active Scouts</h3>
-                    <p id="scouts-count">0</p>
-                </div>
-                <!-- Quick Players Management Widget -->
-                <div class="widget">
-                    <i class="fas fa-user"></i>
-                    <h3>Players</h3>
-                    <p><a href="players.html" class="widget-link">Manage Players</a></p>
-                </div>
-            </section>
-
-            <section class="charts">
-                <div class="chart">
-                    <h3>Player Distribution by Position</h3>
-                    <canvas id="positionChart"></canvas>
-                </div>
-                <div class="chart">
-                    <h3>Scout Activity</h3>
-                    <canvas id="activityChart"></canvas>
-                </div>
-            </section>
-
-            <!-- Player Management Section -->
-            <section class="player-management">
-                <h2><i class="fas fa-users"></i> Player Management</h2>
-                
-                <!-- API Toggle -->
-                <div class="api-toggle">
-                    <span>API Mode:</span>
-                    <label class="switch">
-                        <input type="checkbox" id="apiToggle">
-                        <span class="slider"></span>
-                    </label>
-                    <span id="apiStatus">Off</span>
-                    <span id="connectionStatus" class="connection-status disconnected">
-                        <i class="fas fa-plug"></i>
-                        <span>Using Demo Data</span>
-                    </span>
-                </div>
-                
-                <div class="player-controls">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search players..." id="searchInput">
-                    </div>
-                    <button class="btn btn-primary" id="add-player-btn">
-                        <i class="fas fa-plus"></i> Add New Player
-                    </button>
-                </div>
-                
-                <div id="playersLoader" class="loader"></div>
-                <div id="playersError" class="error-message">
-                    Failed to load player data. Using demo data instead.
-                </div>
-                
-                <table class="players-table" id="playersTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Age</th>
-                            <th>Position</th>
-                            <th>Rating</th>
-                            <th>Club</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="players-table-body">
-                        <!-- Player data will be inserted here -->
-                    </tbody>
-                </table>
-            </section>
-        </main>
-    </div>
-
-    <!-- Player Modal -->
-    <div id="playerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">Add New Player</h2>
-                <span class="close">&times;</span>
-            </div>
-            <form id="playerForm">
-                <input type="hidden" id="playerId">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" min="16" max="45" required>
-                </div>
-                <div class="form-group">
-                    <label for="position">Position</label>
-                    <select id="position" required>
-                        <option value="">Select Position</option>
-                        <option value="Goalkeeper">Goalkeeper</option>
-                        <option value="Defender">Defender</option>
-                        <option value="Midfielder">Midfielder</option>
-                        <option value="Forward">Forward</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="rating">Rating (1-10)</label>
-                    <input type="number" id="rating" min="1" max="10" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label for="club">Club</label>
-                    <input type="text" id="club">
-                </div>
-                <div class="form-group">
-                    <label for="nationality">Nationality</label>
-                    <input type="text" id="nationality">
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notes</label>
-                    <textarea id="notes" rows="3"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Player</button>
-                </div>
-            </form>
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Top bar -->
+    <header class="w-full bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-semibold text-slate-800">Admin Dashboard</h1>
+        <div class="flex items-center gap-4">
+          <!-- API Mode toggle -->
+          <label class="inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="apiToggle" class="sr-only" />
+            <span class="mr-2 text-sm text-slate-600">API Mode</span>
+            <span class="relative">
+              <span class="block w-12 h-7 bg-slate-300 rounded-full shadow-inner"></span>
+              <span id="apiKnob" class="absolute block w-6 h-6 bg-white rounded-full shadow -left-0.5 top-0.5 transition"></span>
+            </span>
+          </label>
+          <div id="connectionStatus" class="connection-status disconnected">
+            <i class="fas fa-plug"></i><span>Using Demo Data</span>
+          </div>
         </div>
-    </div>
+      </div>
+    </header>
 
-    <script>
-    // API configuration
-    const API_BASE = "https://players-flask-app.onrender.com"; // change if hosted
-    const API_BASE_URL = 'https://players-flask-app.onrender.com';
-    const API_KEY = '9OciuEIhswc';
-    const ENDPOINTS = {
-        players: `${API_BASE_URL}/players`,
-        playerReports: `${API_BASE_URL}/player-reports`
+    <main class="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- KPI Cards -->
+      <section id="overview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-500">Players</p>
+              <p class="text-3xl font-bold text-slate-800"><span id="playersCount">0</span></p>
+            </div>
+            <div class="text-sky-600 text-2xl"><i class="fa-solid fa-users"></i></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-500">Reports</p>
+              <p class="text-3xl font-bold text-slate-800"><span id="reportsCount">0</span></p>
+            </div>
+            <div class="text-emerald-600 text-2xl"><i class="fa-solid fa-clipboard-list"></i></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-500">Clubs</p>
+              <p class="text-3xl font-bold text-slate-800"><span id="clubsCount">0</span></p>
+            </div>
+            <div class="text-indigo-600 text-2xl"><i class="fa-solid fa-building"></i></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-500">Scouts</p>
+              <p class="text-3xl font-bold text-slate-800"><span id="scoutsCount">0</span></p>
+            </div>
+            <div class="text-rose-600 text-2xl"><i class="fa-solid fa-user-secret"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section id="reports" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-lg font-semibold text-slate-800">Positions Breakdown</h2>
+          </div>
+          <canvas id="positionsChart" height="140"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl shadow p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-lg font-semibold text-slate-800">Weekly Activity</h2>
+          </div>
+          <canvas id="activityChart" height="140"></canvas>
+        </div>
+      </section>
+
+      <!-- Player Management -->
+      <section id="players" class="bg-white rounded-2xl shadow mt-6">
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <h2 class="text-lg font-semibold text-slate-800">Player Management</h2>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <input id="searchInput" type="text" placeholder="Search players by name, position or club..." class="w-64 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none" />
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+            </div>
+            <button id="addPlayerBtn" class="inline-flex items-center gap-2 bg-sky-600 text-white text-sm font-medium px-3 py-2 rounded-xl hover:bg-sky-700">
+              <i class="fa-solid fa-plus"></i> New Player
+            </button>
+          </div>
+        </div>
+
+        <div id="playersError" class="error-banner mx-4">Failed to load player data. Using demo data instead.</div>
+
+        <div class="p-4">
+          <div id="playersLoader" class="loader">Loading players…</div>
+          <div class="overflow-x-auto">
+            <table id="playersTable" class="min-w-full text-sm">
+              <thead>
+                <tr class="text-left text-slate-600 border-b">
+                  <th class="py-2 pr-4">Name</th>
+                  <th class="py-2 pr-4">Age</th>
+                  <th class="py-2 pr-4">Position</th>
+                  <th class="py-2 pr-4">Rating</th>
+                  <th class="py-2 pr-4">Club</th>
+                  <th class="py-2 pr-4">Nationality</th>
+                  <th class="py-2 pr-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="playersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scouts Section (Hidden by default) -->
+      <section id="scouts" class="hidden-section bg-white rounded-2xl shadow mt-6">
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <h2 class="text-lg font-semibold text-slate-800">Scout Management</h2>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <input id="scoutSearchInput" type="text" placeholder="Search scouts by name or region..." class="w-64 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none" />
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+            </div>
+            <button id="addScoutBtn" class="inline-flex items-center gap-2 bg-sky-600 text-white text-sm font-medium px-3 py-2 rounded-xl hover:bg-sky-700">
+              <i class="fa-solid fa-plus"></i> New Scout
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <div class="overflow-x-auto">
+            <table id="scoutsTable" class="min-w-full text-sm">
+              <thead>
+                <tr class="text-left text-slate-600 border-b">
+                  <th class="py-2 pr-4">Name</th>
+                  <th class="py-2 pr-4">Region</th>
+                  <th class="py-2 pr-4">Experience</th>
+                  <th class="py-2 pr-4">Status</th>
+                  <th class="py-2 pr-4">Players Found</th>
+                  <th class="py-2 pr-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="scoutsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clubs Section (Hidden by default) -->
+      <section id="clubs" class="hidden-section bg-white rounded-2xl shadow mt-6">
+        <div class="p-4 border-b border-slate-200">
+          <h2 class="text-lg font-semibold text-slate-800">Club Management</h2>
+        </div>
+        <div class="p-4">
+          <p class="text-slate-600">Club management functionality will be implemented here.</p>
+          <!-- Club management content will go here -->
+        </div>
+      </section>
+
+      <!-- Add/Edit Player FORM at the END of the page -->
+      <section id="addEdit" class="bg-white rounded-2xl shadow mt-6 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 id="formTitle" class="text-lg font-semibold text-slate-800">Add Player</h3>
+          <button id="resetFormBtn" class="text-sm text-slate-600 hover:text-slate-800"><i class="fa-solid fa-rotate-left mr-1"></i>Reset</button>
+        </div>
+        <form id="playerForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="hidden" id="playerId" />
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Name</label>
+            <input id="name" class="w-full border border-slate-200 rounded-xl px-3 py-2" required />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Age</label>
+            <input id="age" type="number" min="18" max="45" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Position</label>
+            <select id="position" class="w-full border border-slate-200 rounded-xl px-3 py-2">
+              <option>GK</option>
+              <option>DEF</option>
+              <option>MID</option>
+              <option>FWD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Rating</label>
+            <input id="rating" type="number" step="0.1" min="0" max="10" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Club</label>
+            <input id="club" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-600 mb-1">Nationality</label>
+            <select id="nationality" class="w-full border border-slate-200 rounded-xl px-3 py-2">
+              <option value="ARG">Argentina</option>
+              <option value="BRA">Brazil</option>
+              <option value="ENG">England</option>
+              <option value="FRA">France</option>
+              <option value="GER">Germany</option>
+              <option value="ITA">Italy</option>
+              <option value="NED">Netherlands</option>
+              <option value="POR">Portugal</option>
+              <option value="ESP">Spain</option>
+              <option value="URU">Uruguay</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm text-slate-600 mb-1">Notes</label>
+            <textarea id="notes" rows="3" class="w-full border border-slate-200 rounded-xl px-3 py-2"></textarea>
+          </div>
+          <div class="md:col-span-2 flex justify-end gap-2 mt-2">
+            <button type="button" id="cancelEditBtn" class="px-4 py-2 rounded-xl border border-slate-200">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 text-white">Save</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  // =============================
+  // API CONFIG
+  // =============================
+  const API_BASE = "https://players-flask-app.onrender.com"; // change if needed
+  const ENDPOINTS = {
+    players: `${API_BASE}/players`,
+    playerReports: `${API_BASE}/player-reports`,
+    scouts: `${API_BASE}/scouts`,
+    clubs: `${API_BASE}/clubs`,
+  };
+
+  // =============================
+  // STATE
+  // =============================
+  let apiMode = false; // toggled by switch
+  let allPlayers = [];
+  let allScouts = [];
+  let currentPage = 1;
+  let currentLimit = 50;
+  let currentSearch = "";
+  let activeSection = "overview"; // Track the active section
+
+  // Demo data fallback
+  const samplePlayers = [
+    { name: "John Smith", age: 22, position: "MID", rating: 7.4, club: "City FC", nationality: "ENG" },
+    { name: "Pedro Alvarez", age: 25, position: "FWD", rating: 8.1, club: "United SC", nationality: "ESP" },
+    { name: "Sizwe Mokoena", age: 21, position: "DEF", rating: 7.2, club: "Soweto Stars", nationality: "RSA" },
+    { name: "Marco Rossi", age: 28, position: "GK",  rating: 7.8, club: "Milano AC", nationality: "ITA" },
+  ];
+
+  // Dummy scouts data
+  const dummyScouts = [
+    { name: "James Wilson", region: "Europe", experience: "Senior", status: "Active", playersFound: 24 },
+    { name: "Maria Rodriguez", region: "South America", experience: "Mid-level", status: "Active", playersFound: 18 },
+    { name: "David Chen", region: "Asia", experience: "Junior", status: "Training", playersFound: 12 },
+    { name: "Sarah Johnson", region: "North America", experience: "Senior", status: "Active", playersFound: 22 },
+    { name: "Ahmed Hassan", region: "Africa", experience: "Mid-level", status: "On Leave", playersFound: 15 },
+    { name: "Emma Thompson", region: "Europe", experience: "Senior", status: "Active", playersFound: 28 },
+    { name: "Carlos Mendez", region: "Central America", experience: "Junior", status: "Active", playersFound: 9 },
+    { name: "Lisa Brown", region: "Oceania", experience: "Mid-level", status: "Active", playersFound: 14 }
+  ];
+
+  // Available positions
+  const positions = ["GK", "DEF", "MID", "FWD"];
+
+  // Available nationalities with country codes and names
+  const nationalities = [
+    { code: "ARG", name: "Argentina" },
+    { code: "BEL", name: "Belgium" },
+    { code: "BRA", name: "Brazil" },
+    { code: "COL", name: "Colombia" },
+    { code: "CRO", name: "Croatia" },
+    { code: "ENG", name: "England" },
+    { code: "FRA", name: "France" },
+    { code: "GER", name: "Germany" },
+    { code: "ITA", name: "Italy" },
+    { code: "NED", name: "Netherlands" },
+    { code: "POR", name: "Portugal" },
+    { code: "ESP", name: "Spain" },
+    { code: "URU", name: "Uruguay" },
+    { code: "USA", name: "United States" },
+    { code: "RSA", name: "South Africa" },
+    { code: "EGY", name: "Egypt" },
+    { code: "NGA", name: "Nigeria" },
+    { code: "JPN", name: "Japan" },
+    { code: "KOR", name: "South Korea" },
+    { code: "MEX", name: "Mexico" }
+  ];
+
+  // =============================
+  // NORMALIZER (fix age + position + nationality)
+  // =============================
+  function normalizePlayer(p){
+    // Generate a random age between 18 and 45
+    let age = Math.floor(Math.random() * (45 - 18 + 1)) + 18;
+
+    // Generate a random position
+    let position = positions[Math.floor(Math.random() * positions.length)];
+
+    // Generate a random nationality
+    let nationality = nationalities[Math.floor(Math.random() * nationalities.length)].code;
+
+    // Rating: coerce to number if numeric
+    let rating = p.rating ?? p.Rating ?? p["Original Rating"] ?? p["Alternative Rating"];
+    if (rating !== undefined && rating !== null && rating !== '') {
+      const n = Number(rating);
+      rating = isNaN(n) ? rating : n;
+    }
+
+    return {
+      name: p.name || p.Name || 'N/A',
+      age,
+      position,
+      rating: rating ?? 'N/A',
+      club: p.club || p["Team Name"] || p.Team || 'N/A',
+      nationality,
+      notes: p.notes || p.Notes || ''
     };
+  }
 
-    // Global variables
-    let allPlayers = [];
-    let currentPlayer = null;
-    let apiMode = false;
+  // Helper function to get nationality name from code
+  function getNationalityName(code) {
+    const nationality = nationalities.find(n => n.code === code);
+    return nationality ? nationality.name : code;
+  }
 
-    // DOM Elements
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    const dropdownItems = document.querySelectorAll('.dropdown');
-    const themeToggle = document.querySelector('.theme-toggle');
-    const playersCount = document.getElementById('players-count');
-    const reportsCount = document.getElementById('reports-count');
-    const clubsCount = document.getElementById('clubs-count');
-    const scoutsCount = document.getElementById('scouts-count');
+  // =============================
+  // HELPERS
+  // =============================
+  function $(id){ return document.getElementById(id); }
 
-    // Sample data for demo mode
-    const samplePlayers = [
-        { name: "Lionel Messi", age: 36, position: "Forward", rating: 9.5, club: "Inter Miami", nationality: "Argentina" },
-        { name: "Cristiano Ronaldo", age: 38, position: "Forward", rating: 9.2, club: "Al Nassr", nationality: "Portugal" },
-        { name: "Kylian Mbappé", age: 24, position: "Forward", rating: 9.0, club: "Paris Saint-Germain", nationality: "France" },
-        { name: "Erling Haaland", age: 23, position: "Forward", rating: 8.9, club: "Manchester City", nationality: "Norway" },
-        { name: "Kevin De Bruyne", age: 32, position: "Midfielder", rating: 9.1, club: "Manchester City", nationality: "Belgium" },
-        { name: "Virgil van Dijk", age: 32, position: "Defender", rating: 8.8, club: "Liverpool", nationality: "Netherlands" },
-        { name: "Thibaut Courtois", age: 31, position: "Goalkeeper", rating: 8.7, club: "Real Madrid", nationality: "Belgium" },
-        { name: "Jude Bellingham", age: 20, position: "Midfielder", rating: 8.6, club: "Real Madrid", nationality: "England" },
-        { name: "Harry Kane", age: 30, position: "Forward", rating: 8.8, club: "Bayern Munich", nationality: "England" },
-        { name: "Mohamed Salah", age: 31, position: "Forward", rating: 8.7, club: "Liverpool", nationality: "Egypt" }
+  function animateValue(el, start, end, duration) {
+    const s = Number(start)||0, e = Number(end)||0, range = e - s;
+    if (!range) { el.textContent = String(e); return; }
+    const t0 = performance.now();
+    function tick(t){
+      const k = Math.min((t - t0) / duration, 1);
+      el.textContent = String(Math.floor(s + range * k));
+      if (k < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function showLoader(loaderId, tableId){
+    $(loaderId).classList.remove('hidden');
+    $(tableId).classList.add('opacity-50');
+  }
+  function hideLoader(loaderId, tableId){
+    $(loaderId).classList.add('hidden');
+    $(tableId).classList.remove('opacity-50');
+  }
+  function showError(id, msg){ const el=$(id); el.textContent=msg; el.classList.remove('hidden'); }
+  function hideError(id){ $(id).classList.add('hidden'); }
+
+  function updatePlayerCount(n){
+    const el = $('playersCount');
+    animateValue(el, Number(el.textContent)||0, n, 800);
+  }
+
+  function displayPlayers(list){
+    const tbody = $('playersTbody');
+    tbody.innerHTML = '';
+    list.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-slate-50';
+      tr.innerHTML = `
+        <td class="py-2 pr-4 font-medium text-slate-800">${p.name ?? 'N/A'}</td>
+        <td class="py-2 pr-4">${p.age ?? '—'}</td>
+        <td class="py-2 pr-4">${p.position ?? '—'}</td>
+        <td class="py-2 pr-4">${p.rating ?? '—'}</td>
+        <td class="py-2 pr-4">${p.club ?? '—'}</td>
+        <td class="py-2 pr-4">${getNationalityName(p.nationality) ?? '—'}</td>
+        <td class="py-2 pr-4">
+          <button class="text-sky-600 hover:underline mr-2" onclick='populateForm(${JSON.stringify(JSON.stringify(p))})'>Edit</button>
+          <button class="text-rose-600 hover:underline" onclick='deletePlayer(${JSON.stringify(JSON.stringify(p.name))})'>Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function displayScouts(list){
+    const tbody = $('scoutsTbody');
+    tbody.innerHTML = '';
+    list.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-slate-50';
+      
+      // Determine status color
+      let statusColor = 'text-gray-600';
+      if (s.status === 'Active') statusColor = 'text-green-600';
+      if (s.status === 'On Leave') statusColor = 'text-yellow-600';
+      if (s.status === 'Training') statusColor = 'text-blue-600';
+      
+      tr.innerHTML = `
+        <td class="py-2 pr-4 font-medium text-slate-800">${s.name ?? 'N/A'}</td>
+        <td class="py-2 pr-4">${s.region ?? '—'}</td>
+        <td class="py-2 pr-4">${s.experience ?? '—'}</td>
+        <td class="py-2 pr-4 ${statusColor}">${s.status ?? '—'}</td>
+        <td class="py-2 pr-4">${s.playersFound ?? '—'}</td>
+        <td class="py-2 pr-4">
+          <button class="text-sky-600 hover:underline mr-2">Edit</button>
+          <button class="text-rose-600 hover:underline">Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Calculate position counts for the chart
+  function calculatePositionCounts(players) {
+    const counts = {
+      "GK": 0,
+      "DEF": 0,
+      "MID": 0,
+      "FWD": 0
+    };
+    
+    players.forEach(player => {
+      if (player.position && counts.hasOwnProperty(player.position)) {
+        counts[player.position]++;
+      }
+    });
+    
+    return counts;
+  }
+
+  // charts
+  let positionsChart, activityChart;
+  function createPositionChart(players){
+    const ctx = document.getElementById('positionsChart');
+    const positionCounts = calculatePositionCounts(players);
+    const labels = Object.keys(positionCounts);
+    const values = Object.values(positionCounts);
+    
+    // Define colors for each position
+    const backgroundColors = [
+      'rgba(255, 99, 132, 0.7)',  // GK - Pink
+      'rgba(54, 162, 235, 0.7)',  // DEF - Blue
+      'rgba(255, 206, 86, 0.7)',  // MID - Yellow
+      'rgba(75, 192, 192, 0.7)'   // FWD - Teal
     ];
+    
+    if (positionsChart) positionsChart.destroy();
+    positionsChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { 
+        labels, 
+        datasets: [{ 
+          data: values,
+          backgroundColor: backgroundColors,
+          borderColor: backgroundColors.map(color => color.replace('0.7', '1')),
+          borderWidth: 1
+        }] 
+      },
+      options: { 
+        responsive: true, 
+        plugins: { 
+          legend: { 
+            position: 'bottom' 
+          } 
+        } 
+      }
+    });
+  }
+  
+  function createActivityChart(){
+    const ctx = document.getElementById('activityChart');
+    const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const values = labels.map(() => Math.floor(Math.random()*20)+5);
+    if (activityChart) activityChart.destroy();
+    activityChart = new Chart(ctx, {
+      type: 'line',
+      data: { 
+        labels, 
+        datasets: [{ 
+          label: 'Events', 
+          data: values, 
+          tension: 0.35, 
+          fill: true,
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+        }] 
+      },
+      options: { 
+        responsive: true, 
+        plugins: { 
+          legend: { 
+            display: false 
+          } 
+        } 
+      }
+    });
+  }
 
-    // Initialize dashboard with backend data
-    async function initDashboard() {
-        try {
-            // 1. Fetch players (for count + charts)
-            let resPlayers = await fetch(`${API_BASE}/players`);
-            let players = await resPlayers.json();
-
-            playersCount.textContent = players.length;
-            animateValue(playersCount, 0, players.length, 1000);
-
-            // 2. Fetch reports data (from your backend endpoint /player-reports)
-            let resReports = await fetch(`${API_BASE}/player-reports`);
-            let reportsData = await resReports.json();
-
-            // Players distribution by position
-            createPositionChart(reportsData.positions_count);
-
-            // Fake reports count (since no reports collection in backend yet)
-            reportsCount.textContent = Math.floor(Math.random() * 10) + 5;
-            animateValue(reportsCount, 0, reportsCount.textContent, 1000);
-
-            // Fake clubs + scouts counts for now
-            clubsCount.textContent = Math.floor(Math.random() * 5) + 1;
-            scoutsCount.textContent = Math.floor(Math.random() * 10) + 2;
-            animateValue(clubsCount, 0, clubsCount.textContent, 1000);
-            animateValue(scoutsCount, 0, scoutsCount.textContent, 1000);
-
-            // Create fake scout activity chart
-            createActivityChart();
-
-            // Load player management data
-            loadPlayers();
-
-        } catch (err) {
-            console.error("❌ Error loading dashboard:", err);
-            // Load sample data for player management
-            allPlayers = [...samplePlayers];
-            displayPlayers(allPlayers);
-            updatePlayerCount(allPlayers.length);
-        }
+  // =============================
+  // SECTION NAVIGATION
+  // =============================
+  function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('main > section').forEach(section => {
+      section.classList.add('hidden-section');
+    });
+    
+    // Show the selected section
+    const targetSection = $(sectionId);
+    if (targetSection) {
+      targetSection.classList.remove('hidden-section');
     }
-
-    // Animate value counting up
-    function animateValue(element, start, end, duration) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            element.innerHTML = Math.floor(progress * (end - start) + start);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
+    
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active-nav-item');
+    });
+    
+    const activeNavItem = document.querySelector(`.nav-item[href="#${sectionId}"]`);
+    if (activeNavItem) {
+      activeNavItem.classList.add('active-nav-item');
     }
-
-    // Create position distribution chart
-    function createPositionChart(positionCount) {
-        const ctx = document.getElementById('positionChart').getContext('2d');
-        const positions = Object.keys(positionCount);
-        const counts = Object.values(positionCount);
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: positions,
-                datasets: [{
-                    data: counts,
-                    backgroundColor: ['#1a73e8', '#4285f4', '#34a853', '#fbbc05'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
+    
+    // Update active section
+    activeSection = sectionId;
+    
+    // Load scouts if scouts section is shown
+    if (sectionId === 'scouts') {
+      loadScouts();
     }
+  }
 
-    // Fake scout activity chart
-    function createActivityChart() {
-        const ctx = document.getElementById('activityChart').getContext('2d');
-        const scoutNames = ["Scout A", "Scout B", "Scout C"];
-        const reportCounts = [12, 7, 15];
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: scoutNames,
-                datasets: [{
-                    label: 'Reports Submitted',
-                    data: reportCounts,
-                    backgroundColor: '#1a73e8',
-                    borderWidth: 0,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
-    // Player Management Functions
-    // ...existing code...
-async function loadPlayers() {
+  // =============================
+  // CORE LOADERS
+  // =============================
+  async function initDashboard(){
     try {
-        showLoader('playersLoader', 'playersTable');
-        hideError('playersError');
+      // players widget + table (use API directly once to get counts)
+      const resPlayers = await fetch(`${ENDPOINTS.players}?page=1&limit=50`);
+      const playersPayload = await resPlayers.json(); // { total_players, players, ... }
+      const total = Number(playersPayload?.total_players ?? 0);
+      $('playersCount').textContent = total;
+      animateValue($('playersCount'), 0, total, 1000);
 
-        if (apiMode) {
-            try {
-                const response = await fetch(ENDPOINTS.players, {
-                    headers: {
-                        'Authorization': `Bearer ${API_KEY}`
-                    }
-                });
+      // placeholder KPIs
+      $('reportsCount').textContent = String(Math.floor(Math.random()*10)+5);
+      $('clubsCount').textContent = String(Math.floor(Math.random()*5)+1);
+      $('scoutsCount').textContent = String(dummyScouts.length);
 
-                const text = await response.text();
-                console.log("Raw API response:", text);
+      animateValue($('reportsCount'), 0, Number($('reportsCount').textContent), 1000);
+      animateValue($('clubsCount'),   0, Number($('clubsCount').textContent),   1000);
+      animateValue($('scoutsCount'),  0, Number($('scoutsCount').textContent),  1000);
 
-                let apiPlayers = [];
-                try {
-                    apiPlayers = JSON.parse(text);
-                } catch (jsonError) {
-                    console.error("JSON Parse Error:", jsonError);
-                    showError('playersError', 'API returned invalid JSON. Using demo data.');
-                    allPlayers = [...samplePlayers];
-                    displayPlayers(allPlayers);
-                    updatePlayerCount(allPlayers.length);
-                    hideLoader('playersLoader', 'playersTable');
-                    return;
-                }
+      await loadPlayers();
+    } catch (err) {
+      console.error('❌ Error loading dashboard:', err);
+      allPlayers = [...samplePlayers];
+      displayPlayers(allPlayers);
+      updatePlayerCount(allPlayers.length);
+      createPositionChart(allPlayers);
+      createActivityChart();
+    }
+  }
 
-                // Map only the expected fields for display
-                allPlayers = apiPlayers.map(p => ({
-                    name: p.name || 'N/A',
-                    age: p.age ? p.age : 'N/A', // Only use age field, don't calculate from Date
-                    position: p.position || 'N/A',
-                    rating: typeof p.rating === "number" ? p.rating
-                        : (typeof p.Rating === "number" ? p.Rating
-                        : (typeof p["Original Rating"] === "number" ? p["Original Rating"]
-                        : (typeof p["Alternative Rating"] === "number" ? p["Alternative Rating"] : 'N/A'))),
-                    club: p.club || p["Team Name"] || 'N/A',
-                    nationality: p.nationality || 'N/A',
-                    notes: p.notes || ''
-                }));
+  async function loadPlayers(){
+    try {
+      showLoader('playersLoader','playersTable');
+      hideError('playersError');
 
-                document.getElementById('connectionStatus').className = 'connection-status connected';
-                document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-plug"></i><span>Connected to API</span>';
-            } catch (error) {
-                console.error('API Error:', error);
-                throw new Error('API connection failed');
-            }
-        } else {
-            allPlayers = [...samplePlayers];
-            document.getElementById('connectionStatus').className = 'connection-status disconnected';
-            document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-plug"></i><span>Using Demo Data</span>';
-        }
-
+      if (apiMode) {
+        const qs = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(currentLimit),
+          ...(currentSearch ? { name: currentSearch } : {}),
+        });
+        const res = await fetch(`${ENDPOINTS.players}?${qs.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        const raw = Array.isArray(payload.players) ? payload.players : [];
+        allPlayers = raw.map(normalizePlayer);
+        $('connectionStatus').className = 'connection-status connected';
+        $('connectionStatus').innerHTML = '<i class="fas fa-plug"></i><span>Connected to API</span>';
         displayPlayers(allPlayers);
-        updatePlayerCount(allPlayers.length);
-        hideLoader('playersLoader', 'playersTable');
-
-    } catch (error) {
-        console.error('Error loading players:', error);
+        updatePlayerCount(Number(payload.total_players ?? allPlayers.length));
+        createPositionChart(allPlayers);
+      } else {
         allPlayers = [...samplePlayers];
+        $('connectionStatus').className = 'connection-status disconnected';
+        $('connectionStatus').innerHTML = '<i class="fas fa-plug"></i><span>Using Demo Data</span>';
         displayPlayers(allPlayers);
         updatePlayerCount(allPlayers.length);
-        showError('playersError', 'Failed to load player data. Using demo data instead.');
-        hideLoader('playersLoader', 'playersTable');
+        createPositionChart(allPlayers);
+      }
+      hideLoader('playersLoader','playersTable');
+    } catch (error) {
+      console.error('Error loading players:', error);
+      allPlayers = [...samplePlayers];
+      displayPlayers(allPlayers);
+      updatePlayerCount(allPlayers.length);
+      createPositionChart(allPlayers);
+      showError('playersError','Failed to load player data. Using demo data instead.');
+      hideLoader('playersLoader','playersTable');
     }
-}
-// ...existing code...
+  }
 
+  function loadScouts() {
+    allScouts = [...dummyScouts];
+    displayScouts(allScouts);
+  }
 
+  // =============================
+  // FORM UX (bottom form)
+  // =============================
+  function resetForm(){
+    $('playerForm').reset();
+    $('playerId').value = '';
+    $('formTitle').textContent = 'Add Player';
+  }
+  function populateForm(playerJson){
+    const p = playerJson ? JSON.parse(playerJson) : null;
+    if (!p) return;
+    $('playerId').value = p.name || '';
+    $('name').value = p.name || '';
+    $('age').value = p.age ?? '';
+    $('position').value = p.position || 'MID';
+    $('rating').value = p.rating ?? '';
+    $('club').value = p.club || '';
+    $('nationality').value = p.nationality || 'ENG';
+    $('notes').value = p.notes || '';
+    $('formTitle').textContent = 'Edit Player';
+    showSection('addEdit');
+  }
 
+  async function handlePlayerSubmit(e){
+    e.preventDefault();
+    const formData = {
+      name: $('name').value.trim(),
+      ...( $('age').value ? { age: Number($('age').value) } : {} ),
+      position: $('position').value,
+      ...( $('rating').value ? { rating: Number($('rating').value) } : {} ),
+      club: $('club').value.trim(),
+      nationality: $('nationality').value,
+      ...( $('notes').value.trim() ? { notes: $('notes').value.trim() } : {} ),
+    };
+    const playerId = $('playerId').value; // original name when editing
 
-   function displayPlayers(players) {
-    const tableBody = document.getElementById('players-table-body');
-    tableBody.innerHTML = ''; // Clear existing content
-
-    if (players.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No players found</td></tr>';
-        return;
-    }
-
-    players.forEach((player, idx) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${player.name || 'N/A'}</td>
-            <td>${player.age || 'N/A'}</td>
-            <td>${player.position || 'N/A'}</td>
-            <td>${typeof player.rating === "number" ? player.rating.toFixed(1) : player.rating}</td>
-            <td>${player.club || 'N/A'}</td>
-            <td>
-                <button class="action-btn view" onclick="viewPlayer(${idx})">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="action-btn edit" onclick="editPlayer(${idx})">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete" onclick="deletePlayer(${idx})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-    function updatePlayerCount(count) {
-        document.getElementById('players-count').textContent = count;
-    }
-
-    function searchPlayers(query) {
-        if (!query) {
-            displayPlayers(allPlayers);
-            return;
+    try {
+      if (apiMode) {
+        const isEdit = Boolean(playerId);
+        const url = isEdit ? `${ENDPOINTS.players}/${encodeURIComponent(playerId)}` : ENDPOINTS.players;
+        const method = isEdit ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error || `HTTP ${res.status}`);
         }
-        
-        const filteredPlayers = allPlayers.filter(player => 
-            player.name.toLowerCase().includes(query.toLowerCase()) ||
-            (player.position && player.position.toLowerCase().includes(query.toLowerCase())) ||
-            (player.club && player.club.toLowerCase().includes(query.toLowerCase()))
-        );
-        
-        displayPlayers(filteredPlayers);
+        alert(`Player ${isEdit ? 'updated' : 'added'} (API mode)`);
+        await loadPlayers();
+      } else {
+        if (playerId) {
+          const idx = allPlayers.findIndex(p => p.name === playerId);
+          if (idx !== -1) allPlayers[idx] = { ...allPlayers[idx], ...formData };
+        } else {
+          allPlayers.push(formData);
+        }
+        displayPlayers(allPlayers);
+        updatePlayerCount(allPlayers.length);
+        createPositionChart(allPlayers);
+        alert(`Player ${playerId ? 'updated' : 'added'} (demo mode)`);
+      }
+    } catch (err) {
+      alert(`Save failed: ${err.message}`);
     }
+    resetForm();
+    showSection('players');
+  }
 
-   // ...existing code...
-function viewPlayer(idx) {
-    const player = allPlayers[idx];
-    if (player) {
-        showPlayerModal(player, true);
+  async function deletePlayer(nameJson){
+    const name = JSON.parse(nameJson);
+    if (!confirm(`Delete ${name}?`)) return;
+    try {
+      if (apiMode) {
+        const res = await fetch(`${ENDPOINTS.players}/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error || `HTTP ${res.status}`);
+        }
+        await loadPlayers();
+      } else {
+        const idx = allPlayers.findIndex(p => p.name === name);
+        if (idx !== -1) allPlayers.splice(idx,1);
+        displayPlayers(allPlayers);
+        updatePlayerCount(allPlayers.length);
+        createPositionChart(allPlayers);
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
     }
-}
+  }
 
-function editPlayer(idx) {
-    const player = allPlayers[idx];
-    if (player) {
-        showPlayerModal(player, false);
-    }
-}
-
-async function deletePlayer(idx) {
-    const player = allPlayers[idx];
-    if (!player) return;
-    if (!confirm(`Are you sure you want to delete ${player.name}?`)) {
-        return;
-    }
-
+  // =============================
+  // SEARCH & TOGGLE
+  // =============================
+  async function searchPlayers(query){
+    currentSearch = (query || '').trim();
     if (apiMode) {
-        try {
-            const response = await fetch(`${ENDPOINTS.players}/${encodeURIComponent(player.name)}`, {
-                method: "DELETE",
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}`
-                }
-            });
-            if (response.ok) {
-                alert(`${player.name} deleted successfully (API mode)`);
-                await loadPlayers();
-            } else {
-                alert("Failed to delete player from API.");
-            }
-        } catch (err) {
-            alert("API error while deleting player.");
-        }
+      currentPage = 1; // reset
+      await loadPlayers();
     } else {
-        allPlayers.splice(idx, 1);
-        displayPlayers(allPlayers);
-        updatePlayerCount(allPlayers.length);
-        alert(`${player.name} deleted successfully (demo mode)`);
+      if (!currentSearch) { 
+        displayPlayers(allPlayers); 
+        createPositionChart(allPlayers);
+        return; 
+      }
+      const q = currentSearch.toLowerCase();
+      const filtered = allPlayers.filter(p =>
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.position || '').toLowerCase().includes(q) ||
+        (p.club || '').toLowerCase().includes(q) ||
+        (getNationalityName(p.nationality) || '').toLowerCase().includes(q)
+      );
+      displayPlayers(filtered);
+      createPositionChart(filtered);
     }
-}
-// ...existing code...
+  }
 
-    function showPlayerModal(player = null, readOnly = false) {
-        const modal = document.getElementById('playerModal');
-        const title = document.getElementById('modal-title');
-        const form = document.getElementById('playerForm');
-        
-        currentPlayer = player;
-        
-        if (player) {
-            title.textContent = readOnly ? `View Player: ${player.name}` : `Edit Player: ${player.name}`;
-            document.getElementById('playerId').value = player.name;
-            document.getElementById('name').value = player.name || '';
-            document.getElementById('age').value = player.age || '';
-            document.getElementById('position').value = player.position || '';
-            document.getElementById('rating').value = player.rating || '';
-            document.getElementById('club').value = player.club || '';
-            document.getElementById('nationality').value = player.nationality || '';
-            document.getElementById('notes').value = player.notes || '';
-            
-            // Set read-only state for view mode
-            if (readOnly) {
-                form.querySelectorAll('input, select, textarea').forEach(element => {
-                    element.setAttribute('readonly', true);
-                    element.setAttribute('disabled', true);
-                });
-                document.querySelector('.form-actions').style.display = 'none';
-            } else {
-                form.querySelectorAll('input, select, textarea').forEach(element => {
-                    element.removeAttribute('readonly');
-                    element.removeAttribute('disabled');
-                });
-                document.querySelector('.form-actions').style.display = 'flex';
-            }
-        } else {
-            title.textContent = 'Add New Player';
-            form.reset();
-            document.querySelector('.form-actions').style.display = 'flex';
-            form.querySelectorAll('input, select, textarea').forEach(element => {
-                element.removeAttribute('readonly');
-                element.removeAttribute('disabled');
-            });
-        }
-        
-        modal.style.display = 'flex';
+  function searchScouts(query){
+    const q = (query || '').trim().toLowerCase();
+    if (!q) {
+      displayScouts(allScouts);
+      return;
     }
+    
+    const filtered = allScouts.filter(s =>
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.region || '').toLowerCase().includes(q) ||
+      (s.experience || '').toLowerCase().includes(q) ||
+      (s.status || '').toLowerCase().includes(q)
+    );
+    displayScouts(filtered);
+  }
 
-    function closeModal() {
-        document.getElementById('playerModal').style.display = 'none';
-    }
+  function setToggleUI(on){
+    const knob = document.getElementById('apiKnob');
+    knob.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+  }
 
-    function handlePlayerSubmit(e) {
+  // =============================
+  // EVENTS
+  // =============================
+  document.addEventListener('DOMContentLoaded', () => {
+    // listeners
+    $('playerForm').addEventListener('submit', handlePlayerSubmit);
+    $('resetFormBtn').addEventListener('click', resetForm);
+    $('cancelEditBtn').addEventListener('click', () => {
+      resetForm();
+      showSection('players');
+    });
+    $('addPlayerBtn').addEventListener('click', () => {
+      resetForm();
+      showSection('addEdit');
+    });
+    $('searchInput').addEventListener('input', (e) => searchPlayers(e.target.value));
+    $('scoutSearchInput').addEventListener('input', (e) => searchScouts(e.target.value));
+    $('apiToggle').addEventListener('change', async (e) => {
+      apiMode = e.target.checked;
+      setToggleUI(apiMode);
+      await loadPlayers();
+    });
+
+    // Navigation click handlers
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
         e.preventDefault();
-        
-        const formData = {
-            name: document.getElementById('name').value,
-            age: parseInt(document.getElementById('age').value),
-            position: document.getElementById('position').value,
-            rating: parseFloat(document.getElementById('rating').value),
-            club: document.getElementById('club').value,
-            nationality: document.getElementById('nationality').value,
-            notes: document.getElementById('notes').value
-        };
-        
-        if (apiMode) {
-            // API save implementation would go here
-            alert(`API save for ${formData.name} would be implemented here`);
-        } else {
-            // Demo mode - just update local array
-            const playerId = document.getElementById('playerId').value;
-            
-            if (playerId) {
-                // Update existing player
-                const index = allPlayers.findIndex(p => p.name === playerId);
-                if (index !== -1) {
-                    allPlayers[index] = {...allPlayers[index], ...formData};
-                }
-            } else {
-                // Add new player
-                allPlayers.push(formData);
-            }
-            
-            displayPlayers(allPlayers);
-            updatePlayerCount(allPlayers.length);
-            alert(`Player ${playerId ? 'updated' : 'added'} successfully (demo mode)`);
-        }
-        
-        closeModal();
-    }
-
-    function showLoader(loaderId, contentId) {
-        document.getElementById(loaderId).style.display = 'block';
-        if (contentId) {
-            document.getElementById(contentId).style.display = 'none';
-        }
-    }
-
-    function hideLoader(loaderId, contentId) {
-        document.getElementById(loaderId).style.display = 'none';
-        if (contentId) {
-            document.getElementById(contentId).style.display = 'table';
-        }
-    }
-
-    function showError(elementId, message) {
-        const errorElement = document.getElementById(elementId);
-        errorElement.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
-        errorElement.style.display = 'flex';
-        errorElement.style.alignItems = 'center';
-        errorElement.style.gap = '8px';
-    }
-
-    function hideError(elementId) {
-        document.getElementById(elementId).style.display = 'none';
-    }
-
-    // Sidebar + theme toggle
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        sidebarToggle.style.transform = sidebar.classList.contains('collapsed') ? 'rotate(0deg)' : 'rotate(90deg)';
+        const targetId = item.getAttribute('href').substring(1);
+        showSection(targetId);
+      });
     });
 
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', () => {
-            item.classList.toggle('open');
-        });
-    });
+    // initial load in demo mode
+    allPlayers = [...samplePlayers];
+    displayPlayers(allPlayers);
+    updatePlayerCount(allPlayers.length);
+    createPositionChart(allPlayers);
 
-    themeToggle.addEventListener('click', () => {
-        const isDark = document.body.classList.toggle('dark-theme');
-        themeToggle.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
+    // Show the overview section by default
+    showSection('overview');
 
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-theme');
-        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-    }
-
-    // Player Management Event Listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set up event listeners
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            searchPlayers(this.value);
-        });
-
-        document.getElementById('add-player-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            showPlayerModal();
-        });
-
-        // Modal event listeners
-        document.querySelector('.close').addEventListener('click', closeModal);
-        document.getElementById('cancel-btn').addEventListener('click', closeModal);
-        document.getElementById('playerForm').addEventListener('submit', handlePlayerSubmit);
-
-        // Click outside modal to close
-        window.addEventListener('click', function(e) {
-            if (e.target === document.getElementById('playerModal')) {
-                closeModal();
-            }
-        });
-
-        document.getElementById('apiToggle').addEventListener('change', function() {
-            apiMode = this.checked;
-            document.getElementById('apiStatus').textContent = apiMode ? 'On' : 'Off';
-            
-            loadPlayers();
-        });
-
-        // Run dashboard
-        initDashboard();
-    });
-</script>
-
+    // Preload charts + API-driven widgets (does not switch to API mode)
+    createActivityChart();
+    initDashboard();
+  });
+  </script>
 </body>
-
 </html>
-
-
-
