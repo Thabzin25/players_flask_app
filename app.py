@@ -60,7 +60,7 @@ except Exception as e:
 # UTIL FUNCTIONS
 # -----------------------
 def generate_age():
-    return random.randint(16, 40)  # footballer age
+    return random.randint(16, 38)  # footballer age
 
 def generate_height():
     return random.randint(160, 200)  # cm
