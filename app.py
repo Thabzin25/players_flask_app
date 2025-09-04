@@ -6,11 +6,10 @@ from pymongo.mongo_client import MongoClient
 from pymongo import ASCENDING, DESCENDING
 import certifi
 import random
-from datetime import datetime, timedelta
-from bson import ObjectId
+from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Allow all origins (adjust for production)
 
 # Configure caching
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
@@ -18,7 +17,7 @@ cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT':
 # -----------------------
 # CONFIG
 # -----------------------
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")  # Default to local MongoDB
+MONGO_URI = os.getenv("MONGO_URI")  # Set in Render secrets
 DB_NAME = "Players"
 
 # -----------------------
@@ -32,15 +31,27 @@ try:
     players_collection = db["Players"]
     scouts_collection = db["Scouts"]
     clubs_collection = db["Clubs"]
-    statuses_collection = db["Statuses"]
 
-    # Create indexes
-    scouts_collection.create_index([("name", ASCENDING)])
-    scouts_collection.create_index([("region", ASCENDING)])
-    statuses_collection.create_index([("statusId", ASCENDING)])
+    # Safely create indexes for players
+    def ensure_index(collection, field, direction=ASCENDING):
+        try:
+            collection.create_index([(field, direction)])
+        except Exception as e:
+            # Ignore if index exists with different name
+            if "IndexOptionsConflict" in str(e):
+                print(f"⚠️ Index on '{field}' already exists, skipping.")
+            else:
+                raise e
+
+    ensure_index(players_collection, "name")
+    ensure_index(players_collection, "position")
+    ensure_index(players_collection, "rating", DESCENDING)
+
+    ensure_index(scouts_collection, "name")
+    ensure_index(clubs_collection, "name")
 
     client.admin.command("ping")
-    print("✅ Successfully connected to MongoDB")
+    print("✅ Successfully connected to MongoDB Atlas")
 except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     raise e
@@ -48,375 +59,347 @@ except Exception as e:
 # -----------------------
 # UTIL FUNCTIONS
 # -----------------------
-def serialize_doc(doc):
-    """Convert MongoDB document to JSON-serializable format"""
-    if not doc:
-        return None
-        
-    doc = doc.copy()
-    if '_id' in doc:
-        doc['_id'] = str(doc['_id'])
-    return doc
+def generate_age():
+    return random.randint(16, 40)  # footballer age
 
-def parse_experience(exp_str):
-    """Parse experience string to years (e.g., '3 years' -> 3)"""
-    if not exp_str:
-        return 0
-    try:
-        return int(exp_str.split()[0])
-    except:
-        return 0
+def generate_height():
+    return random.randint(160, 200)  # cm
 
-def parse_success_rate(rate_str):
-    """Parse success rate string to number (e.g., '65 percent' -> 65)"""
-    if not rate_str:
-        return 0
-    try:
-        return int(rate_str.split()[0])
-    except:
-        return 0
+def generate_weight():
+    return random.randint(55, 95)  # kg
 
-def map_experience_to_level(years):
-    """Map years of experience to experience level"""
-    if years < 2:
-        return "Junior"
-    elif years < 5:
-        return "Mid-level"
-    else:
-        return "Senior"
+def generate_experience():
+    return random.randint(1, 25)  # scout years of experience
 
-# -----------------------
-# STATUSES ROUTES
-# -----------------------
-@app.route("/api/statuses", methods=["GET"])
-def get_statuses():
-    try:
-        # Create default statuses if they don't exist
-        if statuses_collection.count_documents({}) == 0:
-            default_statuses = [
-                {"statusId": 1, "description": "Active"},
-                {"statusId": 2, "description": "Inactive"},
-                {"statusId": 3, "description": "Pending"}
-            ]
-            statuses_collection.insert_many(default_statuses)
-        
-        statuses = list(statuses_collection.find({}, {"_id": 0}))
-        return jsonify(statuses)
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+def generate_capacity():
+    return random.randint(5000, 90000)  # stadium capacity
 
-# -----------------------
-# SCOUTS ROUTES
-# -----------------------
-@app.route("/api/scouts", methods=["GET"])
-def get_scouts():
-    try:
-        scouts = list(scouts_collection.find({}))
-        
-        # Transform the data to match frontend expectations
-        transformed_scouts = []
-        for scout in scouts:
-            # Handle field name variations
-            name = scout.get("Scout_name") or scout.get("name", "Unknown")
-            region = scout.get("Region") or scout.get("region", "Unknown")
-            contact_info = scout.get("Contact Info") or scout.get("contactInfo", "")
-            
-            # Parse experience and success rate
-            experience_str = scout.get("Experience") or scout.get("experienceLevel", "0 years")
-            players_found_str = scout.get("Players_found") or scout.get("players_found", "0")
-            success_rate_str = scout.get("Success Rate") or scout.get("success_rate", "0 percent")
-            
-            # Convert to proper formats
-            experience_years = parse_experience(experience_str)
-            experience_level = map_experience_to_level(experience_years)
-            
-            try:
-                players_found = int(players_found_str)
-            except:
-                players_found = 0
-                
-            success_rate = parse_success_rate(success_rate_str)
-            
-            # Get status
-            status = scout.get("Status") or scout.get("status", "Unknown")
-            
-            # Create transformed scout object
-            transformed_scout = {
-                "scoutId": str(scout.get("_id")),
-                "name": name,
-                "region": region,
-                "contactInfo": contact_info,
-                "status": status,
-                "experienceLevel": experience_level,
-                "players_found": players_found,
-                "success_rate": success_rate
-            }
-            
-            # Add statusId if available
-            if "statusId" in scout:
-                transformed_scout["statusId"] = scout["statusId"]
-                
-            transformed_scouts.append(transformed_scout)
-        
-        return jsonify(transformed_scouts)
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+def generate_founded_year():
+    return random.randint(1850, 2020)  # club foundation year
 
-@app.route("/api/scouts/<scout_id>", methods=["GET"])
-def get_scout(scout_id):
-    try:
-        scout = scouts_collection.find_one({"_id": ObjectId(scout_id)})
-        if not scout:
-            return jsonify({"error": "Scout not found"}), 404
-            
-        # Transform the data (similar to get_scouts)
-        name = scout.get("Scout_name") or scout.get("name", "Unknown")
-        region = scout.get("Region") or scout.get("region", "Unknown")
-        contact_info = scout.get("Contact Info") or scout.get("contactInfo", "")
-        
-        experience_str = scout.get("Experience") or scout.get("experienceLevel", "0 years")
-        players_found_str = scout.get("Players_found") or scout.get("players_found", "0")
-        success_rate_str = scout.get("Success Rate") or scout.get("success_rate", "0 percent")
-        
-        experience_years = parse_experience(experience_str)
-        experience_level = map_experience_to_level(experience_years)
-        
+def transform_player(p):
+    """Efficient player transformation function"""
+    # --- Age ---
+    age = p.get("age")
+    if not age and p.get("Date"):
         try:
-            players_found = int(players_found_str)
-        except:
-            players_found = 0
-            
-        success_rate = parse_success_rate(success_rate_str)
-        
-        status = scout.get("Status") or scout.get("status", "Unknown")
-        
-        transformed_scout = {
-            "scoutId": str(scout.get("_id")),
-            "name": name,
-            "region": region,
-            "contactInfo": contact_info,
-            "status": status,
-            "experienceLevel": experience_level,
-            "players_found": players_found,
-            "success_rate": success_rate
-        }
-        
-        if "statusId" in scout:
-            transformed_scout["statusId"] = scout["statusId"]
-            
-        return jsonify(transformed_scout)
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+            year = int(str(p["Date"]).split("-")[0])
+            age = datetime.now().year - year
+        except Exception:
+            age = generate_age()
+    elif not age:
+        age = generate_age()
 
-@app.route("/api/scouts", methods=["POST"])
-def add_scout():
+    # --- Height & Weight ---
+    height = p.get("height") or generate_height()
+    weight = p.get("weight") or generate_weight()
+
+    # --- Position ---
+    position = p.get("position", "N/A")
+
+    # --- Rating ---
+    rating = (
+        p.get("rating") or
+        p.get("Rating") or
+        p.get("Original Rating") or
+        p.get("Alternative Rating")
+    )
     try:
-        data = request.json
-        if not data.get("name") or not data.get("region"):
-            return jsonify({"error": "Scout name and region are required"}), 400
+        rating = float(rating) if rating else 0
+    except (TypeError, ValueError):
+        rating = 0  # Default to 0 for frontend
+
+    # --- Club & Nationality ---
+    club = p.get("club") or p.get("Team Name") or "N/A"
+    nationality = p.get("nationality", "N/A")
+    notes = p.get("notes", "")
+
+    return {
+        "name": p.get("name", "N/A"),
+        "age": age,
+        "height": height,
+        "weight": weight,
+        "position": position,
+        "rating": rating,
+        "club": club,
+        "nationality": nationality,
+        "notes": notes
+    }
+
+# -----------------------
+# FLASK ROUTES
+# -----------------------
+@app.route("/")
+def home():
+    return "⚽ Players, Scouts & Clubs Flask App is running!"
+
+# ==================================================
+# PLAYERS ROUTES (OPTIMIZED)
+# ==================================================
+@app.route("/players", methods=["GET"])
+@cache.cached(timeout=60, query_string=True)  # Cache for 60 seconds
+def get_players():
+    # Get query parameters with defaults
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 50))
+    name_filter = request.args.get("name")
+    position_filter = request.args.get("position")
+    
+    # Calculate skip value for pagination
+    skip = (page - 1) * per_page
+
+    # Build query
+    query = {}
+    if name_filter:
+        query["name"] = {"$regex": name_filter, "$options": "i"}
+    if position_filter:
+        query["position"] = position_filter
+
+    try:
+        # Get total count for pagination info
+        total_players = players_collection.count_documents(query)
         
-        # Prepare scout data for database
-        scout_data = {
-            "Scout_name": data.get("name"),
-            "Region": data.get("region"),
-            "Contact Info": data.get("contactInfo", ""),
-            "statusId": data.get("statusId", 1),  # Default to Active
-            "Experience": f"{data.get('experienceLevel', 'Junior')}",
-            "Players_found": str(data.get("players_found", 0)),
-            "Success Rate": f"{data.get('success_rate', 0)} percent"
-        }
+        # Fetch only the required page of players
+        raw_players_cursor = players_collection.find(query, {"_id": 0}).skip(skip).limit(per_page)
         
-        # Insert the new scout
-        result = scouts_collection.insert_one(scout_data)
-        
-        # Clear caches
-        cache.delete_memoized(get_scouts)
-        cache.delete_memoized(get_scouts_stats)
-        
+        # Use list comprehension for faster transformation
+        players = [transform_player(p) for p in raw_players_cursor]
+
         return jsonify({
-            "message": "Scout added successfully",
-            "scoutId": str(result.inserted_id)
-        }), 201
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-
-@app.route("/api/scouts/<scout_id>", methods=["PUT"])
-def update_scout(scout_id):
-    try:
-        data = request.json
-        scout = scouts_collection.find_one({"_id": ObjectId(scout_id)})
-        if not scout:
-            return jsonify({"error": "Scout not found"}), 404
-        
-        # Prepare update data
-        update_data = {}
-        if "name" in data:
-            update_data["Scout_name"] = data["name"]
-        if "region" in data:
-            update_data["Region"] = data["region"]
-        if "contactInfo" in data:
-            update_data["Contact Info"] = data["contactInfo"]
-        if "statusId" in data:
-            update_data["statusId"] = data["statusId"]
-        if "experienceLevel" in data:
-            update_data["Experience"] = data["experienceLevel"]
-        if "players_found" in data:
-            update_data["Players_found"] = str(data["players_found"])
-        if "success_rate" in data:
-            update_data["Success Rate"] = f"{data['success_rate']} percent"
-        
-        # Update the scout
-        scouts_collection.update_one({"_id": ObjectId(scout_id)}, {"$set": update_data})
-        
-        # Clear caches
-        cache.delete_memoized(get_scouts)
-        cache.delete_memoized(get_scout, scout_id)
-        cache.delete_memoized(get_scouts_stats)
-        
-        return jsonify({"message": "Scout updated successfully"})
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-
-@app.route("/api/scouts/<scout_id>", methods=["DELETE"])
-def delete_scout(scout_id):
-    try:
-        scout = scouts_collection.find_one({"_id": ObjectId(scout_id)})
-        if not scout:
-            return jsonify({"error": "Scout not found"}), 404
-        
-        scouts_collection.delete_one({"_id": ObjectId(scout_id)})
-        
-        # Clear caches
-        cache.delete_memoized(get_scouts)
-        cache.delete_memoized(get_scout, scout_id)
-        cache.delete_memoized(get_scouts_stats)
-        
-        return jsonify({"message": "Scout deleted successfully"})
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-
-@app.route("/api/scouts/<scout_id>/stats", methods=["PUT"])
-def update_scout_stats(scout_id):
-    try:
-        data = request.json
-        scout = scouts_collection.find_one({"_id": ObjectId(scout_id)})
-        if not scout:
-            return jsonify({"error": "Scout not found"}), 404        
-                
-        # Update only the stats fields
-        update_data = {}
-        if "players_found" in data:
-            update_data["Players_found"] = str(data["players_found"])
-        if "success_rate" in data:
-            update_data["Success Rate"] = f"{data['success_rate']} percent"
-        
-        scouts_collection.update_one({"_id": ObjectId(scout_id)}, {"$set": update_data})
-        
-        # Clear caches
-        cache.delete_memoized(get_scouts)
-        cache.delete_memoized(get_scout, scout_id)
-        cache.delete_memoized(get_scouts_stats)
-        
-        return jsonify({"message": "Scout stats updated successfully"})
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
-
-@app.route("/api/scouts/stats", methods=["GET"])
-def get_scouts_stats():
-    try:
-        scouts = list(scouts_collection.find({}))
-        
-        # Calculate statistics
-        total_scouts = len(scouts)
-        
-        # Count active scouts (assuming statusId 1 is active)
-        active_scouts = 0
-        for scout in scouts:
-            status_id = scout.get("statusId", 1)
-            if status_id == 1:
-                active_scouts += 1
-                
-        inactive_scouts = total_scouts - active_scouts
-        
-        # Find most active scout (by players found)
-        most_active = None
-        for scout in scouts:
-            players_found = 0
-            try:
-                players_found = int(scout.get("Players_found", 0))
-            except:
-                pass
-                
-            if not most_active or players_found > int(most_active.get("Players_found", 0)):
-                most_active = scout
-        
-        # Prepare most active scout data
-        most_active_data = {
-            "name": most_active.get("Scout_name", "Unknown") if most_active else "No data",
-            "initials": "".join([n[0] for n in (most_active.get("Scout_name", "NA") if most_active else "NA").split()[:2]]).upper(),
-            "players_found": int(most_active.get("Players_found", 0)) if most_active else 0,
-            "success_rate": parse_success_rate(most_active.get("Success Rate", "0")) if most_active else 0
-        }
-        
-        # Calculate average success rate
-        total_success = 0
-        count = 0
-        for scout in scouts:
-            success_rate = parse_success_rate(scout.get("Success Rate", "0"))
-            if success_rate > 0:
-                total_success += success_rate
-                count += 1
-                
-        avg_success_rate = round(total_success / count, 1) if count > 0 else 0
-        
-        # Generate weekly activity data (mock data)
-        weekly_activity = []
-        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        for day in days:
-            weekly_activity.append({
-                "label": day,
-                "value": random.randint(10, 100)
-            })
-        
-        return jsonify({
-            "totalScouts": total_scouts,
-            "activeScouts": active_scouts,
-            "inactiveScouts": inactive_scouts,
-            "mostActive": most_active_data,
-            "avgSuccessRate": avg_success_rate,
-            "weeklyActivity": weekly_activity
+            "total_players": total_players,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total_players + per_page - 1) // per_page,
+            "players": players
         })
     except Exception as e:
         return jsonify({"error": f"Database error: {str(e)}"}), 500
 
-# -----------------------
+
+@app.route("/players/<player_name>", methods=["GET"])
+@cache.cached(timeout=300)  # Cache individual player for 5 minutes
+def get_player(player_name):
+    player = players_collection.find_one({"name": player_name}, {"_id": 0})
+    if not player:
+        return jsonify({"error": "Player not found"}), 404
+    
+    transformed_player = transform_player(player)
+    return jsonify(transformed_player)
+
+@app.route("/players", methods=["POST"])
+def add_player():
+    data = request.json
+    if not data.get("name") or not data.get("position"):
+        return jsonify({"error": "Name and position are required"}), 400
+    if players_collection.find_one({"name": data["name"]}):
+        return jsonify({"error": "Player with this name already exists"}), 400
+
+    # Auto-generate if missing
+    data.setdefault("age", generate_age())
+    data.setdefault("height", generate_height())
+    data.setdefault("weight", generate_weight())
+
+    players_collection.insert_one(data)
+    
+    # Clear cache for players list
+    cache.delete_memoized(get_players)
+    return jsonify({"message": "Player added successfully"}), 201
+
+@app.route("/players/<player_name>", methods=["PUT"])
+def update_player(player_name):
+    data = request.json
+    player = players_collection.find_one({"name": player_name})
+    if not player:
+        return jsonify({"error": "Player not found"}), 404
+    players_collection.update_one({"name": player_name}, {"$set": data})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_players)
+    cache.delete_memoized(get_player, player_name)
+    return jsonify({"message": "Player updated successfully"})
+
+@app.route("/players/<player_name>", methods=["DELETE"])
+def delete_player(player_name):
+    player = players_collection.find_one({"name": player_name})
+    if not player:
+        return jsonify({"error": "Player not found"}), 404
+    players_collection.delete_one({"name": player_name})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_players)
+    cache.delete_memoized(get_player, player_name)
+    return jsonify({"message": f"{player_name} deleted successfully"})
+
+@app.route("/player-reports", methods=["GET"])
+@cache.cached(timeout=300)  # Cache reports for 5 minutes
+def player_reports():
+    # Use aggregation for faster processing
+    pipeline = [
+        {"$group": {
+            "_id": "$position",
+            "count": {"$sum": 1},
+            "avg_rating": {"$avg": "$rating"}
+        }},
+        {"$project": {
+            "position": "$_id",
+            "count": 1,
+            "avg_rating": {"$round": ["$avg_rating", 1]},
+            "_id": 0
+        }}
+    ]
+    
+    positions_stats = list(players_collection.aggregate(pipeline))
+    
+    # Get top 10 players by rating
+    top_players = list(players_collection.find(
+        {}, 
+        {"_id": 0, "name": 1, "position": 1, "rating": 1}
+    ).sort("rating", -1).limit(10))
+    
+    # Ensure ratings are numbers
+    for p in top_players:
+        if "rating" not in p:
+            p["rating"] = round(5 + 5 * random.random(), 1)
+        elif isinstance(p["rating"], str):
+            try:
+                p["rating"] = float(p["rating"])
+            except ValueError:
+                p["rating"] = round(5 + 5 * random.random(), 1)
+
+    return jsonify({
+        "positions_stats": positions_stats,
+        "top_players": top_players
+    })
+
+# ==================================================
+# SCOUTS ROUTES
+# ==================================================
+@app.route("/scouts", methods=["GET"])
+@cache.cached(timeout=300)
+def get_scouts():
+    scouts = list(scouts_collection.find({}, {"_id": 0}))
+    for s in scouts:
+        s["experience"] = s.get("experience", generate_experience())
+    return jsonify(scouts)
+
+@app.route("/scouts/<scout_name>", methods=["GET"])
+@cache.cached(timeout=300)
+def get_scout(scout_name):
+    scout = scouts_collection.find_one({"name": scout_name}, {"_id": 0})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    scout["experience"] = scout.get("experience", generate_experience())
+    return jsonify(scout)
+
+@app.route("/scouts", methods=["POST"])
+def add_scout():
+    data = request.json
+    if not data.get("name") or not data.get("region"):
+        return jsonify({"error": "Scout name and region are required"}), 400
+    if scouts_collection.find_one({"name": data["name"]}):
+        return jsonify({"error": "Scout with this name already exists"}), 400
+
+    data.setdefault("experience", generate_experience())
+    scouts_collection.insert_one(data)
+    
+    # Clear scouts cache
+    cache.delete_memoized(get_scouts)
+    return jsonify({"message": "Scout added successfully"}), 201
+
+@app.route("/scouts/<scout_name>", methods=["PUT"])
+def update_scout(scout_name):
+    data = request.json
+    scout = scouts_collection.find_one({"name": scout_name})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    scouts_collection.update_one({"name": scout_name}, {"$set": data})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_scouts)
+    cache.delete_memoized(get_scout, scout_name)
+    return jsonify({"message": "Scout updated successfully"})
+
+@app.route("/scouts/<scout_name>", methods=["DELETE"])
+def delete_scout(scout_name):
+    scout = scouts_collection.find_one({"name": scout_name})
+    if not scout:
+        return jsonify({"error": "Scout not found"}), 404
+    scouts_collection.delete_one({"name": scout_name})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_scouts)
+    cache.delete_memoized(get_scout, scout_name)
+    return jsonify({"message": f"{scout_name} deleted successfully"})
+
+# ==================================================
 # CLUBS ROUTES
-# -----------------------
-@app.route("/api/clubs", methods=["GET"])
+# ==================================================
+@app.route("/clubs", methods=["GET"])
+@cache.cached(timeout=300)
 def get_clubs():
-    try:
-        clubs = list(clubs_collection.find({}))
-        serialized_clubs = [serialize_doc(club) for club in clubs]
-        return jsonify(serialized_clubs)
-    except Exception as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    clubs = list(clubs_collection.find({}, {"_id": 0}))
+    for c in clubs:
+        c["capacity"] = c.get("capacity", generate_capacity())
+        c["founded"] = c.get("founded", generate_founded_year())
+    return jsonify(clubs)
+
+@app.route("/clubs/<club_name>", methods=["GET"])
+@cache.cached(timeout=300)
+def get_club(club_name):
+    club = clubs_collection.find_one({"name": club_name}, {"_id": 0})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    club["capacity"] = club.get("capacity", generate_capacity())
+    club["founded"] = club.get("founded", generate_founded_year())
+    return jsonify(club)
+
+@app.route("/clubs", methods=["POST"])
+def add_club():
+    data = request.json
+    if not data.get("name") or not data.get("league"):
+        return jsonify({"error": "Club name and league are required"}), 400
+    if clubs_collection.find_one({"name": data["name"]}):
+        return jsonify({"error": "Club with this name already exists"}), 400
+
+    data.setdefault("capacity", generate_capacity())
+    data.setdefault("founded", generate_founded_year())
+
+    clubs_collection.insert_one(data)
+    
+    # Clear clubs cache
+    cache.delete_memoized(get_clubs)
+    return jsonify({"message": "Club added successfully"}), 201
+
+@app.route("/clubs/<club_name>", methods=["PUT"])
+def update_club(club_name):
+    data = request.json
+    club = clubs_collection.find_one({"name": club_name})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    clubs_collection.update_one({"name": club_name}, {"$set": data})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_clubs)
+    cache.delete_memoized(get_club, club_name)
+    return jsonify({"message": "Club updated successfully"})
+
+@app.route("/clubs/<club_name>", methods=["DELETE"])
+def delete_club(club_name):
+    club = clubs_collection.find_one({"name": club_name})
+    if not club:
+        return jsonify({"error": "Club not found"}), 404
+    clubs_collection.delete_one({"name": club_name})
+    
+    # Clear relevant caches
+    cache.delete_memoized(get_clubs)
+    cache.delete_memoized(get_club, club_name)
+    return jsonify({"message": f"{club_name} deleted successfully"})
 
 # -----------------------
 # RUN APP
 # -----------------------
 if __name__ == "__main__":
-    # Ensure statuses collection exists
-    try:
-        if statuses_collection.count_documents({}) == 0:
-            default_statuses = [
-                {"statusId": 1, "description": "Active"},
-                {"statusId": 2, "description": "Inactive"},
-                {"statusId": 3, "description": "Pending"}
-            ]
-            statuses_collection.insert_many(default_statuses)
-            print("✅ Default statuses created")
-    except Exception as e:
-        print(f"❌ Error creating default statuses: {e}")
-    
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=port, threaded=True)
+
+
