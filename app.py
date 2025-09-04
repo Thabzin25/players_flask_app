@@ -31,6 +31,11 @@ try:
     players_collection = db["Players"]
     scouts_collection = db["Scouts"]
     clubs_collection = db["Clubs"]
+    accounts_collection = db["Accounts"]
+    subscription_collection = db["Subscriptions"]
+    payments_collection = db["payments"]
+    statuses_collection = db["statuses"]
+    
 
     # Safely create indexes for players
     def ensure_index(collection, field, direction=ASCENDING):
