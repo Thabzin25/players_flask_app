@@ -469,10 +469,11 @@
     });
 
     // Back to Login button functionality
-    document.getElementById('backToLogin').addEventListener('click', () => {
-      // In a real application, this would redirect to the login page
-      // For demo purposes, we'll show an alert and simulate navigation
-      alert('Redirecting to login page...');
+   document.getElementById('backToLogin').addEventListener('click', () => {
+  alert('Redirecting to login page...');
+  window.location.href = 'index.html'; // Redirects to index.html
+});
+
       
       // Simulate redirect after a brief delay
       setTimeout(() => {
@@ -756,7 +757,7 @@
         
         // Simulate successful registration
         // In a real application, you would send data to the server:
-        /*
+        /
         const response = await fetch('/register', {
           method: 'POST',
           headers: {
@@ -768,7 +769,7 @@
         if (!response.ok) {
           throw new Error('Registration failed');
         }
-        */
+        
         
         // Show success message
         document.getElementById('successMessage').style.display = 'block';
@@ -799,3 +800,4 @@
 
 </body>
 </html>
+
