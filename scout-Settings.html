@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scout Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-light: #e8f0fe;
+      --secondary: #4285f4;
+      --danger: #ea4335;
+      --dark: #202124;
+      --light: #f8f9fa;
+      --border: #dadce0;
+      --text: #202124;
+      --bg: #f8f9fa;
+    }
+    body { font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: var(--bg); color: var(--text); margin:0; }
+    .dark-mode {
+      --bg: #202124;
+      --text: #f8f9fa;
+      --primary-light: #26334d;
+    }
+    .sidebar { width:260px; background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%); color:white; position:fixed; top:0; left:0; height:100vh; }
+    .sidebar .logo { display:flex; align-items:center; padding:24px 20px; font-size:22px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .sidebar ul { list-style:none; padding:0; margin:0; }
+    .sidebar ul li { padding:14px 24px; display:flex; align-items:center; cursor:pointer; }
+    .sidebar ul li.active, .sidebar ul li:hover { background: rgba(255,255,255,0.12); }
+    .sidebar ul li a { color:white; text-decoration:none; display:flex; align-items:center; width:100%; font-size:16px; }
+    .sidebar ul li i { margin-right:16px; font-size:18px; width:24px; text-align:center; }
+    .main { margin-left:260px; padding:32px; }
+    h1 { color: var(--primary); font-size:28px; font-weight:700; }
+    .settings-container { background:white; border-radius:12px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,0.05); max-width:500px; }
+    .setting-group { margin-bottom:28px; }
+    .setting-label { font-size:17px; font-weight:500; margin-bottom:8px; display:block; }
+    .btn { padding:10px 20px; border:none; border-radius:6px; font-size:15px; font-weight:600; cursor:pointer; }
+    .btn-danger { background: var(--danger); color:white; }
+    .btn-danger:hover { background: #b71c1c; }
+    .btn-toggle { background: var(--primary-light); color: var(--primary); }
+    .btn-toggle.active { background: var(--primary); color:white; }
+    .suggestions { margin-top:32px; }
+    .suggestions-title { font-size:16px; font-weight:600; color: var(--primary); margin-bottom:10px; }
+    .suggestions ul { margin:0; padding-left:20px; }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    label { display: block; margin-bottom: 6px; font-size: 15px; }
+    select.form-control { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo"><i class="fas fa-football"></i><span>Scout Dashboard</span></div>
+    <ul>
+      <li><a href="scout-GenerateReports.html"><i class="fas fa-file-alt"></i><span>Generate Reports</span></a></li>
+      <li><a href="scout-player.html"><i class="fas fa-users"></i><span>Players</span></a></li>
+      <li><a href="scout-Analytics.html"><i class="fas fa-chart-bar"></i><span>Analytics</span></a></li>
+      <li class="active"><a href="scout-Settings.html"><i class="fas fa-cogs"></i><span>Settings</span></a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <h1>Settings</h1>
+    <div class="settings-container">
+      <div class="setting-group">
+        <span class="setting-label">Dark Mode</span>
+        <button id="darkModeBtn" class="btn btn-toggle">Enable Dark Mode</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Change Password</span>
+        <input type="password" id="newPassword" class="form-control" placeholder="New Password">
+        <button class="btn" onclick="changePassword()">Change Password</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Update Profile Information</span>
+        <input type="text" id="profileName" class="form-control" placeholder="Name">
+        <input type="email" id="profileEmail" class="form-control" placeholder="Email">
+        <button class="btn" onclick="updateProfile()">Update Profile</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Notification Preferences</span>
+        <label><input type="checkbox" id="notifEmail"> Email Notifications</label>
+        <label><input type="checkbox" id="notifSMS"> SMS Notifications</label>
+        <button class="btn" onclick="saveNotifications()">Save Preferences</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Language Selection</span>
+        <select id="languageSelect" class="form-control">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+        </select>
+        <button class="btn" onclick="saveLanguage()">Save Language</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Privacy Settings</span>
+        <label><input type="checkbox" id="privacyProfile"> Make profile private</label>
+        <button class="btn" onclick="savePrivacy()">Save Privacy</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Export Data</span>
+        <button class="btn" onclick="exportData()">Export My Data</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Delete Account</span>
+        <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Dark mode toggle
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    let darkMode = false;
+    darkModeBtn.onclick = function() {
+      darkMode = !darkMode;
+      document.body.classList.toggle('dark-mode', darkMode);
+      darkModeBtn.textContent = darkMode ? 'Disable Dark Mode' : 'Enable Dark Mode';
+      darkModeBtn.classList.toggle('active', darkMode);
+    };
+
+    // Change Password
+    function changePassword() {
+      const pwd = document.getElementById('newPassword').value;
+      if (pwd.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+      }
+      // TODO: Connect to backend
+      alert("Password change requested.");
+    }
+
+    // Update Profile
+    function updateProfile() {
+      const name = document.getElementById('profileName').value;
+      const email = document.getElementById('profileEmail').value;
+      // TODO: Validate and connect to backend
+      alert("Profile update requested for " + name + " (" + email + ")");
+    }
+
+    // Notification Preferences
+    function saveNotifications() {
+      const emailPref = document.getElementById('notifEmail').checked;
+      const smsPref = document.getElementById('notifSMS').checked;
+      // TODO: Connect to backend
+      alert("Notification preferences saved.");
+    }
+
+    // Language Selection
+    function saveLanguage() {
+      const lang = document.getElementById('languageSelect').value;
+      // TODO: Connect to backend
+      alert("Language set to " + lang);
+    }
+
+    // Privacy Settings
+    function savePrivacy() {
+      const privacy = document.getElementById('privacyProfile').checked;
+      // TODO: Connect to backend
+      alert("Privacy setting saved.");
+    }
+
+    // Export Data
+    function exportData() {
+      // TODO: Connect to backend
+      alert("Data export requested.");
+    }
+
+    // Delete account placeholder
+    function deleteAccount() {
+      if(confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+        // TODO: Connect to backend for actual delete
+        alert("Account deletion requested.");
+      }
+    }
+  </script>
+</body>
+</html>
