@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scout Analytics</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: #f8f9fa; margin:0; }
+    .sidebar { width:260px; background: linear-gradient(180deg, #1a73e8 0%, #4285f4 100%); color:white; position:fixed; top:0; left:0; height:100vh; }
+    .sidebar .logo { display:flex; align-items:center; padding:24px 20px; font-size:22px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .sidebar ul { list-style:none; padding:0; margin:0; }
+    .sidebar ul li { padding:14px 24px; display:flex; align-items:center; cursor:pointer; }
+    .sidebar ul li.active, .sidebar ul li:hover { background: rgba(255,255,255,0.12); }
+    .sidebar ul li a { color:white; text-decoration:none; display:flex; align-items:center; width:100%; font-size:16px; }
+    .sidebar ul li i { margin-right:16px; font-size:18px; width:24px; text-align:center; }
+    .main { margin-left:260px; padding:32px; }
+    h1 { color: #1a73e8; font-size:28px; font-weight:700; }
+    .analytics-container { background:white; border-radius:12px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,0.05); }
+    .chart-section { margin-bottom:32px; }
+    .chart-title { font-size:18px; color:#4285f4; margin-bottom:12px; font-weight:600; }
+    canvas { background: #f8f9fa; border-radius:8px; display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo"><i class="fas fa-football"></i><span>Scout Dashboard</span></div>
+    <ul>
+      <li><a href="scout-GenerateReports.html"><i class="fas fa-file-alt"></i><span>Generate Reports</span></a></li>
+      <li><a href="scout-player.html"><i class="fas fa-users"></i><span>Players</span></a></li>
+      <li class="active"><a href="scout-Analytics.html"><i class="fas fa-chart-bar"></i><span>Analytics</span></a></li>
+      <li><a href="scout-Settings.html"><i class="fas fa-cogs"></i><span>Settings</span></a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <h1>Analytics</h1>
+    <div class="analytics-container">
+      <div class="chart-section">
+        <div class="chart-title">Players by Position</div>
+        <canvas id="positionChart" width="320" height="180"></canvas>
+      </div>
+      <div class="chart-section">
+        <div class="chart-title">Top 10 Players by Rating</div>
+        <canvas id="topPlayersChart" width="320" height="180"></canvas>
+      </div>
+      <!-- You can add more charts here -->
+    </div>
+  </div>
+  <script>
+    const backendUrl = "https://players-flask-app.onrender.com";
+
+    // Fetch analytics data from backend
+    fetch(`${backendUrl}/player-reports`)
+      .then(res => res.json())
+      .then(data => {
+        // Players by Position
+        const positions = data.positions_stats.map(p => p.position);
+        const counts = data.positions_stats.map(p => p.count);
+        const positionChart = new Chart(document.getElementById('positionChart'), {
+          type: 'doughnut',
+          data: {
+            labels: positions,
+            datasets: [{
+              label: 'Players',
+              data: counts,
+              backgroundColor: ['#4285f4','#34a853','#fbbc05','#ea4335','#1a73e8','#888'],
+            }]
+          },
+          options: { responsive: true }
+        });
+
+        // Top 10 Players by Rating
+        const topPlayers = data.top_players;
+        const playerNames = topPlayers.map(p => p.name);
+        const playerRatings = topPlayers.map(p => p.rating);
+        new Chart(document.getElementById('topPlayersChart'), {
+          type: 'bar',
+          data: {
+            labels: playerNames,
+            datasets: [{
+              label: 'Rating',
+              data: playerRatings,
+              backgroundColor: '#4285f4'
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, max: 10 } }
+          }
+        });
+      })
+      .catch(err => {
+        // Fallback to placeholder data if backend fails
+        const positionData = {
+          labels: ['Forward', 'Midfielder', 'Defender', 'Goalkeeper'],
+          datasets: [{
+            label: 'Players',
+            data: [12, 18, 10, 4],
+            backgroundColor: ['#4285f4','#34a853','#fbbc05','#ea4335'],
+          }]
+        };
+        new Chart(document.getElementById('positionChart'), {
+          type: 'doughnut',
+          data: positionData,
+          options: { responsive: true }
+        });
+
+        const topPlayersData = {
+          labels: ['Player1','Player2','Player3','Player4','Player5'],
+          datasets: [{
+            label: 'Rating',
+            data: [8.5, 7.9, 7.5, 7.2, 6.8],
+            backgroundColor: '#4285f4'
+          }]
+        };
+        new Chart(document.getElementById('topPlayersChart'), {
+          type: 'bar',
+          data: topPlayersData,
+          options: { responsive: true, scales: { y: { beginAtZero: true, max: 10 } } }
+        });
+      });
+  </script>
+</body>
+</html>
