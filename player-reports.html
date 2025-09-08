@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #1a4f8b;
@@ -392,51 +391,6 @@
             justify-content: flex-end;
         }
 
-        /* Chart Container */
-        .chart-container {
-            width: 100%;
-            height: 300px;
-            margin: 20px 0;
-        }
-
-        /* Report Details Styles */
-        .report-details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .report-section {
-            margin-bottom: 20px;
-        }
-
-        .report-section h4 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 5px;
-        }
-
-        .ratings-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .rating-item {
-            padding: 8px;
-            background: var(--light);
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .rating-value {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-
         /* Toast Notification */
         .toast {
             position: fixed;
@@ -491,10 +445,6 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .report-details-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         @media (max-width: 768px) {
@@ -504,10 +454,6 @@
             
             .action-cell {
                 flex-direction: column;
-            }
-            
-            .ratings-grid {
-                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -520,10 +466,6 @@
             
             .form-actions {
                 flex-direction: column;
-            }
-            
-            .ratings-grid {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -753,7 +695,6 @@
 
         // Database simulation using localStorage
         const DB_NAME = 'playerReportsDB';
-        let radarChart = null;
         
         // Initialize the database
         function initializeDatabase() {
@@ -895,69 +836,6 @@
             return (sum / values.length).toFixed(1);
         }
 
-        // Create a radar chart for player ratings
-        function createRadarChart(ratings, canvasId) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            
-            // Destroy previous chart if it exists
-            if (radarChart) {
-                radarChart.destroy();
-            }
-            
-            radarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical'],
-                    datasets: [{
-                        label: 'Player Skills',
-                        data: [
-                            ratings.pace,
-                            ratings.shooting,
-                            ratings.passing,
-                            ratings.dribbling,
-                            ratings.defending,
-                            ratings.physical
-                        ],
-                        backgroundColor: 'rgba(26, 79, 139, 0.2)',
-                        borderColor: 'rgba(26, 79, 139, 0.8)',
-                        pointBackgroundColor: 'rgba(26, 79, 139, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(26, 79, 139, 1)',
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: {
-                                display: true
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 10,
-                            ticks: {
-                                stepSize: 2
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Player Skills Radar Chart'
-                        }
-                    }
-                }
-            });
-            
-            return radarChart;
-        }
-
         // View a report
         function viewReport(id) {
             const reports = getReports();
@@ -971,78 +849,46 @@
             const overallRating = calculateOverallRating(report.ratings);
             
             document.getElementById('reportDetails').innerHTML = `
-                <div class="report-details-grid">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">${report.playerName}</h3>
+                    <p><strong>Age:</strong> ${report.playerAge} | <strong>Position:</strong> ${report.playerPosition} | <strong>Club:</strong> ${report.playerClub || 'N/A'}</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Match:</strong> ${report.match}</p>
+                    <p><strong>Date:</strong> ${new Date(report.date).toLocaleDateString()}</p>
+                    <p><strong>Scout:</strong> ${report.scoutName}</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
-                        <div class="report-section">
-                            <h3 style="color: var(--primary); margin-bottom: 10px;">${report.playerName}</h3>
-                            <p><strong>Age:</strong> ${report.playerAge} | <strong>Position:</strong> ${report.playerPosition}</p>
-                            <p><strong>Club:</strong> ${report.playerClub || 'N/A'}</p>
-                        </div>
-                        
-                        <div class="report-section">
-                            <h4>Match Details</h4>
-                            <p><strong>Match:</strong> ${report.match}</p>
-                            <p><strong>Date:</strong> ${new Date(report.date).toLocaleDateString()}</p>
-                            <p><strong>Scout:</strong> ${report.scoutName}</p>
-                        </div>
-                        
-                        <div class="report-section">
-                            <h4>Skills Rating</h4>
-                            <div class="ratings-grid">
-                                <div class="rating-item">
-                                    <div>Pace</div>
-                                    <div class="rating-value">${report.ratings.pace}/10</div>
-                                </div>
-                                <div class="rating-item">
-                                    <div>Shooting</div>
-                                    <div class="rating-value">${report.ratings.shooting}/10</div>
-                                </div>
-                                <div class="rating-item">
-                                    <div>Passing</div>
-                                    <div class="rating-value">${report.ratings.passing}/10</div>
-                                </div>
-                                <div class="rating-item">
-                                    <div>Dribbling</div>
-                                    <div class="rating-value">${report.ratings.dribbling}/10</div>
-                                </div>
-                                <div class="rating-item">
-                                    <div>Defending</div>
-                                    <div class="rating-value">${report.ratings.defending}/10</div>
-                                </div>
-                                <div class="rating-item">
-                                    <div>Physical</div>
-                                    <div class="rating-value">${report.ratings.physical}/10</div>
-                                </div>
-                            </div>
-                            <p><strong>Overall Rating:</strong> ${overallRating}/10</p>
-                        </div>
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Strengths</h4>
+                        <p>${report.strengths}</p>
                     </div>
-                    
                     <div>
-                        <div class="chart-container">
-                            <canvas id="radarChartCanvas"></canvas>
-                        </div>
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Weaknesses</h4>
+                        <p>${report.weaknesses}</p>
                     </div>
                 </div>
                 
-                <div class="report-section">
-                    <h4>Strengths</h4>
-                    <p>${report.strengths}</p>
-                </div>
-                
-                <div class="report-section">
-                    <h4>Weaknesses</h4>
-                    <p>${report.weaknesses}</p>
-                </div>
-                
-                <div class="report-section">
-                    <h4>Summary & Recommendation</h4>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Summary & Recommendation</h4>
                     <p>${report.summary}</p>
                 </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Ratings</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div><strong>Pace:</strong> ${report.ratings.pace}/10</div>
+                        <div><strong>Shooting:</strong> ${report.ratings.shooting}/10</div>
+                        <div><strong>Passing:</strong> ${report.ratings.passing}/10</div>
+                        <div><strong>Dribbling:</strong> ${report.ratings.dribbling}/10</div>
+                        <div><strong>Defending:</strong> ${report.ratings.defending}/10</div>
+                        <div><strong>Physical:</strong> ${report.ratings.physical}/10</div>
+                    </div>
+                    <div style="margin-top: 10px;"><strong>Overall Rating:</strong> ${overallRating}/10</div>
+                </div>
             `;
-            
-            // Create the radar chart
-            createRadarChart(report.ratings, 'radarChartCanvas');
             
             // Set up download button
             downloadPdfBtn.onclick = () => downloadReport(id);
@@ -1096,105 +942,6 @@
             loadReports();
             
             showToast('Report deleted successfully!', 'success');
-        }
-
-        // Draw a radar chart on the PDF
-        function drawRadarChartOnPdf(doc, ratings, x, y, size) {
-            const centerX = x + size / 2;
-            const centerY = y + size / 2;
-            const radius = size / 2 - 10;
-            
-            // Draw the axes
-            const skills = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical'];
-            const values = [
-                ratings.pace,
-                ratings.shooting,
-                ratings.passing,
-                ratings.dribbling,
-                ratings.defending,
-                ratings.physical
-            ];
-            
-            // Draw concentric circles
-            for (let i = 1; i <= 5; i++) {
-                doc.setDrawColor(200, 200, 200);
-                doc.setLineWidth(0.2);
-                doc.circle(centerX, centerY, radius * i / 5);
-            }
-            
-            // Draw axes and labels
-            doc.setFontSize(8);
-            doc.setTextColor(0, 0, 0);
-            
-            for (let i = 0; i < skills.length; i++) {
-                const angle = (Math.PI * 2 * i / skills.length) - (Math.PI / 2);
-                const endX = centerX + radius * Math.cos(angle);
-                const endY = centerY + radius * Math.sin(angle);
-                
-                // Draw axis line
-                doc.setDrawColor(100, 100, 100);
-                doc.setLineWidth(0.5);
-                doc.line(centerX, centerY, endX, endY);
-                
-                // Draw skill label
-                const labelX = centerX + (radius + 10) * Math.cos(angle);
-                const labelY = centerY + (radius + 10) * Math.sin(angle);
-                
-                doc.text(skills[i], labelX, labelY, { align: 'center' });
-                
-                // Draw value labels on axes
-                for (let j = 1; j <= 5; j++) {
-                    const valueX = centerX + (radius * j / 5) * Math.cos(angle);
-                    const valueY = centerY + (radius * j / 5) * Math.sin(angle);
-                    
-                    doc.setFontSize(6);
-                    doc.text((j * 2).toString(), valueX, valueY, { align: 'center' });
-                }
-            }
-            
-            // Draw the data points and connect them
-            doc.setDrawColor(26, 79, 139);
-            doc.setFillColor(26, 79, 139, 0.2);
-            doc.setLineWidth(1);
-            
-            const points = [];
-            
-            for (let i = 0; i < skills.length; i++) {
-                const angle = (Math.PI * 2 * i / skills.length) - (Math.PI / 2);
-                const valueRadius = radius * values[i] / 10;
-                const pointX = centerX + valueRadius * Math.cos(angle);
-                const pointY = centerY + valueRadius * Math.sin(angle);
-                
-                points.push({ x: pointX, y: pointY });
-                
-                // Draw point
-                doc.circle(pointX, pointY, 2, 'F');
-            }
-            
-            // Connect the points
-            for (let i = 0; i < points.length; i++) {
-                const nextIndex = (i + 1) % points.length;
-                doc.line(points[i].x, points[i].y, points[nextIndex].x, points[nextIndex].y);
-            }
-            
-            // Fill the area
-            doc.setDrawColor(26, 79, 139, 0.2);
-            doc.setFillColor(26, 79, 139, 0.1);
-            
-            // Simple polygon fill (not perfect but works for basic visualization)
-            for (let i = 1; i < points.length - 1; i++) {
-                doc.triangle(
-                    points[0].x, points[0].y,
-                    points[i].x, points[i].y,
-                    points[i + 1].x, points[i + 1].y,
-                    'F'
-                );
-            }
-            
-            // Add title
-            doc.setFontSize(10);
-            doc.setTextColor(26, 79, 139);
-            doc.text('Player Skills Radar Chart', centerX, y - 5, { align: 'center' });
         }
 
         // Download a report as PDF
@@ -1275,10 +1022,6 @@
             doc.setFont(undefined, 'normal');
             
             yPosition += 15;
-            
-            // Add radar chart
-            drawRadarChartOnPdf(doc, report.ratings, 100, yPosition, 80);
-            yPosition += 90;
             
             // Strengths and Weaknesses
             doc.setFont(undefined, 'bold');

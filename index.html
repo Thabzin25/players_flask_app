@@ -7,17 +7,14 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Helpdesk fixed top-right -->
-  <a href="helpDesk.html" class="helpdesk-btn">💬 Help Desk</a>
-
   <div class="container">
     <!-- Left: visual (40%) -->
     <div class="visual">
-      <img src="logo.png" alt="Football illustration" class="fade-in">
+      <img src="logo.png" alt="Football illustration">
     </div>
 
     <!-- Right: form (60%) -->
-    <div class="form-area slide-up">
+    <div class="form-area">
       <h1>Football Scouting System</h1>
 
       <form id="loginForm">
@@ -34,8 +31,8 @@
       </form>
 
       <div class="meta-links">
-        <a href="Registration.html">Sign up</a>
-        <a href="ForgetPass.html">Forgot password?</a>
+        <a href="register.html">Sign up</a>
+        <a href="#">Forgot password?</a>
       </div>
 
       <div class="divider" role="separator" aria-hidden="true">
@@ -84,11 +81,11 @@
       if (user) {
         alert(`✅ Welcome ${role}! Redirecting...`);
         if (role === "Admin") {
-          window.location.href = "admin.html";
+          window.location.href = "demoAnalytics.html";
         } else if (role === "Scout") {
           window.location.href = "Scouts.html";
         } else if (role === "Player") {
-          window.location.href = "dashboard.html";
+          window.location.href = "player.html";
         } else if (role === "Football Club") {
           window.location.href = "clubs.html";
         }
@@ -99,6 +96,3 @@
   </script>
 </body>
 </html>
-
-
-

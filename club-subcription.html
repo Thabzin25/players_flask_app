@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Subscription Management - Boronia FC</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #1a4f8b;
@@ -226,24 +224,11 @@
       overflow: hidden;
       transition: var(--transition);
       position: relative;
-      animation: fadeIn 0.6s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .plan-card.featured {
       border: 2px solid var(--secondary);
       transform: scale(1.03);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(59, 183, 126, 0.4); }
-      70% { box-shadow: 0 0 0 15px rgba(59, 183, 126, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(59, 183, 126, 0); }
     }
 
     .plan-card.featured::before {
@@ -257,7 +242,6 @@
       font-weight: 600;
       padding: 5px 10px;
       border-bottom-left-radius: 8px;
-      z-index: 1;
     }
 
     .plan-card:hover {
@@ -331,12 +315,6 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       margin-bottom: 30px;
-      animation: slideInLeft 0.6s ease;
-    }
-
-    @keyframes slideInLeft {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
     }
 
     .subscription-header {
@@ -415,12 +393,6 @@
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       overflow: hidden;
-      animation: slideInRight 0.6s ease;
-    }
-
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(30px); }
-      to { opacity: 1; transform: translateX(0); }
     }
 
     .billing-header {
@@ -462,10 +434,6 @@
       top: 0;
     }
 
-    tr {
-      transition: var(--transition);
-    }
-
     tr:hover {
       background: rgba(26, 79, 139, 0.03);
     }
@@ -475,16 +443,11 @@
       text-decoration: none;
       font-weight: 500;
       transition: var(--transition);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
     }
 
     .invoice-action:hover {
       color: var(--primary-dark);
       text-decoration: underline;
-      transform: translateY(-2px);
     }
 
     /* Buttons */
@@ -505,8 +468,6 @@
 
     .btn-primary:hover {
       background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-secondary {
@@ -516,8 +477,6 @@
 
     .btn-secondary:hover {
       background: #2fa371;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-outline {
@@ -529,8 +488,6 @@
     .btn-outline:hover {
       background: var(--primary);
       color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-ghost {
@@ -543,258 +500,6 @@
       background: rgba(26, 79, 139, 0.1);
     }
 
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: var(--border-radius);
-      width: 90%;
-      max-width: 800px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      animation: scaleIn 0.3s ease;
-      overflow: hidden;
-    }
-
-    @keyframes scaleIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--light-gray);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--primary);
-      color: white;
-    }
-
-    .modal-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: white;
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .modal-footer {
-      padding: 15px 20px;
-      background: var(--light);
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    /* Invoice Styles */
-    .invoice-container {
-      background: white;
-      padding: 30px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-    }
-
-    .invoice-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 30px;
-    }
-
-    .invoice-logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .invoice-details {
-      text-align: right;
-    }
-
-    .invoice-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 10px;
-    }
-
-    .invoice-number {
-      font-size: 1rem;
-      color: var(--gray);
-      margin-bottom: 5px;
-    }
-
-    .invoice-date {
-      font-size: 1rem;
-      color: var(--gray);
-    }
-
-    .invoice-addresses {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-
-    .address-box {
-      padding: 15px;
-      background: var(--light);
-      border-radius: var(--border-radius);
-    }
-
-    .address-title {
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-
-    .invoice-items {
-      margin-bottom: 30px;
-    }
-
-    .items-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .items-table th {
-      background: var(--primary);
-      color: white;
-      padding: 12px 15px;
-      text-align: left;
-    }
-
-    .items-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--light-gray);
-    }
-
-    .items-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .invoice-summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .summary-totals {
-      background: var(--light);
-      padding: 20px;
-      border-radius: var(--border-radius);
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .summary-total {
-      font-weight: 700;
-      font-size: 1.2rem;
-      border-top: 2px solid var(--primary);
-      padding-top: 10px;
-      margin-top: 10px;
-    }
-
-    .summary-notes {
-      padding: 20px;
-      background: var(--light);
-      border-radius: var(--border-radius);
-    }
-
-    .notes-title {
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--primary);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 3000;
-      animation: slideInRight 0.5s ease;
-    }
-
-    .toast.error {
-      background: var(--danger);
-    }
-
-    .toast.success {
-      background: var(--secondary);
-    }
-
-    .toast.hidden {
-      display: none;
-    }
-
-    /* Loading Animation */
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Download Animation */
-    @keyframes downloadProgress {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-
-    .download-progress {
-      height: 4px;
-      background: var(--secondary);
-      position: fixed;
-      top: 0;
-      left: 0;
-      animation: downloadProgress 1s ease-in-out;
-      z-index: 4000;
-    }
-
     /* Responsive */
     @media (max-width: 992px) {
       .sidebar {
@@ -805,11 +510,6 @@
         width: 260px;
         position: absolute;
         height: 100%;
-      }
-      
-      .invoice-addresses,
-      .invoice-summary {
-        grid-template-columns: 1fr;
       }
     }
 
@@ -828,15 +528,6 @@
       
       button {
         width: 100%;
-      }
-
-      .invoice-header {
-        flex-direction: column;
-        gap: 20px;
-      }
-      
-      .invoice-details {
-        text-align: left;
       }
     }
   </style>
@@ -871,7 +562,7 @@
         <i class="fas fa-cog"></i>
         <span>Settings</span>
       </a>
-      <a href="index.html">
+      <a href="logout.html">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
       </a>
@@ -906,11 +597,11 @@
           </div>
           <div class="subscription-detail">
             <span class="detail-label">Price</span>
-            <span class="detail-value">R 2,999.99/year</span>
+            <span class="detail-value">R2 999.99/year</span>
           </div>
           <div class="subscription-detail">
             <span class="detail-label">Renewal Date</span>
-            <span class="detail-value">Jun 1, 2025</span>
+            <span class="detail-value">Jun 1, 2024</span>
           </div>
           <div class="subscription-detail">
             <span class="detail-label">Users</span>
@@ -918,9 +609,9 @@
           </div>
         </div>
         <div class="subscription-actions">
-          <button class="btn-primary" onclick="openUpgradeModal()">Upgrade Plan</button>
-          <button class="btn-outline" onclick="cancelSubscription()">Cancel Subscription</button>
-          <button class="btn-ghost" onclick="openPaymentMethodModal()">Update Payment Method</button>
+          <button class="btn-primary">Upgrade Plan</button>
+          <button class="btn-outline">Cancel Subscription</button>
+          <button class="btn-ghost">Update Payment Method</button>
         </div>
       </section>
 
@@ -932,7 +623,7 @@
         <article class="plan-card">
           <div class="plan-header">
             <h3 class="plan-name">Scout Basic</h3>
-            <div class="plan-price">R 180<span>/month</span></div>
+            <div class="plan-price">$9.99<span>/month</span></div>
             <p class="plan-description">For individual scouts</p>
           </div>
           <div class="plan-features">
@@ -946,7 +637,7 @@
             </ul>
           </div>
           <div class="plan-actions">
-            <button class="btn-outline" onclick="selectPlan('Scout Basic', 180)">Select Plan</button>
+            <button class="btn-outline">Select Plan</button>
           </div>
         </article>
 
@@ -954,7 +645,7 @@
         <article class="plan-card featured">
           <div class="plan-header">
             <h3 class="plan-name">Scout Pro</h3>
-            <div class="plan-price">R 360<span>/month</span></div>
+            <div class="plan-price">$19.99<span>/month</span></div>
             <p class="plan-description">For professional scouts</p>
           </div>
           <div class="plan-features">
@@ -968,7 +659,7 @@
             </ul>
           </div>
           <div class="plan-actions">
-            <button class="btn-secondary" onclick="selectPlan('Scout Pro', 360)">Select Plan</button>
+            <button class="btn-secondary">Select Plan</button>
           </div>
         </article>
 
@@ -976,7 +667,7 @@
         <article class="plan-card">
           <div class="plan-header">
             <h3 class="plan-name">Club Premium</h3>
-            <div class="plan-price">R 900<span>/month</span></div>
+            <div class="plan-price">$49.99<span>/month</span></div>
             <p class="plan-description">For football clubs</p>
           </div>
           <div class="plan-features">
@@ -990,7 +681,7 @@
             </ul>
           </div>
           <div class="plan-actions">
-            <button class="btn-outline" onclick="selectPlan('Club Premium', 900)">Select Plan</button>
+            <button class="btn-outline">Select Plan</button>
           </div>
         </article>
       </div>
@@ -1000,7 +691,7 @@
       <section class="billing-history">
         <div class="billing-header">
           <h3 class="billing-title">Past Invoices</h3>
-          <button class="btn-outline" onclick="downloadAllInvoices()">Download All Invoices</button>
+          <button class="btn-outline">Download All Invoices</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -1015,60 +706,32 @@
             </thead>
             <tbody>
               <tr>
-                <td>Mar 1, 2025</td>
+                <td>Jun 1, 2023</td>
                 <td>Pro Club Annual Subscription</td>
-                <td>R 2,999.99</td>
+                <td>$299.99</td>
                 <td><span class="status-active">Paid</span></td>
-                <td>
-                  <span class="invoice-action" onclick="viewInvoice('Mar 1, 2025')">
-                    <i class="fas fa-eye"></i> View
-                  </span>
-                  <span class="invoice-action" onclick="downloadInvoice('Mar 1, 2025')">
-                    <i class="fas fa-download"></i> Download
-                  </span>
-                </td>
+                <td><a href="#" class="invoice-action">Download</a></td>
               </tr>
               <tr>
-                <td>Feb 1, 2025</td>
+                <td>May 1, 2023</td>
                 <td>Pro Club Annual Subscription</td>
-                <td>R 2,999.99</td>
+                <td>$299.99</td>
                 <td><span class="status-active">Paid</span></td>
-                <td>
-                  <span class="invoice-action" onclick="viewInvoice('Feb 1, 2025')">
-                    <i class="fas fa-eye"></i> View
-                  </span>
-                  <span class="invoice-action" onclick="downloadInvoice('Feb 1, 2025')">
-                    <i class="fas fa-download"></i> Download
-                  </span>
-                </td>
+                <td><a href="#" class="invoice-action">Download</a></td>
               </tr>
               <tr>
-                <td>Jan 1, 2025</td>
+                <td>Apr 1, 2023</td>
                 <td>Pro Club Annual Subscription</td>
-                <td>R 2,999.99</td>
+                <td>$299.99</td>
                 <td><span class="status-active">Paid</span></td>
-                <td>
-                  <span class="invoice-action" onclick="viewInvoice('Jan 1, 2025')">
-                    <i class="fas fa-eye"></i> View
-                  </span>
-                  <span class="invoice-action" onclick="downloadInvoice('Jan 1, 2025')">
-                    <i class="fas fa-download"></i> Download
-                  </span>
-                </td>
+                <td><a href="#" class="invoice-action">Download</a></td>
               </tr>
               <tr>
-                <td>Dec 1, 2024</td>
+                <td>Mar 1, 2023</td>
                 <td>Pro Club Annual Subscription</td>
-                <td>R 2,999.99</td>
+                <td>$299.99</td>
                 <td><span class="status-active">Paid</span></td>
-                <td>
-                  <span class="invoice-action" onclick="viewInvoice('Dec 1, 2024')">
-                    <i class="fas fa-eye"></i> View
-                  </span>
-                  <span class="invoice-action" onclick="downloadInvoice('Dec 1, 2024')">
-                    <i class="fas fa-download"></i> Download
-                  </span>
-                </td>
+                <td><a href="#" class="invoice-action">Download</a></td>
               </tr>
             </tbody>
           </table>
@@ -1077,418 +740,34 @@
     </div>
   </main>
 
-  <!-- Invoice Modal -->
-  <div class="modal" id="invoiceModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Invoice Details</h3>
-        <button class="close-btn" onclick="closeModal('invoiceModal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="invoice-container" id="invoiceTemplate">
-          <div class="invoice-header">
-            <div class="invoice-logo">Boronia FC</div>
-            <div class="invoice-details">
-              <div class="invoice-title">INVOICE</div>
-              <div class="invoice-number" id="invoiceNumber">INV-2025-001</div>
-              <div class="invoice-date" id="invoiceDate">March 1, 2025</div>
-            </div>
-          </div>
-          
-          <div class="invoice-addresses">
-            <div class="address-box">
-              <div class="address-title">Billed To:</div>
-              <div id="billedTo">Boronia FC<br>123 Emfuleni Road<br>Vanderbijlpark, Gauteng 1911<br>South Africa</div>
-            </div>
-            <div class="address-box">
-              <div class="address-title">From:</div>
-              <div id="billedFrom">Football Analytics Pro<br>456 Tech Avenue<br>Sandton, Gauteng 2196<br>South Africa</div>
-            </div>
-          </div>
-          
-          <div class="invoice-items">
-            <table class="items-table">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody id="invoiceItems">
-                <tr>
-                  <td>Pro Club Annual Subscription</td>
-                  <td>1</td>
-                  <td>R 2,999.99</td>
-                  <td>R 2,999.99</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="invoice-summary">
-            <div class="summary-totals">
-              <div class="summary-row">
-                <div>Subtotal:</div>
-                <div id="invoiceSubtotal">R 2,999.99</div>
-              </div>
-              <div class="summary-row">
-                <div>VAT (15%):</div>
-                <div id="invoiceTax">R 450.00</div>
-              </div>
-              <div class="summary-row summary-total">
-                <div>Total:</div>
-                <div id="invoiceTotal">R 3,449.99</div>
-              </div>
-            </div>
-            
-            <div class="summary-notes">
-              <div class="notes-title">Notes</div>
-              <p>Thank you for your business. Payment is due within 30 days of invoice date.</p>
-              <p>Please make payments to the bank account provided in the payment details.</p>
-              <p>Bank: First National Bank<br>Account: 6254 7894 1234<br>Branch: Vanderbijlpark (250655)</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-outline" onclick="closeModal('invoiceModal')">Close</button>
-        <button class="btn-primary" onclick="downloadCurrentInvoice()">Download as PDF</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div class="toast hidden" id="toast">
-    <i class="fas fa-check-circle" id="toastIcon"></i>
-    <span id="toastMessage"></span>
-  </div>
-
   <script>
-    // Global variables
-    let currentPlan = "Pro Club Annual";
-    let currentPrice = 2999.99;
-    let currentInvoiceData = null;
-
-    // Initialize the page
-    function init() {
-      // Load any saved data from localStorage
-      const savedPlan = localStorage.getItem('currentPlan');
-      const savedPrice = localStorage.getItem('currentPrice');
-      
-      if (savedPlan) currentPlan = savedPlan;
-      if (savedPrice) currentPrice = parseFloat(savedPrice);
-      
-      updateUI();
-    }
-
-    // Update UI based on current state
-    function updateUI() {
-      document.querySelector('.subscription-title').textContent = `Boronia FC - ${currentPlan}`;
-      document.querySelector('.detail-value').textContent = `R ${currentPrice.toFixed(2)}/year`;
-    }
-
-    // Toggle sidebar
     function toggleSidebar() {
       document.querySelector('.sidebar').classList.toggle('collapsed');
     }
-
-    // Show toast notification
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      const toastIcon = document.getElementById('toastIcon');
-      const toastMessage = document.getElementById('toastMessage');
+    
+    // Add active class to current page link
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop();
+      const links = document.querySelectorAll('nav a');
       
-      toast.className = 'toast';
-      toast.classList.add(type);
-      toastMessage.textContent = message;
-      
-      if (type === 'success') {
-        toastIcon.className = 'fas fa-check-circle';
-      } else if (type === 'error') {
-        toastIcon.className = 'fas fa-exclamation-circle';
-      }
-      
-      setTimeout(() => {
-        toast.className = 'toast hidden';
-      }, 3000);
-    }
-
-    // Open modal
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'flex';
-    }
-
-    // Close modal
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
-
-    // View invoice
-    function viewInvoice(date) {
-      // Set up invoice data based on the date
-      const invoiceData = {
-        number: `INV-2025-${date === 'Mar 1, 2025' ? '001' : date === 'Feb 1, 2025' ? '002' : date === 'Jan 1, 2025' ? '003' : '004'}`,
-        date: date,
-        billedTo: "Boronia FC<br>123 Emfuleni Road<br>Vanderbijlpark, Gauteng 1911<br>South Africa",
-        billedFrom: "Football Analytics Pro<br>456 Tech Avenue<br>Sandton, Gauteng 2196<br>South Africa",
-        items: [
-          { description: "Pro Club Annual Subscription", quantity: 1, price: 2999.99 }
-        ],
-        tax: 450.00,
-        total: 3449.99
-      };
-      
-      // Populate the invoice template
-      document.getElementById('invoiceNumber').textContent = invoiceData.number;
-      document.getElementById('invoiceDate').textContent = invoiceData.date;
-      document.getElementById('billedTo').innerHTML = invoiceData.billedTo;
-      document.getElementById('billedFrom').innerHTML = invoiceData.billedFrom;
-      
-      const itemsContainer = document.getElementById('invoiceItems');
-      itemsContainer.innerHTML = '';
-      
-      invoiceData.items.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${item.description}</td>
-          <td>${item.quantity}</td>
-          <td>R ${item.price.toFixed(2)}</td>
-          <td>R ${(item.quantity * item.price).toFixed(2)}</td>
-        `;
-        itemsContainer.appendChild(row);
+      links.forEach(link => {
+        const linkPage = link.getAttribute('href');
+        if (linkPage === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
       });
       
-      document.getElementById('invoiceSubtotal').textContent = `R ${invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)}`;
-      document.getElementById('invoiceTax').textContent = `R ${invoiceData.tax.toFixed(2)}`;
-      document.getElementById('invoiceTotal').textContent = `R ${invoiceData.total.toFixed(2)}`;
-      
-      // Store the current invoice data for downloading
-      currentInvoiceData = invoiceData;
-      
-      // Show the invoice modal
-      openModal('invoiceModal');
-    }
-
-    // Download invoice
-    function downloadInvoice(date) {
-      // Show download progress animation
-      const progressBar = document.createElement('div');
-      progressBar.className = 'download-progress';
-      document.body.appendChild(progressBar);
-      
-      // Simulate download process
-      setTimeout(() => {
-        // Generate PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Add content to PDF
-        doc.setFontSize(20);
-        doc.setTextColor(26, 79, 139);
-        doc.text('INVOICE', 105, 20, { align: 'center' });
-        
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        
-        // Invoice details
-        doc.text(`Invoice Number: INV-2025-${date === 'Mar 1, 2025' ? '001' : date === 'Feb 1, 2025' ? '002' : date === 'Jan 1, 2025' ? '003' : '004'}`, 20, 35);
-        doc.text(`Date: ${date}`, 20, 45);
-        
-        // Billed to
-        doc.setFont(undefined, 'bold');
-        doc.text('Billed To:', 20, 65);
-        doc.setFont(undefined, 'normal');
-        doc.text('Boronia FC', 20, 75);
-        doc.text('123 Emfuleni Road', 20, 85);
-        doc.text('Vanderbijlpark, Gauteng 1911', 20, 95);
-        doc.text('South Africa', 20, 105);
-        
-        // From
-        doc.setFont(undefined, 'bold');
-        doc.text('From:', 120, 65);
-        doc.setFont(undefined, 'normal');
-        doc.text('Football Analytics Pro', 120, 75);
-        doc.text('456 Tech Avenue', 120, 85);
-        doc.text('Sandton, Gauteng 2196', 120, 95);
-        doc.text('South Africa', 120, 105);
-        
-        // Line items
-        doc.setFont(undefined, 'bold');
-        doc.text('Description', 20, 125);
-        doc.text('Amount', 180, 125, { align: 'right' });
-        doc.setFont(undefined, 'normal');
-        
-        doc.line(20, 130, 190, 130);
-        
-        doc.text('Pro Club Annual Subscription', 20, 140);
-        doc.text('R 2,999.99', 180, 140, { align: 'right' });
-        
-        doc.line(20, 150, 190, 150);
-        
-        // Summary
-        doc.text('Subtotal:', 120, 160);
-        doc.text('R 2,999.99', 180, 160, { align: 'right' });
-        
-        doc.text('VAT (15%):', 120, 170);
-        doc.text('R 450.00', 180, 170, { align: 'right' });
-        
-        doc.setFont(undefined, 'bold');
-        doc.text('Total:', 120, 185);
-        doc.text('R 3,449.99', 180, 185, { align: 'right' });
-        
-        // Notes
-        doc.setFont(undefined, 'italic');
-        doc.text('Thank you for your business. Payment is due within 30 days.', 20, 210);
-        doc.text('Bank: First National Bank, Account: 6254 7894 1234, Branch: Vanderbijlpark (250655)', 20, 220);
-        
-        // Save the PDF
-        doc.save(`Invoice_${date.replace(/ /g, '_')}.pdf`);
-        
-        // Remove progress bar
-        document.body.removeChild(progressBar);
-        
-        // Show success message
-        showToast(`Invoice for ${date} downloaded successfully`, 'success');
-      }, 1000);
-    }
-
-    // Download current invoice (from modal)
-    function downloadCurrentInvoice() {
-      if (!currentInvoiceData) return;
-      
-      // Show download progress animation
-      const progressBar = document.createElement('div');
-      progressBar.className = 'download-progress';
-      document.body.appendChild(progressBar);
-      
-      // Close the modal
-      closeModal('invoiceModal');
-      
-      // Simulate download process
-      setTimeout(() => {
-        // Generate PDF from the invoice template
-        const invoiceElement = document.getElementById('invoiceTemplate');
-        
-        html2canvas(invoiceElement).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF('p', 'mm', 'a4');
-          
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 297; // A4 height in mm
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
-          
-          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-          
-          // Add extra pages if needed
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            doc.addPage();
-            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-          
-          // Save the PDF
-          doc.save(`Invoice_${currentInvoiceData.number}.pdf`);
-          
-          // Remove progress bar
-          document.body.removeChild(progressBar);
-          
-          // Show success message
-          showToast(`Invoice ${currentInvoiceData.number} downloaded successfully`, 'success');
+      // Plan selection functionality
+      const planButtons = document.querySelectorAll('.plan-actions button');
+      planButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const planName = this.closest('.plan-card').querySelector('.plan-name').textContent;
+          alert(`You've selected the ${planName}. This would redirect to a payment page in a real application.`);
         });
-      }, 1000);
-    }
-
-    // Download all invoices
-    function downloadAllInvoices() {
-      // Show download progress animation
-      const progressBar = document.createElement('div');
-      progressBar.className = 'download-progress';
-      document.body.appendChild(progressBar);
-      
-      // Simulate download process
-      setTimeout(() => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.setFontSize(16);
-        doc.setTextColor(26, 79, 139);
-        doc.text('Boronia FC - Invoice Summary', 105, 20, { align: 'center' });
-        
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        
-        let yPosition = 40;
-        const invoices = [
-          { date: 'Mar 1, 2025', description: 'Pro Club Annual Subscription', amount: 'R 2,999.99' },
-          { date: 'Feb 1, 2025', description: 'Pro Club Annual Subscription', amount: 'R 2,999.99' },
-          { date: 'Jan 1, 2025', description: 'Pro Club Annual Subscription', amount: 'R 2,999.99' },
-          { date: 'Dec 1, 2024', description: 'Pro Club Annual Subscription', amount: 'R 2,999.99' }
-        ];
-        
-        invoices.forEach(invoice => {
-          if (yPosition > 270) {
-            doc.addPage();
-            yPosition = 20;
-          }
-          
-          doc.setFont(undefined, 'bold');
-          doc.text(invoice.date, 20, yPosition);
-          doc.setFont(undefined, 'normal');
-          doc.text(invoice.description, 60, yPosition);
-          doc.text(invoice.amount, 180, yPosition, { align: 'right' });
-          
-          yPosition += 10;
-        });
-        
-        // Save the PDF
-        doc.save('Boronia_FC_All_Invoices.pdf');
-        
-        // Remove progress bar
-        document.body.removeChild(progressBar);
-        
-        // Show success message
-        showToast('All invoices downloaded as PDF', 'success');
-      }, 1500);
-    }
-
-    // Select a plan
-    function selectPlan(planName, planPrice) {
-      showToast(`Selected plan: ${planName} - R ${planPrice}/month`, 'success');
-    }
-
-    // Open upgrade modal
-    function openUpgradeModal() {
-      showToast('Please select a new plan from available options', 'success');
-    }
-
-    // Cancel subscription
-    function cancelSubscription() {
-      if (confirm('Are you sure you want to cancel your subscription?')) {
-        // Simulate cancellation process
-        showToast('Your subscription has been cancelled successfully', 'success');
-        
-        // Update UI after a delay to simulate processing
-        setTimeout(() => {
-          document.querySelector('.subscription-status').className = 'subscription-status status-expired';
-          document.querySelector('.subscription-status').textContent = 'EXPIRED';
-        }, 1500);
-      }
-    }
-
-    // Open payment method modal
-    function openPaymentMethodModal() {
-      showToast('Payment method update functionality would open here', 'success');
-    }
-
-    // Initialize the page when loaded
-    document.addEventListener('DOMContentLoaded', init);
+      });
+    });
   </script>
 </body>
 </html>

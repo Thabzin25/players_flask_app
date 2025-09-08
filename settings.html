@@ -17,10 +17,6 @@
             --light: #f8f9fa;
             --gray: #5f6368;
             --border: #dadce0;
-            --sidebar-width: 260px;
-            --sidebar-collapsed-width: 80px;
-            --header-height: 80px;
-            --animation-timing: 0.3s ease;
         }
 
         * {
@@ -33,42 +29,23 @@
         body {
             background-color: #f5f7fa;
             color: var(--dark);
-            overflow: hidden;
-            height: 100vh;
-            transition: background-color var(--animation-timing);
-        }
-
-        body.dark-theme {
-            background-color: #121212;
-            color: #f5f7fa;
-            --light: #2d2d2d;
-            --border: #444;
-            --gray: #aaa;
+            overflow-x: hidden;
         }
 
         .dashboard {
             display: flex;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
         /* Sidebar Styles */
         .sidebar {
-            width: var(--sidebar-width);
+            width: 260px;
             background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            transition: all var(--animation-timing);
+            transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             position: relative;
-            height: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
         }
 
         .top-bar {
@@ -76,7 +53,6 @@
             display: flex;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            height: var(--header-height);
         }
 
         .sidebar-toggle {
@@ -86,11 +62,7 @@
             font-size: 18px;
             cursor: pointer;
             margin-right: 15px;
-            transition: transform var(--animation-timing);
-        }
-
-        .sidebar.collapsed .sidebar-toggle {
-            transform: rotate(180deg);
+            transition: transform 0.3s ease;
         }
 
         .logo {
@@ -98,14 +70,11 @@
             align-items: center;
             font-size: 20px;
             font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
         }
 
         .logo i {
             margin-right: 10px;
             font-size: 24px;
-            min-width: 24px;
         }
 
         .menu {
@@ -118,10 +87,9 @@
             display: flex;
             align-items: center;
             cursor: pointer;
-            transition: all var(--animation-timing);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            white-space: nowrap;
         }
 
         .menu-item:before {
@@ -133,7 +101,7 @@
             width: 4px;
             background: white;
             opacity: 0;
-            transition: opacity var(--animation-timing);
+            transition: opacity 0.3s ease;
         }
 
         .menu-item:hover {
@@ -149,7 +117,6 @@
             font-size: 18px;
             width: 24px;
             text-align: center;
-            min-width: 24px;
         }
 
         .menu-item.active {
@@ -158,26 +125,6 @@
 
         .menu-item.active:before {
             opacity: 1;
-        }
-
-        .menu-text {
-            transition: opacity var(--animation-timing);
-        }
-
-        .sidebar.collapsed .menu-text {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .sidebar.collapsed .logo-text {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            overflow: hidden;
-            display: inline-block;
         }
 
         .theme-toggle {
@@ -191,8 +138,7 @@
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all var(--animation-timing);
-            z-index: 100;
+            transition: all 0.3s ease;
         }
 
         .theme-toggle:hover {
@@ -204,14 +150,8 @@
         .main-content {
             flex: 1;
             padding: 20px;
-            transition: all var(--animation-timing);
+            transition: all 0.3s ease;
             overflow-y: auto;
-            height: 100vh;
-            width: calc(100vw - var(--sidebar-width));
-        }
-
-        .sidebar.collapsed ~ .main-content {
-            width: calc(100vw - var(--sidebar-collapsed-width));
         }
 
         header {
@@ -224,11 +164,6 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             animation: slideDown 0.5s ease;
-            height: var(--header-height);
-        }
-
-        .dark-theme header {
-            background: #2d2d2d;
         }
 
         header h1 {
@@ -245,11 +180,6 @@
             border-radius: 8px;
             color: var(--primary);
             font-weight: 600;
-            transition: all var(--animation-timing);
-        }
-
-        .dark-theme .user-info {
-            background: rgba(26, 115, 232, 0.2);
         }
 
         .user-info i {
@@ -270,11 +200,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
             animation: fadeIn 0.6s ease;
-            transform-origin: top center;
-        }
-
-        .dark-theme .settings-section {
-            background: #2d2d2d;
         }
 
         .settings-section h3 {
@@ -310,13 +235,7 @@
             border-radius: 8px;
             color: var(--dark);
             font-size: 1rem;
-            transition: all var(--animation-timing);
-        }
-
-        .dark-theme .form-group input, 
-        .dark-theme .form-group select, 
-        .dark-theme .form-group textarea {
-            color: #f5f7fa;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -338,7 +257,7 @@
             padding: 15px;
             background: var(--light);
             border-radius: 8px;
-            transition: all var(--animation-timing);
+            transition: all 0.3s ease;
         }
 
         .toggle-group:hover {
@@ -352,10 +271,6 @@
         .toggle-label h4 {
             margin-bottom: 5px;
             color: var(--dark);
-        }
-
-        .dark-theme .toggle-label h4 {
-            color: #f5f7fa;
         }
 
         .toggle-label p {
@@ -420,7 +335,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: all var(--animation-timing);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -438,7 +353,6 @@
         .btn-primary:hover {
             background: #0d62d0;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn-danger {
@@ -449,7 +363,6 @@
         .btn-danger:hover {
             background: #d33426;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn-secondary {
@@ -460,7 +373,6 @@
         .btn-secondary:hover {
             background: #4e5154;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .danger-zone {
@@ -469,11 +381,6 @@
             padding: 25px;
             margin-top: 30px;
             background: #fff5f5;
-            transition: all var(--animation-timing);
-        }
-
-        .dark-theme .danger-zone {
-            background: rgba(234, 67, 53, 0.1);
         }
 
         .danger-zone h3 {
@@ -484,46 +391,6 @@
         .danger-zone p {
             margin-bottom: 20px;
             color: var(--gray);
-        }
-
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: var(--dark);
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
-
-        .toast.success {
-            background: var(--accent);
-        }
-
-        .toast.error {
-            background: var(--danger);
-        }
-
-        .toast.warning {
-            background: var(--warning);
         }
 
         /* Modal styles */
@@ -551,10 +418,6 @@
             animation: slideUp 0.4s ease;
         }
 
-        .dark-theme .modal-content {
-            background: #2d2d2d;
-        }
-
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -571,10 +434,6 @@
 
         .close:hover {
             color: var(--dark);
-        }
-
-        .dark-theme .close:hover {
-            color: #f5f7fa;
         }
 
         /* Animations */
@@ -615,37 +474,8 @@
             100% { transform: scale(1); }
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40%, 43% {
-                transform: translateY(-15px);
-            }
-            70% {
-                transform: translateY(-7px);
-            }
-            90% {
-                transform: translateY(-3px);
-            }
-        }
-
         .pulse {
             animation: pulse 0.5s ease;
-        }
-
-        .shake {
-            animation: shake 0.5s ease;
-        }
-
-        .bounce {
-            animation: bounce 1s ease;
         }
 
         /* Responsive design */
@@ -659,46 +489,20 @@
             }
             
             .sidebar {
-                width: var(--sidebar-collapsed-width);
-                position: absolute;
-                left: 0;
-                z-index: 1000;
-                transform: translateX(0);
-                transition: transform var(--animation-timing);
-            }
-            
-            .sidebar.hidden-mobile {
-                transform: translateX(-100%);
+                width: 80px;
             }
             
             .sidebar .logo-text,
             .sidebar .menu-text {
                 display: none;
             }
-            
-            .main-content {
-                width: 100vw !important;
-            }
-            
-            .mobile-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-            }
-            
-            .mobile-overlay.visible {
-                display: block;
-            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
+
+       
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="top-bar">
@@ -713,18 +517,19 @@
 
                 <!-- Players -->
                 <li class="menu-item" title="Players">
-                    <i class="fas fa-user"></i> <span class="menu-text"><a href="players.html" style="color: inherit; text-decoration: none;">Players</a></span>
+                    <i class="fas fa-user"></i> <a href="players.html">Players</a>
                 </li>
 
                 <!-- Scouts -->
                 <li class="menu-item" title="Scouts">
-                    <i class="fas fa-users"></i> <span class="menu-text"><a href="Scoutmanger.html" style="color: inherit; text-decoration: none;">Scouts</a></span>
+                    <i class="fas fa-users"></i> <a href="Scoutmanger.html">Scouts</a>
                 </li>
 
                 <!-- Teams -->
                 <li class="menu-item" title="Teams">
-                    <i class="fas fa-futbol"></i> <span class="menu-text"><a href="teams.html" style="color: inherit; text-decoration: none;">Teams</a></span>
+                    <i class="fas fa-futbol"></i> <a href="teams.html">Teams</a>
                 </li>
+
 
                 <!-- Subscriptions -->
                 <li class="menu-item" title="Subscriptions">
@@ -735,25 +540,19 @@
                 <li class="menu-item" title="Reports">
                     <a href="admin-Reports.html" style="color: inherit; text-decoration: none;"><i class="fas fa-file-alt"></i> <span class="menu-text">Reports</span></a>
                 </li>
+
             
                 <!-- Settings -->
-                <li class="menu-item active" title="Settings">
-                    <a href="settings.html" style="color: inherit; text-decoration: none;"><i class="fas fa-cog"></i> <span class="menu-text">Settings</span></a>
+                <li class="menu-item" title="Settings">
+                    <i class="fas fa-cog"></i> 
+                    <a href="settings.html" class="menu-text">Settings</a>
                 </li>
+
             </ul>
-
-            <button class="theme-toggle"><i class="fas fa-moon"></i></button>
-        </aside>
-
-        <!-- Mobile overlay for sidebar -->
-        <div class="mobile-overlay"></div>
 
         <!-- Main Content -->
         <main class="main-content">
             <header>
-                <button class="sidebar-toggle-mobile" style="display: none; background: none; border: none; font-size: 20px; cursor: pointer;">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <h1>Admin Settings</h1>
                 <div class="user-info">
                     <span>Admin <i class="fas fa-user-shield"></i></span>
@@ -911,12 +710,6 @@
         </main>
     </div>
     
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toast-message">Settings saved successfully!</span>
-    </div>
-    
     <!-- Delete Account Confirmation Modal -->
     <div class="modal" id="deleteModal">
         <div class="modal-content">
@@ -951,72 +744,18 @@
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         const confirmDeleteInput = document.getElementById('confirmDelete');
-        const sidebar = document.querySelector('.sidebar');
-        const sidebarToggle = document.querySelector('.sidebar-toggle');
-        const themeToggle = document.querySelector('.theme-toggle');
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toast-message');
-        const mobileOverlay = document.querySelector('.mobile-overlay');
-        const sidebarToggleMobile = document.querySelector('.sidebar-toggle-mobile');
-
-        // Check if mobile view
-        function checkMobileView() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('hidden-mobile');
-                sidebarToggleMobile.style.display = 'block';
-            } else {
-                sidebar.classList.remove('hidden-mobile');
-                sidebarToggleMobile.style.display = 'none';
-                mobileOverlay.classList.remove('visible');
-            }
-        }
-
-        // Initialize mobile view check
-        checkMobileView();
-        window.addEventListener('resize', checkMobileView);
-
-        // Toggle sidebar
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
-
-        // Mobile sidebar toggle
-        sidebarToggleMobile.addEventListener('click', () => {
-            sidebar.classList.toggle('hidden-mobile');
-            mobileOverlay.classList.toggle('visible');
-        });
-
-        // Close sidebar when clicking on overlay
-        mobileOverlay.addEventListener('click', () => {
-            sidebar.classList.add('hidden-mobile');
-            mobileOverlay.classList.remove('visible');
-        });
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            toastMessage.textContent = message;
-            toast.className = 'toast show ' + type;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
 
         // Save account settings
         saveAccountBtn.addEventListener('click', () => {
             saveAccountBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveAccountBtn.disabled = true;
             
-            // Simulate API call
             setTimeout(() => {
                 saveAccountBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
                 saveAccountBtn.classList.add('pulse');
-                showToast('Account settings saved successfully!');
                 
                 setTimeout(() => {
                     saveAccountBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
                     saveAccountBtn.classList.remove('pulse');
-                    saveAccountBtn.disabled = false;
                 }, 1500);
             }, 1000);
         });
@@ -1024,17 +763,14 @@
         // Save notification settings
         saveNotificationsBtn.addEventListener('click', () => {
             saveNotificationsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveNotificationsBtn.disabled = true;
             
             setTimeout(() => {
                 saveNotificationsBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
                 saveNotificationsBtn.classList.add('pulse');
-                showToast('Notification preferences updated!');
                 
                 setTimeout(() => {
                     saveNotificationsBtn.innerHTML = '<i class="fas fa-save"></i> Save Preferences';
                     saveNotificationsBtn.classList.remove('pulse');
-                    saveNotificationsBtn.disabled = false;
                 }, 1500);
             }, 1000);
         });
@@ -1042,17 +778,14 @@
         // Save system settings
         saveSystemBtn.addEventListener('click', () => {
             saveSystemBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveSystemBtn.disabled = true;
             
             setTimeout(() => {
                 saveSystemBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
                 saveSystemBtn.classList.add('pulse');
-                showToast('System settings saved successfully!');
                 
                 setTimeout(() => {
                     saveSystemBtn.innerHTML = '<i class="fas fa-save"></i> Save System Settings';
                     saveSystemBtn.classList.remove('pulse');
-                    saveSystemBtn.disabled = false;
                 }, 1500);
             }, 1000);
         });
@@ -1060,38 +793,32 @@
         // Export data
         exportDataBtn.addEventListener('click', () => {
             exportDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
-            exportDataBtn.disabled = true;
             
             setTimeout(() => {
                 exportDataBtn.innerHTML = '<i class="fas fa-download"></i> Export Data';
-                exportDataBtn.disabled = false;
-                showToast('Data exported successfully!');
+                alert('Data exported successfully!');
             }, 1500);
         });
 
         // Backup now
         backupNowBtn.addEventListener('click', () => {
             backupNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Backing up...';
-            backupNowBtn.disabled = true;
             
             setTimeout(() => {
                 backupNowBtn.innerHTML = '<i class="fas fa-save"></i> Backup Now';
-                backupNowBtn.disabled = false;
-                showToast('Backup completed successfully!');
+                alert('Backup completed successfully!');
             }, 1500);
         });
 
         // Open delete confirmation modal
         deleteAccountBtn.addEventListener('click', () => {
             deleteModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
         });
 
         // Close delete confirmation modal
         function closeDeleteModal() {
             deleteModal.style.display = 'none';
             confirmDeleteInput.value = '';
-            document.body.style.overflow = 'auto';
         }
 
         // Close modal when X is clicked
@@ -1111,69 +838,32 @@
         confirmDeleteBtn.addEventListener('click', () => {
             if (confirmDeleteInput.value === 'DELETE') {
                 confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-                confirmDeleteBtn.disabled = true;
                 
                 setTimeout(() => {
-                    showToast('Account deleted successfully! Redirecting...', 'error');
+                    alert('Account deleted successfully! Redirecting to login page...');
                     closeDeleteModal();
                     confirmDeleteBtn.innerHTML = 'Delete Account';
-                    confirmDeleteBtn.disabled = false;
-                    
-                    // Simulate redirect
-                    setTimeout(() => {
-                        alert('Account deleted successfully! Redirecting to login page...');
-                    }, 2000);
                 }, 1500);
             } else {
-                showToast('Please type "DELETE" to confirm', 'warning');
-                confirmDeleteInput.classList.add('shake');
-                setTimeout(() => {
-                    confirmDeleteInput.classList.remove('shake');
-                }, 500);
+                alert('Please type "DELETE" to confirm account deletion.');
             }
         });
 
         // Theme toggle functionality
+        const themeToggle = document.querySelector('.theme-toggle');
         themeToggle.addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-theme');
-            themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            themeToggle.classList.add('bounce');
-            
-            setTimeout(() => {
-                themeToggle.classList.remove('bounce');
-            }, 1000);
+            themeToggle.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
             
             // Save theme preference to localStorage
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            
-            showToast(`Theme changed to ${isDark ? 'dark' : 'light'} mode`);
         });
 
         // Check for saved theme preference
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-theme');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
         }
-
-        // Add animation to settings sections on scroll
-        const settingsSections = document.querySelectorAll('.settings-section');
-        
-        function checkScroll() {
-            settingsSections.forEach(section => {
-                const sectionTop = section.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (sectionTop < windowHeight * 0.85) {
-                    section.style.animation = 'fadeIn 0.6s ease forwards';
-                }
-            });
-        }
-        
-        // Initial check
-        checkScroll();
-        
-        // Check on scroll
-        window.addEventListener('scroll', checkScroll);
     </script>
 </body>
 </html>
